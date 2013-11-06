@@ -23,6 +23,7 @@ public class CustomDialogControl extends Dialog implements
 		// TODO Auto-generated constructor stub
 		this.c = a;
 	}
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
