@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Mobile Ticketing</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="dummy_string">empty</string>
+    <string name="dummy_title">CONTENT_TITLE_STRING</string>
+    <string name="dummy_city_text">KOTA 1 -> KOTA 2</string>
+
+</resources>
