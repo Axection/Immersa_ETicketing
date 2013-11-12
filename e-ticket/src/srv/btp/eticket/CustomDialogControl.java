@@ -3,7 +3,9 @@ package srv.btp.eticket;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
@@ -34,6 +36,16 @@ public class CustomDialogControl extends Dialog implements
 		
 		done = (Button) findViewById(R.id.btn_done);
 		done.setOnClickListener(this);
+		
+		done.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent mov) {
+				// TODO Auto-generated method stub
+				v.setBackgroundResource(R.drawable.button_dark_press);
+				return false;
+			}
+		});
 
 		Kota = (TextView) findViewById(R.id.txtKota);
 		subtotal = (TextView) findViewById(R.id.txtSubTotal);
@@ -49,6 +61,7 @@ public class CustomDialogControl extends Dialog implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btn_done:
+			v.setBackgroundResource(R.drawable.button_dark);
 			dismiss();
 			break;
 		default:
@@ -56,4 +69,6 @@ public class CustomDialogControl extends Dialog implements
 		}
 		dismiss();
 	}
+	
+	
 }

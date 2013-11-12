@@ -44,7 +44,7 @@ public class Form_Main extends Activity {
 	// !endregion
 
 	/***
-	 * Listener Section Disini berisi daftar Listener atas objek-objek Form
+	 * Listener Section disini berisi daftar Listener atas objek-objek Form
 	 * untuk membaca inputan ato respon unit.
 	 */
 	
