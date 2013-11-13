@@ -6,21 +6,21 @@
     android:background="#f6ff00"
     tools:context=".Form_Main" >
 
-    <ScrollView
+    <HorizontalScrollView
         android:id="@+id/scrollMap"
         android:layout_width="match_parent"
         android:layout_height="130dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:fadingEdge="horizontal"
         android:scrollbars="horizontal" >
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/top_linear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-        </LinearLayout>
-    </ScrollView>
+            android:layout_width="0dp"
+            android:layout_height="match_parent" >
+        </RelativeLayout>
+    </HorizontalScrollView>
 
     <RelativeLayout
         android:id="@+id/border"
@@ -38,21 +38,6 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/border"
         android:background="#313a3b" >
-
-        <!-- <ImageButton
-            android:id="@+id/ImageButton01"
-            style="@attr/buttonBarStyle"
-            android:layout_width="225dp"
-            android:layout_height="70dp"
-            android:layout_alignLeft="@+id/imageButton1"
-            android:layout_below="@+id/imageButton1"
-            android:layout_marginTop="80dp"
-            android:background="@drawable/button"
-            android:cropToPadding="false"
-            android:longClickable="false"
-            android:scaleType="centerCrop"
-            android:textAlignment="center" />
-		-->
 
         <Button
             android:id="@+id/btnTopTop"
@@ -253,7 +238,6 @@
             android:textColor="@color/yellow"
             android:textSize="@dimen/text_caption_large"
             android:textStyle="bold" />
-
     </RelativeLayout>
 
 </RelativeLayout>
