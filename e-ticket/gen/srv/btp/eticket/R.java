@@ -70,11 +70,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int RelativeLayout1=0x7f090027;
         public static final int border=0x7f090003;
         public static final int border_passsive=0x7f090012;
-        public static final int btnBackspace=0x7f090023;
+        public static final int btnBackspace=0x7f090022;
         public static final int btnBotLeft=0x7f090009;
         public static final int btnBotMId=0x7f090008;
         public static final int btnBotRight=0x7f09000d;
-        public static final int btnCancel=0x7f090021;
+        public static final int btnCancel=0x7f090024;
         public static final int btnEight=0x7f09001e;
         public static final int btnFive=0x7f09001b;
         public static final int btnFour=0x7f09001a;
@@ -84,7 +84,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int btnMidRight=0x7f09000c;
         public static final int btnNine=0x7f090020;
         public static final int btnOne=0x7f090017;
-        public static final int btnPrint=0x7f090024;
+        public static final int btnPrint=0x7f090023;
         public static final int btnRightSide=0x7f09000e;
         public static final int btnSeven=0x7f09001d;
         public static final int btnSix=0x7f09001c;
@@ -95,7 +95,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int btnTwo=0x7f090018;
         public static final int btnZero=0x7f09001f;
         public static final int btn_done=0x7f090028;
-        public static final int imageView1=0x7f090022;
+        public static final int imageView1=0x7f090021;
         public static final int relInside=0x7f090004;
         public static final int rel_print=0x7f090015;
         public static final int relayout=0x7f090000;

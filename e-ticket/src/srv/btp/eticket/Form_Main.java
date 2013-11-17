@@ -32,8 +32,11 @@ import android.widget.RelativeLayout;
 @SuppressLint("NewApi")
 public class Form_Main extends Activity {
 
+	//constant related
+	
 	// public related value
 	public int tmpInt;
+	public int city_position;
 
 	// !region Form Objects
 	private Button button_action[][] = new Button[3][3];
@@ -43,6 +46,8 @@ public class Form_Main extends Activity {
 	private Intent Pref;
 
 	private Indicator[] indicators;
+	private String[] city_list;
+	private String[] city_display;
 
 	private RelativeLayout top_layout;
 	private RelativeLayout mid_layout;
@@ -85,20 +90,20 @@ public class Form_Main extends Activity {
 			button_action[a] = new Button[3];
 		}
 
-		/***
+		/*
 		 * Indexing untuk button_action : [0,0] [1,0] [2,0] [0,1] [1,1] [2,1]
 		 * [0,2] [1,2] [2,2]
 		 */
-
-		button_action[0][0] = (Button) this.findViewById(R.id.btnTopLeft);
-		button_action[1][0] = (Button) this.findViewById(R.id.btnTopTop);
-		button_action[2][0] = (Button) this.findViewById(R.id.btnTopRight);
-		button_action[0][1] = (Button) this.findViewById(R.id.btnMidLeft);
-		button_action[1][1] = (Button) this.findViewById(R.id.btnMidMid);
-		button_action[2][1] = (Button) this.findViewById(R.id.btnMidRight);
-		button_action[0][2] = (Button) this.findViewById(R.id.btnBotLeft);
-		button_action[1][2] = (Button) this.findViewById(R.id.btnBotMId);
-		button_action[2][2] = (Button) this.findViewById(R.id.btnBotRight);
+		
+		button_action[0][0] = (Button) this.findViewById(R.id.btnTopLeft); //0,0 = 1
+		button_action[1][0] = (Button) this.findViewById(R.id.btnTopTop);  //1,0 = 2
+		button_action[2][0] = (Button) this.findViewById(R.id.btnTopRight);//2,0 = 3
+		button_action[0][1] = (Button) this.findViewById(R.id.btnMidLeft); //0,1 = 4
+		button_action[1][1] = (Button) this.findViewById(R.id.btnMidMid);  //1,1 = 5
+		button_action[2][1] = (Button) this.findViewById(R.id.btnMidRight);//2,1 = 6
+		button_action[0][2] = (Button) this.findViewById(R.id.btnBotLeft); //0,2 = 7
+		button_action[1][2] = (Button) this.findViewById(R.id.btnBotMId);  //1,2 = 8
+		button_action[2][2] = (Button) this.findViewById(R.id.btnBotRight);//2,2 = 9
 
 		registerOnTouchAndClick();
 		for (int aa = 0; aa < 3; aa++) {
@@ -119,15 +124,6 @@ public class Form_Main extends Activity {
 		top_layout = (RelativeLayout) findViewById(R.id.top_linear);
 		mid_layout = (RelativeLayout) findViewById(R.id.relInside);
 
-	}
-
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		// Berbagai fungsi ada yang tidak berjalan semestinya di onCreate.
-		// Namun fungsi itu perlu berjalan ketika startup.
-		// Maka dari itu pindahkan fungsi2 tersebut disini
-
 		// TODO : DEBUG
 		int debugNum = 32;
 		top_layout.setLayoutParams(new FrameLayout.LayoutParams(
@@ -139,9 +135,24 @@ public class Form_Main extends Activity {
 	}
 
 	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		/**
+		 * Berbagai fungsi ada yang tidak berjalan semestinya di onCreate.
+		 * Namun fungsi itu perlu berjalan ketika startup.
+		 * Maka dari itu pindahkan fungsi2 tersebut disini.
+		 * 
+		 * Namun perlu diperhatikan, callback ini selalu dipanggil ketika muncul,
+		 * atau ketika activity selanjutnya "pulang" ke activity ini.
+		 **/
+
+	}
+
+	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-
+		
+		
 	}
 
 	@Override
@@ -157,10 +168,11 @@ public class Form_Main extends Activity {
 		FormObjectTransfer.current_activity = this;
 	}
 
-	/***
+	/*
 	 * Additional Function Disini berisi daftar method atas objek-objek Form
 	 * untuk tambahan fungsi.
 	 */
+	
 	private void registerOnTouchAndClick() {
 		button_touch_controls = new OnTouchListener() {
 			@Override
@@ -220,7 +232,6 @@ public class Form_Main extends Activity {
 
 	public void SummonButton(CharSequence Kota1, CharSequence Kota2, int qty,
 			int harga, int total) {
-		// TODO : DIGANTI JADI CUSTOM NOTIF ALERT
 		FormObjectTransfer.Kota1 = Kota1;
 		FormObjectTransfer.Kota2 = Kota2;
 		FormObjectTransfer.qty = qty;
@@ -293,5 +304,22 @@ public class Form_Main extends Activity {
 		int height = bounds.bottom + bounds.height();
 		return height;
 	}
+	
+	public void CreateCityDisplay(boolean isRecreate){
+		
+	}
+	
+	/***
+	 * Memindahkan Display City ke arah kiri atau kanan.
+	 * @param whichArrow (0 = Panah kiri, 1 = Panah Kanan)
+	 */
+	public void SwitchCity(int whichArrow){
+		
+	}
 
+	public void SetCityEnable(int cityIndex, boolean enable){
+		
+	}
+	
+	
 }
