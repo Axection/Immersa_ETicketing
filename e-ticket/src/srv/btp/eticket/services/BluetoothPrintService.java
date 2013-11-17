@@ -6,13 +6,10 @@ import java.util.Set;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.widget.ListView;
 
-import com.bixolon.android.library.*;
-import com.bixolon.android.*;
+import com.bixolon.android.library.BxlService;
 
 /***
  * BluetoothPrintService.java
@@ -36,7 +33,7 @@ public class BluetoothPrintService {
 	 * setelah fungsi {@link FindPrinter} dieksekusi.
 	 */
 	private List<String> btAddr;
-	private String btSelectedAddr;
+	public String btSelectedAddr;
 	BluetoothAdapter mBluetoothAdapter;
 
 	String dataPrint = "";
@@ -51,6 +48,7 @@ public class BluetoothPrintService {
 		bxl = new BxlService();
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		selected_activity = c;
+		btAddr = new ArrayList<String>();
 	}
 
 	/***
@@ -60,20 +58,19 @@ public class BluetoothPrintService {
 	 * @return Nilai code hasil ditemukan atau tidak. (0= Sukses, 1= Gagal)
 	 * 
 	 */
-	public int FindPrinter() {
+	public int FindPrinters() {
 		btAddr.clear();
 		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-		ArrayList<String> mArrayAdapter = new ArrayList<String>();
 		// If there are paired devices
 		if (pairedDevices.size() > 0) {
 		    // Loop through paired devices
 		    for (BluetoothDevice device : pairedDevices) {
-		    	 mArrayAdapter.add(device.getName() + "|" + device.getAddress());
-		        if(device.getBluetoothClass().getDeviceClass() == BluetoothClass.Device.Major.IMAGING){
-		        	_setBtAddr(device.getAddress());
-		        	return 0;
-		        }
+		    	 btAddr.add(device.getName() + "|" + device.getAddress());
+		        //if(device.getBluetoothClass().getDeviceClass() == BluetoothClass.Device.Major.IMAGING){
+		        //	return 0;
+		        //}
 		    }
+		    return 0;
 		}
 		return 1;
 
@@ -92,6 +89,8 @@ public class BluetoothPrintService {
 					BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			selected_activity.startActivityForResult(enableBtIntent,
 					REQUEST_ENABLE_BT);
+		}else{
+			return true;
 		}
 		if (REQUEST_ENABLE_BT == Activity.RESULT_OK) {
 			return true;
@@ -139,7 +138,6 @@ public class BluetoothPrintService {
 	 * @param btAddr
 	 */
 	public void _setBtAddr(String btAddrs) {
-		btAddr.add(btAddrs);
 		btSelectedAddr = btAddrs;
 	}
 

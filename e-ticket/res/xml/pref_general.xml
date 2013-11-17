@@ -1,0 +1,28 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="Identitas" >
+        <EditTextPreference
+            android:capitalize="words"
+            android:inputType="textCapWords"
+            android:key="plat_bis"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="Nomor Plat Bis" />
+        <EditTextPreference
+            android:defaultValue="00"
+            android:inputType="textCapWords"
+            android:key="unique_key"
+            android:singleLine="true"
+            android:summary="Nomor Unik adalah kombinasi karakter yang memiliki identitas.  Isi angka ini sesuai yang diberikan oleh perusahaan masing-masing."
+            android:title="Nomor Unik" android:dialogMessage="Nomor Unik adalah kombinasi karakter yang memiliki identitas.  Isi angka ini sesuai yang diberikan oleh perusahaan masing-masing."/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Printer" >
+        <ListPreference
+            android:dialogTitle="Pilih Bluetooth Printer dari daftar pairing."
+            android:key="bluetooth_list" android:title="Pilih Bluetooth Printer..."/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Maintenance">
+        <Preference android:title="Keluar" android:summary="Keluar dari Aplikasi" android:key="pref_quit"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -134,6 +135,12 @@ public class Form_Main extends Activity {
 		
 		//service initialization
 		btx = new BluetoothPrintService(this);
+		
+		btx._setBtAddr(		
+				PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+						.getString("bluetooth_list", "00:00:00:00:00:00")
+					);
+		Log.d("BluetoothAddressLoader",btx.btSelectedAddr);
 		int retval = btx.ConnectPrinter();
 		if (retval == 0) {
 			Toast.makeText(this, "Sambungan ke Bluetooth berhasil.", Toast.LENGTH_SHORT).show();

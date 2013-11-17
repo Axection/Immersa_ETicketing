@@ -12,6 +12,8 @@ public class FormObjectTransfer {
 	public static Form_Main main_activity;
 	public static CharSequence Kota1, Kota2;
 	public static int qty, harga, total;
+	public static String btAddress;
+	
 	
 	public static int CURRENT_STATE;
 	/***
