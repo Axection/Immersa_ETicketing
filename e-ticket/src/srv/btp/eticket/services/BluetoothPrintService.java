@@ -115,7 +115,7 @@ public class BluetoothPrintService {
 		 */
 		int res = bxl.GetStatus();
 		if(res != BxlService.BXL_SUCCESS){
-			
+			//TODO : Eksekusi ulang Connect Printer
 		}
 		return 0;
 	}
