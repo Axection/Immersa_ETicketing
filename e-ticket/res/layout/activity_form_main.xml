@@ -238,6 +238,24 @@
             android:textColor="@color/yellow"
             android:textSize="@dimen/text_caption_large"
             android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_config"
+            style="@attr/buttonBarStyle"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/button_config"
+            android:cropToPadding="false"
+            android:longClickable="false"
+            android:scaleType="centerCrop"
+            android:textAlignment="center"
+            android:textSize="@dimen/text_caption_size"
+            android:textStyle="bold" />
+
     </RelativeLayout>
 
 </RelativeLayout>

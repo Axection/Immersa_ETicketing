@@ -1,8 +1,8 @@
 package srv.btp.eticket;
 
 import srv.btp.eticket.obj.Indicator;
+import srv.btp.eticket.services.BluetoothPrintService;
 import srv.btp.eticket.util.SystemUiHider;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -12,16 +12,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewTreeObserver.OnDrawListener;
+import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -43,7 +43,10 @@ public class Form_Main extends Activity {
 	private Button button_left;
 	private Button button_right;
 
-	private Intent Pref;
+	private Button button_pref;
+	
+	private Intent intentPrint;
+	private Intent intentPref;
 
 	private Indicator[] indicators;
 	private String[] city_list;
@@ -51,6 +54,9 @@ public class Form_Main extends Activity {
 
 	private RelativeLayout top_layout;
 	private RelativeLayout mid_layout;
+	
+	//Service Objects
+	BluetoothPrintService btx;
 
 	// listeners
 	private OnTouchListener button_touch_controls;
@@ -59,8 +65,6 @@ public class Form_Main extends Activity {
 	private OnTouchListener arrow_touch_controls;
 	private OnClickListener arrow_click_controls;
 
-	private ViewTreeObserver vto;
-	private OnGlobalLayoutListener vtg;
 
 	// !endregion
 
@@ -124,6 +128,25 @@ public class Form_Main extends Activity {
 		top_layout = (RelativeLayout) findViewById(R.id.top_linear);
 		mid_layout = (RelativeLayout) findViewById(R.id.relInside);
 
+		//preferences
+		button_pref = (Button)this.findViewById(R.id.btn_config);
+		this.PreparePreferences();
+		
+		//service initialization
+		btx = new BluetoothPrintService(this);
+		int retval = btx.ConnectPrinter();
+		if (retval == 0) {
+			Toast.makeText(this, "Sambungan ke Bluetooth berhasil.", Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(this, 
+					"Kesalahan terjadi pada sambungan bluetooth. Mohon diperiksa kembali sambungan bluetooth di konfigurasi."
+					+ "\n" + 
+					"Error Code: " + retval,  
+					Toast.LENGTH_LONG)
+				.show();
+			
+		}
+		
 		// TODO : DEBUG
 		int debugNum = 32;
 		top_layout.setLayoutParams(new FrameLayout.LayoutParams(
@@ -131,7 +154,8 @@ public class Form_Main extends Activity {
 		CreateIndicator(debugNum);
 		Log.d("debug", String.valueOf(indicators[0].txt.getLeft()));
 		// END : DEBUG
-
+		
+		
 	}
 
 	@Override
@@ -201,8 +225,8 @@ public class Form_Main extends Activity {
 				 * 
 				 */
 
-				Pref = new Intent(getApplicationContext(), Form_Print.class);
-				startActivity(Pref);
+				intentPrint = new Intent(getApplicationContext(), Form_Print.class);
+				startActivity(intentPrint);
 				overridePendingTransition(R.anim.push_up_in, R.anim.push_up_out);
 			}
 		};
@@ -291,6 +315,27 @@ public class Form_Main extends Activity {
 
 	}
 
+	
+	public void PreparePreferences(){
+		button_pref.setOnClickListener(new OnClickListener() {
+	
+			@Override
+			public void onClick(View arg0) {
+				button_pref.setBackgroundResource(R.drawable.button_config);
+				intentPref = new Intent(getApplicationContext(), AppPreferences.class);
+				startActivity(intentPref);
+			}
+		});
+		button_pref.setOnTouchListener(new OnTouchListener() {	
+			@Override
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+				button_pref.setBackgroundResource(R.drawable.button_config_pressed);
+				return false;
+			}
+		});
+		
+	}
+	
 	public int getTextWidth(String text, Paint paint) {
 		Rect bounds = new Rect();
 		paint.getTextBounds(text, 0, text.length(), bounds);
@@ -305,8 +350,11 @@ public class Form_Main extends Activity {
 		return height;
 	}
 	
-	public void CreateCityDisplay(boolean isRecreate){
-		
+	public void CreateCityDisplay(boolean isRecreate, String[] cityList){
+		if(!isRecreate){
+			//TODO: Konversi data list string jadi City Display
+			//Secara tidak langsung, Create City Display membuat menu indikator
+		}
 	}
 	
 	/***
@@ -314,11 +362,11 @@ public class Form_Main extends Activity {
 	 * @param whichArrow (0 = Panah kiri, 1 = Panah Kanan)
 	 */
 	public void SwitchCity(int whichArrow){
-		
+		//TODO: Mekanisme data list string ketika klik kiri kanan
 	}
 
 	public void SetCityEnable(int cityIndex, boolean enable){
-		
+		//TODO: Mekanisme Button On Off
 	}
 	
 	

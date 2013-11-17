@@ -1,6 +1,7 @@
 package srv.btp.eticket.services;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import android.app.Activity;
@@ -19,6 +20,13 @@ import com.bixolon.android.*;
  * Kelas ini dibuat untuk melakukan sambungan, komunikasi serta manajemen dengan
  * printer Bluetooth yang ada. API disediakan di CD.
  * 
+ * Skema pemakaian :
+ * - Sebelumnya user sudah harus melakukan pairing dengan printernya
+ * - Bluetooth Enable
+ * - Lookup printer
+ * - Idling system, tunggu sampai ada command print
+ * - Looping tes Reconnect
+ * 
  * Info menyusul.
  */
 public class BluetoothPrintService {
@@ -27,7 +35,8 @@ public class BluetoothPrintService {
 	 * btAddr = Bluetooth Address. Nilai ini akan berubah secara otomatis
 	 * setelah fungsi {@link FindPrinter} dieksekusi.
 	 */
-	String btAddr = "00:00:00:00:00:00";
+	private List<String> btAddr;
+	private String btSelectedAddr;
 	BluetoothAdapter mBluetoothAdapter;
 
 	String dataPrint = "";
@@ -38,7 +47,7 @@ public class BluetoothPrintService {
 
 	private Activity selected_activity;
 
-	BluetoothPrintService(Activity c) {
+	public BluetoothPrintService(Activity c) {
 		bxl = new BxlService();
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		selected_activity = c;
@@ -52,15 +61,16 @@ public class BluetoothPrintService {
 	 * 
 	 */
 	public int FindPrinter() {
+		btAddr.clear();
 		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 		ArrayList<String> mArrayAdapter = new ArrayList<String>();
 		// If there are paired devices
 		if (pairedDevices.size() > 0) {
 		    // Loop through paired devices
 		    for (BluetoothDevice device : pairedDevices) {
-		    	 mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+		    	 mArrayAdapter.add(device.getName() + "|" + device.getAddress());
 		        if(device.getBluetoothClass().getDeviceClass() == BluetoothClass.Device.Major.IMAGING){
-		        	btAddr = device.getAddress();
+		        	_setBtAddr(device.getAddress());
 		        	return 0;
 		        }
 		    }
@@ -72,7 +82,7 @@ public class BluetoothPrintService {
 	public int ConnectPrinter() {
 		boolean b = EnableBT();
 		if (!b)return -1;
-		int retVal = bxl.Connect(btAddr);
+		int retVal = bxl.Connect(btSelectedAddr);
 		return retVal;
 	}
 
@@ -101,7 +111,7 @@ public class BluetoothPrintService {
 		 * Artinya, Apabila dipesan 3, maka diprint tiga kali. bukan ditulis angka 3.
 		 * Harga = Harga satuan dari per tiket. Tidak perlu print total.
 		 */
-		
+		//TODO : Bikin format text
 		
 		return false;
 	}
@@ -118,6 +128,19 @@ public class BluetoothPrintService {
 			//TODO : Eksekusi ulang Connect Printer
 		}
 		return 0;
+	}
+
+	public List<String> getBtAddr() {
+		return btAddr;
+	}
+
+	/***
+	 * For LOW-LEVEL MODIFIER ONLY
+	 * @param btAddr
+	 */
+	public void _setBtAddr(String btAddrs) {
+		btAddr.add(btAddrs);
+		btSelectedAddr = btAddrs;
 	}
 
 }
