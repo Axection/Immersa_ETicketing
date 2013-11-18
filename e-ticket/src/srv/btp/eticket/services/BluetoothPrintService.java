@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.util.Log;
 
 import com.bixolon.android.library.BxlService;
 
@@ -131,7 +132,7 @@ public class BluetoothPrintService {
 		 * *************************
 		 *       TERIMA KASIH       
 		 *     Mobile Ticketing     
-		 *    oleh Immersia Labs
+		 *    oleh Immersa Labs
 		 *            2013
 		 * *************************
 		 * 
@@ -162,7 +163,7 @@ public class BluetoothPrintService {
 				"*******************************\n"+
 				"      TERIMA KASIH       \n"+
 				"    Mobile Ticketing     \n"+
-				"   oleh Immersia Labs    \n"+
+				"   oleh Immersa Labs     \n"+
 				"           2013          \n"+
 				"*******************************\n\n"+
 				"-------------------------------\n";
@@ -178,6 +179,7 @@ public class BluetoothPrintService {
 		 * -1 = Reconnect Tidak Diperlukan
 		 */
 		int res = bxl.GetStatus();
+		Log.d("DEBUGRECONNECT",String.valueOf(res));
 		if(res != BxlService.BXL_SUCCESS){
 			//TODO : Eksekusi ulang Connect Printer
 			return ConnectPrinter();

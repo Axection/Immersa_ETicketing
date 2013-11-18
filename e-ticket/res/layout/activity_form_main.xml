@@ -37,7 +37,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/border"
-        android:background="#313a3b" >
+        android:background="#313a3b"
+        android:splitMotionEvents="false" >
 
         <Button
             android:id="@+id/btnTopTop"
@@ -234,7 +235,7 @@
             android:layout_alignLeft="@+id/btnLeftSide"
             android:layout_alignParentTop="true"
             android:layout_marginTop="72dp"
-            android:text="@string/dummy_title"
+            android:text="PILIH KOTA TUJUAN"
             android:textColor="@color/yellow"
             android:textSize="@dimen/text_caption_large"
             android:textStyle="bold" />
@@ -255,6 +256,24 @@
             android:textAlignment="center"
             android:textSize="@dimen/text_caption_size"
             android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/dbg_btnLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/btn_config"
+            android:layout_alignBottom="@+id/btn_config"
+            android:layout_toLeftOf="@+id/btnMidRight"
+            android:text="&lt;" />
+
+        <Button
+            android:id="@+id/dbg_btnRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/btn_config"
+            android:layout_alignLeft="@+id/btnTopRight"
+            android:layout_marginLeft="25dp"
+            android:text=">" />
 
     </RelativeLayout>
 

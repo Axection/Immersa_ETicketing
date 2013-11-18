@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#f6ff00"
+    android:splitMotionEvents="false"
     tools:context=".Form_Print" >
 
     <RelativeLayout
@@ -41,7 +42,8 @@
         android:layout_height="598dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:background="#313a3b" >
+        android:background="#313a3b"
+        android:splitMotionEvents="false" >
 
         <TextView
             android:id="@+id/text_title"

@@ -235,6 +235,7 @@ public class AppPreferences extends PreferenceActivity {
 	private void CallExit(){
 		AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
+        builder.setTitle("Peringatan");
 		builder.setMessage("Keluar dari aplikasi?");
         builder.setCancelable(false);
         builder.setPositiveButton("Ya", 
@@ -261,7 +262,7 @@ public class AppPreferences extends PreferenceActivity {
 		AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
         builder.setTitle("Mobile Ticketing v.1.00");
-		builder.setMessage("Dibuat oleh Immersia Labs.\n\n" +
+		builder.setMessage("Dibuat oleh Immersa Labs.\n\n" +
 						   "Dukungan :\n" + 
 						   "The Android Open Source Project - Android API\n" +
 						   "Google - Analytics dan Statistics\n" +

@@ -27,10 +27,6 @@ public class Form_Print extends Activity {
 	 */
 	private static final int MAX_VALUES_BOUND = 99;
 
-	private static final boolean AUTO_HIDE = true;
-	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-	private static final boolean TOGGLE_ON_CLICK = true;
-	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 	// !endregion
 
 	// !region Form Objects
@@ -164,9 +160,6 @@ public class Form_Print extends Activity {
 					ProceedNumber(Button2Int((Button) v));
 				} else if (v == button_print) {
 					v.setBackgroundResource(R.drawable.button);
-					//Sekarang
-					//Periksa apakah data yang akan di print valid.
-					//TODO : PENtING! Print data, submit data, verifikasi.
 					/*
 					 * Di bagian sini, terjadi mekanisme : 
 					 * - Logging data customer
@@ -175,10 +168,35 @@ public class Form_Print extends Activity {
 					 * 
 					 */
 					if(ticket_num>0){
-						//Test
-						FormObjectTransfer.main_activity.SummonButton("Kota Entah", "Sesuatu", 2, 20000, 40000);
+						/*
+						 * Summon Button sudah terinclude dengan print data. Namun,
+						 * agar terjamin, cek Bluetooth harus dipastikan terlebih dahulu.
+						 */
+						try{
+						FormObjectTransfer.main_activity.SummonButton(
+								FormObjectTransfer.Kota1, 
+								FormObjectTransfer.Kota2, 
+								ticket_num, 
+								FormObjectTransfer.harga, 
+								FormObjectTransfer.harga*ticket_num);
 						
+						//Setelah ini harusnya dilakukan pencatatan histori pembelian
+						//TODO: INSERT QUERY PELAPORAN
+						}catch(NullPointerException e){
+							int a = FormObjectTransfer.bxl.ConnectPrinter();
+							if(a!=0){
+							Toast.makeText(getBaseContext(),
+									"Kesalahan terjadi pada saat menyambung printer. "+
+								    "Mohon diperiksa kembali sambungan printer bluetooth."+
+									"\nError: "+a,
+									Toast.LENGTH_LONG)
+								.show();	
+							}
+						}finally{
 						onBackPressed();
+						}
+								
+								
 					}else{
 						Toast.makeText(getApplicationContext(), "Jumlah tiket yang anda masukkan tidak benar.", Toast.LENGTH_SHORT).show();
 					}

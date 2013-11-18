@@ -6,10 +6,16 @@ import srv.btp.eticket.services.BluetoothPrintService;
 import srv.btp.eticket.util.SystemUiHider;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -67,7 +73,11 @@ public class Form_Main extends Activity {
 	private OnTouchListener arrow_touch_controls;
 	private OnClickListener arrow_click_controls;
 
+	private IntentFilter BLUETOOTH_DISCONNECTED;
 
+	//DEBUGITEMS
+	private Button dbg_btnLeft;
+	private Button dbg_btnRight;
 	// !endregion
 
 	/***
@@ -75,6 +85,11 @@ public class Form_Main extends Activity {
 	 * untuk membaca inputan ato respon unit.
 	 */
 
+	@Override
+	protected void onDestroy(){
+		super.onDestroy();
+		unregisterReceiver(mReceiver);
+	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		/**
@@ -136,7 +151,35 @@ public class Form_Main extends Activity {
 		
 		//service initialization
 		btx = new BluetoothPrintService(this);
-		Toast.makeText(this, "Menyambung ke printer bluetooth...", Toast.LENGTH_SHORT).show();		
+		Toast.makeText(this, "Menyambung ke printer bluetooth...", Toast.LENGTH_SHORT).show();	
+		
+		//FIX:DEBUG SET
+		//Disini terdapat percontohan fungsi memindahkan indikator
+		//
+		dbg_btnLeft = (Button)this.findViewById(R.id.dbg_btnLeft);
+		dbg_btnRight = (Button)this.findViewById(R.id.dbg_btnRight);
+		
+		dbg_btnLeft.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SetCityEnable(city_real_position-1);
+				CreateCityDisplay(city_display);
+				Log.d("DebugSetCityEnable","toLeft");
+				Toast.makeText(getBaseContext(), "DEBUG: Move SetCityEnable Left to " + city_real_position, Toast.LENGTH_SHORT).show();	
+			}
+		});
+		dbg_btnRight.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SetCityEnable(city_real_position+1);
+				CreateCityDisplay(city_display);
+				Log.d("DebugSetCityEnable","toRight");
+				Toast.makeText(getBaseContext(), "DEBUG: Move SetCityEnable Right to " + city_real_position, Toast.LENGTH_SHORT).show();	
+				
+			}
+		});
+		//END DEBUG
+		
 	}
 
 	private Button Int2Button(int num) {
@@ -211,10 +254,11 @@ public class Form_Main extends Activity {
 						.getString("bluetooth_list", "00:00:00:00:00:00")
 					);
 		Log.d("BluetoothAddressLoader",btx.btSelectedAddr);
+		FormObjectTransfer.bxl = btx;
 		int retval = btx.ConnectPrinter();
 		if (retval == 0) {
 			Toast.makeText(this, "Sambungan ke Bluetooth berhasil.", Toast.LENGTH_SHORT).show();
-			FormObjectTransfer.bxl = btx;
+
 		} else {
 			Toast.makeText(this, 
 					"Kesalahan terjadi pada sambungan bluetooth. Mohon diperiksa kembali sambungan bluetooth di konfigurasi."
@@ -225,6 +269,8 @@ public class Form_Main extends Activity {
 			
 		}
 		PrepareCityList();
+		BLUETOOTH_DISCONNECTED = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+	    this.registerReceiver(mReceiver, BLUETOOTH_DISCONNECTED);
 	}
 
 	@Override
@@ -274,7 +320,7 @@ public class Form_Main extends Activity {
 				 * dapat diolah oleh activity selanjutnya :D
 				 * 
 				 */
-				//TODO : Pindahkan data-data ke FormObjekTransfer untuk reusability di FormPrint
+				
 				FormObjectTransfer.Kota1 = city_list[city_real_position-1].Nama;
 				FormObjectTransfer.Kota2 = b.getText();
 				FormObjectTransfer.harga = 0;
@@ -332,7 +378,10 @@ public class Form_Main extends Activity {
 		FormObjectTransfer.harga = harga;
 		FormObjectTransfer.total = total;
 		String GeneratedID = "RNDIDXX"; //Siapkan modul untuk getGeneratedID
-		btx.PrintText(GeneratedID, Kota1.toString(), Kota2.toString(), qty, harga);
+		//PREPURR to MULTI PRINT
+		for(int a = 0;a < qty; a++){
+			btx.PrintText(GeneratedID, Kota1.toString(), Kota2.toString(), qty, harga);
+		}
 		CustomDialogControl dlg = new CustomDialogControl((Activity) this);
 		dlg.show();
 	}
@@ -447,7 +496,7 @@ public class Form_Main extends Activity {
 				15000, //cileunyi tasikamalaya
 				0, //tasikmalaya, null
 				};
-		//!region dummy
+		
 		city_list = new CityList[dataSize];
 		city_max_position = dataSize;
 		top_layout.setLayoutParams(new FrameLayout.LayoutParams(
@@ -466,7 +515,7 @@ public class Form_Main extends Activity {
 		button_left.setBackgroundResource(R.drawable.button_left_passive);
 		button_left.setEnabled(false);
 		
-		int initializationValue = 3; //TODO: Nanti di load dari GPS irisan lokasi.
+		int initializationValue = 1; //TODO: Nanti di load dari GPS irisan lokasi.
 		SetCityEnable(initializationValue); 
 		city_position = 1;
 		for(int a = 0;a<city_display.length;a++){
@@ -474,7 +523,6 @@ public class Form_Main extends Activity {
 		}
 		CreateCityDisplay(city_display);
 
-		//!endregion
 	}
 	
 	
@@ -510,7 +558,6 @@ public class Form_Main extends Activity {
 	 * @param whichArrow (0 = Panah kiri, 1 = Panah Kanan)
 	 */
 	public void SwitchCity(int whichArrow) {
-		// TODO: Mekanisme data list string ketika klik kiri kanan
 		if (whichArrow == 0 && city_position > 9) {
 			city_display = new CityList[9];
 			city_position -= 9;
@@ -551,10 +598,15 @@ public class Form_Main extends Activity {
 			//Fail ketika inputan melebihi Index
 			return;
 		}
+		if(cityIndex == city_max_position){
+			/*
+			 * Disini terjadi pertanyaan reset rute ato menyudahi rute,
+			 * karena CityEnable sudah tiba di titik poin terakhir.
+			 * Tindakan yang perlu dilakukan adalah menanyakan kembali
+			 * rute.
+			 */
+		}
 		city_real_position = cityIndex;
-		//TODO: Mekanisme Button On Off
-		//Sebelumnya, ingat bahwa apabila cityIndex > 0, maka index sebelumnya
-		//berubah menjadi disabled.
 		for(int a=0;a<cityIndex-1;a++){
 			indicators[a].setEnabled(2);
 		city_list[a].isNotPassed = false;
@@ -565,6 +617,7 @@ public class Form_Main extends Activity {
 			indicators[cityIndex].setEnabled(0);
 			city_list[cityIndex].isNotPassed = true;
 		}
+		//CreateCityDisplay(city_display);
 	}
 	/***
 	 * Fungsi ini tidak melakukan apa-apa :D
@@ -572,5 +625,22 @@ public class Form_Main extends Activity {
 	public void DoNothing(){
 		return;
 	}
+	
+	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	        String action = intent.getAction();
+	        Log.d("DisconnectReceiver",action);
+	        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+	        if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)){
+	        	Toast.makeText(getBaseContext(), 
+	        			"Terdeteksi sambungan printer terputus. Menyambung kembali...\n" +
+	        			"Nama : " + device.getName() + "\nBT Address : " + device.getAddress(),
+	        			Toast.LENGTH_LONG)
+	        			.show();
+	        btx.ConnectPrinter();
+	        }           
+	    }
+	};
 	
 }
