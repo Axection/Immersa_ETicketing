@@ -39,6 +39,7 @@ public class Form_Print extends Activity {
 	private OnTouchListener button_touch_controls;
 	private OnClickListener button_click_controls;
 	private TextView txtPrintNumber;
+	private TextView txtIndicator;
 
 	// !endregion
 
@@ -97,6 +98,8 @@ public class Form_Print extends Activity {
 		txtPrintNumber = (TextView) findViewById(R.id.txtNumbers);
 		txtPrintNumber.setText(String.valueOf(ticket_num));
 
+		txtIndicator = (TextView) findViewById(R.id.txtIndicator);
+		
 		button_print.setOnTouchListener(button_touch_controls);
 		button_print.setOnClickListener(button_click_controls);
 	}
@@ -110,10 +113,10 @@ public class Form_Print extends Activity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-
 		// Trigger the initial hide() shortly after the activity has been
 		// created, to briefly hint to the user that UI controls
 		// are available.
+		txtIndicator.setText(FormObjectTransfer.Kota1 + " > " + FormObjectTransfer.Kota2 + " : Rp." + FormObjectTransfer.harga);
 	}
 
 	/***
@@ -132,9 +135,7 @@ public class Form_Print extends Activity {
 					v.setBackgroundResource(R.drawable.button_digit_cancel_press);
 
 				} else if (v == button_action[2][3]) { // Tombol "del"
-					v.setBackgroundResource(R.drawable.button_digit_press); // TODO:
-																			// GANTI
-																			// WEEE
+					v.setBackgroundResource(R.drawable.button_digit_press); 
 				} else if (v == button_print) {
 					v.setBackgroundResource(R.drawable.button_pressed);
 				} else {
@@ -157,16 +158,26 @@ public class Form_Print extends Activity {
 					
 
 				} else if (v == button_action[2][3]) {
-					v.setBackgroundResource(R.drawable.button_digit); // TODO:
-																		// GANTI
-																		// WEEE
+					v.setBackgroundResource(R.drawable.button_digit); 
+																		
+																		
 					ProceedNumber(Button2Int((Button) v));
 				} else if (v == button_print) {
 					v.setBackgroundResource(R.drawable.button);
 					//Sekarang
 					//Periksa apakah data yang akan di print valid.
+					//TODO : PENtING! Print data, submit data, verifikasi.
+					/*
+					 * Di bagian sini, terjadi mekanisme : 
+					 * - Logging data customer
+					 * - Print Data Text
+					 * - dll.
+					 * 
+					 */
 					if(ticket_num>0){
-						FormObjectTransfer.main_activity.SummonButton("Kota Entah", "Sesuatu", 2, 20000, 40000); //TODO: 
+						//Test
+						FormObjectTransfer.main_activity.SummonButton("Kota Entah", "Sesuatu", 2, 20000, 40000);
+						
 						onBackPressed();
 					}else{
 						Toast.makeText(getApplicationContext(), "Jumlah tiket yang anda masukkan tidak benar.", Toast.LENGTH_SHORT).show();

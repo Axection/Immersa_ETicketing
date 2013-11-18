@@ -22,7 +22,8 @@
             android:key="bluetooth_list" android:title="Pilih Bluetooth Printer..."/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Maintenance">
-        <Preference android:title="Keluar" android:summary="Keluar dari Aplikasi" android:key="pref_quit"/>
+        <Preference android:summary="Tentang Aplikasi Ini" android:key="pref_about" android:title="Tentang"/><Preference android:title="Keluar" android:summary="Keluar dari Aplikasi" android:key="pref_quit"/>
+        
     </PreferenceCategory>
 
 </PreferenceScreen>

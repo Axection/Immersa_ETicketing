@@ -51,28 +51,32 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class drawable {
         public static final int balloon=0x7f020000;
-        public static final int basedialog=0x7f020001;
-        public static final int button=0x7f020002;
-        public static final int button_config=0x7f020003;
-        public static final int button_config_pressed=0x7f020004;
-        public static final int button_dark=0x7f020005;
-        public static final int button_dark_press=0x7f020006;
-        public static final int button_digit=0x7f020007;
-        public static final int button_digit_cancel=0x7f020008;
-        public static final int button_digit_cancel_press=0x7f020009;
-        public static final int button_digit_press=0x7f02000a;
-        public static final int button_face_overall=0x7f02000b;
-        public static final int button_left_active=0x7f02000c;
-        public static final int button_left_pressed=0x7f02000d;
-        public static final int button_passive=0x7f02000e;
-        public static final int button_pressed=0x7f02000f;
-        public static final int button_right_active=0x7f020010;
-        public static final int button_right_passive=0x7f020011;
-        public static final int button_right_pressed=0x7f020012;
-        public static final int ic_launcher=0x7f020013;
-        public static final int indicator_line=0x7f020014;
-        public static final int indicator_off=0x7f020015;
-        public static final int indicator_on=0x7f020016;
+        public static final int balloon_disabled=0x7f020001;
+        public static final int basedialog=0x7f020002;
+        public static final int button=0x7f020003;
+        public static final int button_config=0x7f020004;
+        public static final int button_config_pressed=0x7f020005;
+        public static final int button_dark=0x7f020006;
+        public static final int button_dark_press=0x7f020007;
+        public static final int button_digit=0x7f020008;
+        public static final int button_digit_cancel=0x7f020009;
+        public static final int button_digit_cancel_press=0x7f02000a;
+        public static final int button_digit_press=0x7f02000b;
+        public static final int button_disabled=0x7f02000c;
+        public static final int button_face_overall=0x7f02000d;
+        public static final int button_left_active=0x7f02000e;
+        public static final int button_left_passive=0x7f02000f;
+        public static final int button_left_pressed=0x7f020010;
+        public static final int button_passive=0x7f020011;
+        public static final int button_pressed=0x7f020012;
+        public static final int button_right_active=0x7f020013;
+        public static final int button_right_passive=0x7f020014;
+        public static final int button_right_pressed=0x7f020015;
+        public static final int ic_launcher=0x7f020016;
+        public static final int indicator_disabled=0x7f020017;
+        public static final int indicator_line=0x7f020018;
+        public static final int indicator_off=0x7f020019;
+        public static final int indicator_on=0x7f02001a;
     }
     public static final class id {
         public static final int RelativeLayout1=0x7f0b0028;
@@ -113,9 +117,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int text_title=0x7f0b0017;
         public static final int title_layout=0x7f0b0014;
         public static final int top_linear=0x7f0b0002;
+        public static final int txtIndicator=0x7f0b0015;
         public static final int txtKota=0x7f0b002a;
         public static final int txtNumbers=0x7f0b0026;
-        public static final int txtSubTotal=0x7f0b0015;
         public static final int txtTitle=0x7f0b0010;
         public static final int txtTotal=0x7f0b0027;
     }

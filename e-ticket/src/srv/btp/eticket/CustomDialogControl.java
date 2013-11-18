@@ -48,7 +48,7 @@ public class CustomDialogControl extends Dialog implements
 		});
 
 		Kota = (TextView) findViewById(R.id.txtKota);
-		subtotal = (TextView) findViewById(R.id.txtSubTotal);
+		subtotal = (TextView) findViewById(R.id.txtIndicator);
 		Total = (TextView) findViewById(R.id.txtTotal);
 		
 		Kota.setText(FormObjectTransfer.Kota1 + " - " + FormObjectTransfer.Kota2);

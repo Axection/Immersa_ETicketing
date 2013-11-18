@@ -1,5 +1,6 @@
 package srv.btp.eticket;
 
+import srv.btp.eticket.services.BluetoothPrintService;
 import android.app.Activity;
 
 public class FormObjectTransfer {
@@ -13,8 +14,7 @@ public class FormObjectTransfer {
 	public static CharSequence Kota1, Kota2;
 	public static int qty, harga, total;
 	public static String btAddress;
-	
-	
+	public static BluetoothPrintService bxl;
 	public static int CURRENT_STATE;
 	/***
 	 * Daftar STATE :

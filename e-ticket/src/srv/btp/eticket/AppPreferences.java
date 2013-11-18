@@ -134,6 +134,15 @@ public class AppPreferences extends PreferenceActivity {
 				return false;
 			}
 		});
+		Preference pp = findPreference("pref_about");
+		pp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			
+			@Override
+			public boolean onPreferenceClick(Preference arg0) {
+				CallAbout();
+				return false;
+			}
+		});
 	}
 
 
@@ -189,29 +198,6 @@ public class AppPreferences extends PreferenceActivity {
 				preference
 						.setSummary(index >= 0 ? listPreference.getEntries()[index]
 								: null);
-
-			} else if (preference instanceof RingtonePreference) {
-				// For ringtone preferences, look up the correct display value
-				// using RingtoneManager.
-				if (TextUtils.isEmpty(stringValue)) {
-					// Empty values correspond to 'silent' (no ringtone).
-					preference.setSummary(R.string.pref_ringtone_silent);
-
-				} else {
-					Ringtone ringtone = RingtoneManager.getRingtone(
-							preference.getContext(), Uri.parse(stringValue));
-
-					if (ringtone == null) {
-						// Clear the summary if there was a lookup error.
-						preference.setSummary(null);
-					} else {
-						// Set the summary to reflect the new ringtone display
-						// name.
-						String name = ringtone
-								.getTitle(preference.getContext());
-						preference.setSummary(name);
-					}
-				}
 
 			} else {
 				// For all other preferences, set the summary to the value's
@@ -270,5 +256,29 @@ public class AppPreferences extends PreferenceActivity {
 
             AlertDialog alert = builder.create();
             alert.show();
+	}
+	private void CallAbout(){
+		AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle("Mobile Ticketing v.1.00");
+		builder.setMessage("Dibuat oleh Immersia Labs.\n\n" +
+						   "Dukungan :\n" + 
+						   "The Android Open Source Project - Android API\n" +
+						   "Google - Analytics dan Statistics\n" +
+						   "Bixolon - Bluetooth Printing Service\n" +
+						   "\n"+
+						   "2013. Some rights reserved."
+				
+				);
+        builder.setCancelable(false);
+        builder.setPositiveButton("OK", 
+            new DialogInterface.OnClickListener() {
+        	//Yes
+                public void onClick(DialogInterface dialog,int id) {
+                	dialog.cancel();
+                }
+            });
+        AlertDialog alert = builder.create();
+        alert.show();
 	}
 }

@@ -1,7 +1,9 @@
 package srv.btp.eticket.services;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import android.app.Activity;
@@ -101,7 +103,8 @@ public class BluetoothPrintService {
 	public boolean PrintText(String ID, String AsalKota, String TujuanKota, int tiketNum, int Harga){
 		//Buat persiapan terlebih dahulu untuk format
 		String formattedString = "";
-		/*
+		Calendar c = Calendar.getInstance();
+		/***
 		 * Sebelumnya, ada sedikit penjelasan dengan format yang dipakai dalam print kali ini.
 		 * ID = ID serialisasi dari tiket. Dapatkan serialisasi ID nanti dari kelas Serialisasi.
 		 * AsalKota = Kota asal. Format String saja.
@@ -109,9 +112,61 @@ public class BluetoothPrintService {
 		 * tiketNum = Jumlah tiket yang di print. Ingat, sistematikanya adalah multiprint.
 		 * Artinya, Apabila dipesan 3, maka diprint tiga kali. bukan ditulis angka 3.
 		 * Harga = Harga satuan dari per tiket. Tidak perlu print total.
+		 * 
+		 * Gambaran print:
+		 * 
+		 * *************************
+		 * ****MOBILE TICKETING*****
+		 * *************************
+		 * <hari>, <tgl>
+		 * Waktu : <jam>
+		 * NOMOR TIKET: <ID>
+		 * 
+		 * DETAIL TIKET ANDA
+		 * ASAL : <asal>
+		 * TUJUAN <tujuan>
+		 * 
+		 * [<harga>]
+		 * 
+		 * *************************
+		 *       TERIMA KASIH       
+		 *     Mobile Ticketing     
+		 *    oleh Immersia Labs
+		 *            2013
+		 * *************************
+		 * 
 		 */
 		//TODO : Bikin format text
+		String theDate = c.getDisplayName(Calendar.DAY_OF_WEEK,Calendar.LONG, Locale.US) + ", " + 
+		c.get(Calendar.DAY_OF_MONTH) + " " +
+		c.getDisplayName(Calendar.MONTH,Calendar.SHORT,Locale.US) + " " +
+				c.get(Calendar.YEAR);
+		String theTime = c.get(Calendar.HOUR_OF_DAY) + ":" +
+				c.get(Calendar.MINUTE) + ":" + 
+				c.get(Calendar.SECOND);
 		
+		//Desain string ke printer
+		formattedString+=
+				"********************************\n"+
+				"********MOBILE TICKETING********\n"+
+				"********************************\n"+
+				theDate + "\n" +
+				"WAKTU: " + theTime + "\n" + 
+				"NOMOR TIKET: " + ID + "\n" +
+				"\n" + 
+				"DETAIL TIKET ANDA\n" +
+				"ASAL: "+ AsalKota +"\n" + 
+				"TUJUAN: "+ TujuanKota+  "\n" +
+				"\n" +
+				"[Harga: Rp." + Harga +"]\n"+
+				"*******************************\n"+
+				"      TERIMA KASIH       \n"+
+				"    Mobile Ticketing     \n"+
+				"   oleh Immersia Labs    \n"+
+				"           2013          \n"+
+				"*******************************\n\n"+
+				"-------------------------------\n";
+		bxl.PrintText(formattedString, BxlService.BXL_ALIGNMENT_CENTER, 0, 0);
 		return false;
 	}
 	
@@ -125,8 +180,9 @@ public class BluetoothPrintService {
 		int res = bxl.GetStatus();
 		if(res != BxlService.BXL_SUCCESS){
 			//TODO : Eksekusi ulang Connect Printer
+			return ConnectPrinter();
 		}
-		return 0;
+		return res;
 	}
 
 	public List<String> getBtAddr() {

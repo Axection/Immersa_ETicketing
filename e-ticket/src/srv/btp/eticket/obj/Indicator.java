@@ -12,7 +12,7 @@ public class Indicator {
 	public ImageView img;
 	private CharSequence label;
 	public ImageView balloon;
-	private boolean isEnabled = false;
+	private int isEnabled = 0;
 	public TextView txt;
 	
 	public Indicator(CharSequence lbl, Context targetContext){
@@ -48,16 +48,20 @@ public class Indicator {
 		return label;
 	}
 	
-	public void setEnabled(boolean b) {
-		isEnabled = b;
-		if (!b) {
+	public void setEnabled(int active) {
+		if (active==0) {
 			img.setImageResource(R.drawable.indicator_off);
-		} else {
+			balloon.setImageResource(R.drawable.balloon);
+		} else if(active==1) {
 			img.setImageResource(R.drawable.indicator_on);
+			balloon.setImageResource(R.drawable.balloon);
+		} else {
+			img.setImageResource(R.drawable.indicator_disabled);
+			balloon.setImageResource(R.drawable.balloon_disabled);
 		}
 	}
 	
-	public boolean getEnabled(){
+	public int getEnabled(){
 		return isEnabled;
 	}
 	
