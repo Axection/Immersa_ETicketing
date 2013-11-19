@@ -7,7 +7,7 @@
             android:key="plat_bis"
             android:maxLines="1"
             android:singleLine="true"
-            android:title="Nomor Plat Bis" />
+            android:title="Nomor Plat Bis" android:dialogTitle="Nomor Plat Bis" android:dialogMessage="Nomor plat bis yang beroperasi di bawah sistem ini."/>
         <EditTextPreference
             android:defaultValue="00"
             android:inputType="textCapWords"
@@ -22,8 +22,14 @@
             android:key="bluetooth_list" android:title="Pilih Bluetooth Printer..."/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Maintenance">
+        <ListPreference android:dialogTitle="Daftar Rute" android:key="route_list" android:title="Pilih Daftar Rute..."/>
+        <Preference android:key="export" android:title="Ekspor Konfigurasi..." android:summary="Menyimpan konfigurasi sistem ke External Storage"/>
+        <Preference android:title="Impor Konfigurasi..." android:summary="Impor konfigurasi yang tersimpan di External Storage" android:key="import"/>
+        <EditTextPreference android:dialogTitle="Alamat Layanan" android:dialogMessage="@string/technical_text" android:key="service_address" android:title="Alamat Layanan"/>
+    </PreferenceCategory><PreferenceCategory android:title="Bantuan">
         <Preference android:summary="Tentang Aplikasi Ini" android:key="pref_about" android:title="Tentang"/><Preference android:title="Keluar" android:summary="Keluar dari Aplikasi" android:key="pref_quit"/>
         
     </PreferenceCategory>
+    
 
 </PreferenceScreen>

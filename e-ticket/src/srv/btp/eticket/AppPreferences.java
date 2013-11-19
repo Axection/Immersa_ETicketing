@@ -245,6 +245,7 @@ public class AppPreferences extends PreferenceActivity {
                     System.out.println(" onClick ");
                     FormObjectTransfer.main_activity.finish(); //Hancurkan main terlebih dahulu
                     finish(); // Close Application method called
+                    
                 }
             });
         builder.setNegativeButton("Tidak",

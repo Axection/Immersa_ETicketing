@@ -1,5 +1,6 @@
 package srv.btp.eticket;
 
+import srv.btp.eticket.services.BluetoothPrintService;
 import srv.btp.eticket.util.SystemUiHider;
 
 import android.app.Activity;
@@ -172,31 +173,20 @@ public class Form_Print extends Activity {
 						 * Summon Button sudah terinclude dengan print data. Namun,
 						 * agar terjamin, cek Bluetooth harus dipastikan terlebih dahulu.
 						 */
-						try{
+						if(FormObjectTransfer.bxl.BT_STATE == BluetoothPrintService.STATE_CONNECTED){
 						FormObjectTransfer.main_activity.SummonButton(
 								FormObjectTransfer.Kota1, 
 								FormObjectTransfer.Kota2, 
 								ticket_num, 
 								FormObjectTransfer.harga, 
 								FormObjectTransfer.harga*ticket_num);
-						
+								onBackPressed();
 						//Setelah ini harusnya dilakukan pencatatan histori pembelian
 						//TODO: INSERT QUERY PELAPORAN
-						}catch(NullPointerException e){
-							int a = FormObjectTransfer.bxl.ConnectPrinter();
-							if(a!=0){
-							Toast.makeText(getBaseContext(),
-									"Kesalahan terjadi pada saat menyambung printer. "+
-								    "Mohon diperiksa kembali sambungan printer bluetooth."+
-									"\nError: "+a,
-									Toast.LENGTH_LONG)
-								.show();	
-							}
-						}finally{
-						onBackPressed();
+						}else{
+							FormObjectTransfer.bxl.ConnectPrinter();
+							Toast.makeText(getApplicationContext(), "Bluetooth tidak sedang dalam keadaan tersambung.", Toast.LENGTH_SHORT).show();
 						}
-								
-								
 					}else{
 						Toast.makeText(getApplicationContext(), "Jumlah tiket yang anda masukkan tidak benar.", Toast.LENGTH_SHORT).show();
 					}

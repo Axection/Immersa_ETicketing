@@ -7,5 +7,6 @@
     <string name="dummy_string">empty</string>
     <string name="dummy_title">CONTENT_TITLE_STRING</string>
     <string name="dummy_city_text">KOTA 1 -> KOTA 2</string>
+    <string name="technical_text">Perlu ditekankan bahwa alamat layanan tidak seharusnya diubah. Konsultasikan kepada teknisi terlebih dahulu untuk mengonfirmasi apabila memang ada perubahan yang terjadi pada layanan.</string>
 
 </resources>

@@ -3,6 +3,7 @@ package srv.btp.eticket.obj;
 import srv.btp.eticket.R;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -14,6 +15,7 @@ public class Indicator {
 	public ImageView balloon;
 	private int isEnabled = 0;
 	public TextView txt;
+	public TextView num;
 	
 	public Indicator(CharSequence lbl, Context targetContext){
 		img = new ImageView(targetContext);
@@ -21,6 +23,9 @@ public class Indicator {
 		txt = new TextView(targetContext);
 		this.setLabel(lbl);
 		txt.setText(lbl);
+		
+		num = new TextView(targetContext);
+		num.setText("0");
 		
 		balloon = new ImageView(targetContext);
 		img.setImageResource(R.drawable.indicator_off);
@@ -31,11 +36,17 @@ public class Indicator {
 		txt.setTextColor(targetContext.getResources().getColor(R.color.white));
 		txt.setTextSize(22);
 		txt.setTypeface(Typeface.DEFAULT_BOLD, Typeface.BOLD);
-		txt.setGravity(1);
+		txt.setGravity(Gravity.CENTER);
+		
+		num.setTextColor(targetContext.getResources().getColor(R.color.white));
+		num.setTextSize(16);
+		num.setTypeface(Typeface.DEFAULT_BOLD, Typeface.BOLD);
+		num.setGravity(Gravity.CENTER);
 		
 		img.setVisibility(View.VISIBLE);
 		balloon.setVisibility(View.VISIBLE);
 		txt.setVisibility(View.VISIBLE);
+		num.setVisibility(View.VISIBLE);
 		
 	}
 	

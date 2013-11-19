@@ -2,6 +2,8 @@ package srv.btp.eticket;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,6 +34,7 @@ public class CustomDialogControl extends Dialog implements
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.cusdialog);
+
 		getWindow().setBackgroundDrawableResource(R.color.transparent);
 		
 		done = (Button) findViewById(R.id.btn_done);
@@ -43,6 +46,8 @@ public class CustomDialogControl extends Dialog implements
 			public boolean onTouch(View v, MotionEvent mov) {
 				// TODO Auto-generated method stub
 				v.setBackgroundResource(R.drawable.button_dark_press);
+				Button bb = (Button)v;
+				bb.setTextColor(Color.WHITE);
 				return false;
 			}
 		});
