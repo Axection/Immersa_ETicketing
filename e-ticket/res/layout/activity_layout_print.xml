@@ -52,7 +52,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginLeft="35dp"
             android:layout_marginTop="36dp"
-            android:text="@string/dummy_title"
+            android:text="TENTUKAN JUMLAH TIKET"
             android:textColor="@color/yellow"
             android:textSize="@dimen/text_caption_large"
             android:textStyle="bold" />
