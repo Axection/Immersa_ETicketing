@@ -3,6 +3,7 @@ package srv.btp.eticket;
 import srv.btp.eticket.obj.CityList;
 import srv.btp.eticket.obj.Indicator;
 import srv.btp.eticket.services.BluetoothPrintService;
+import srv.btp.eticket.services.GPSDataList;
 import srv.btp.eticket.services.GPSLocationService;
 import srv.btp.eticket.services.StatusBarService;
 import srv.btp.eticket.util.SystemUiHider;
@@ -59,7 +60,8 @@ public class Form_Main extends Activity {
         private CityList[] city_display;
 
         private RelativeLayout top_layout;
-        private RelativeLayout mid_layout;
+        @SuppressWarnings("unused")
+		private RelativeLayout mid_layout;
         private HorizontalScrollView top_scroll;
         
         private ImageView BT_Indicator;
@@ -68,6 +70,8 @@ public class Form_Main extends Activity {
         //Service Objects
         BluetoothPrintService btx;
         GPSLocationService gls;
+        GPSDataList gdl;
+        
 
         // listeners
         private OnTouchListener button_touch_controls;
@@ -162,6 +166,7 @@ public class Form_Main extends Activity {
                 //service initialization
                 btx = new BluetoothPrintService(this,BT_Indicator);
                 gls = new GPSLocationService(GPS_Indicator);
+                gdl = new GPSDataList();
                 
                 //FIX:DEBUG SET
                 //Disini terdapat percontohan fungsi memindahkan indikator
@@ -509,32 +514,25 @@ public class Form_Main extends Activity {
                 return height;
         }
         
+        public void CleanCityList(){
+        	//Bersih-bersih indikator perlu dilakukan agar memory bersih
+        	
+        	//dari indikator
+        	top_scroll.removeAllViews();
+        	
+        }
         public void PrepareCityList(){
-                //TODO: ngambil data dari SQLite menuju daftar kota.
-                //TODO: Untuk sementara, gunakan data dummy
-
-                
-                String[] namaKota = /* Masih pakai data dummy*/ 
-                        {"Rambutan", "Bekasi", "Cisarua", "Garut", "Sukabumi", "Sumedang", 
-                                "Tegalega", "Padalarang", "Kopo", "Buah Batu", "Cileunyi",
-                                 "Tasikmalaya"};
+                //TODO: ngambil data dari SQLite menuju daftar kota via GPSDataList
+        		gdl.getDataFromJSON(); //Disini terjadi async task, mohon menunggu.
+                gdl.generateData();
+        	
+        		String[] namaKota = /* Masih pakai data dummy */ 
+                        gdl.kotaList;
                 int dataSize = namaKota.length;//12;
-                int hargaParsial[] = { /*Masih pakai data dummy*/
-                                0, //null rambutan
-                                8000, //rambutan bekasi
-                                5000, //bekasi cisarua
-                                10000,//cisarua garut
-                                5000, //garut sukabumi
-                                8000, //sukabumi sumedang
-                                8000, //sumedang tegalega
-                                5000, //tegalega padalarang
-                                5000, //padalarang kopo
-                                5000, //kopo buahbatu
-                                10000, //buahbatu cielunyi
-                                15000, //cileunyi tasikamalaya
-                                0, //tasikmalaya, null
-                                };
+                int hargaParsial[] = gdl.hargaParsial;
+                	
                 
+                //END
                 city_list = new CityList[dataSize];
                 city_max_position = dataSize;
                 top_layout.setLayoutParams(new FrameLayout.LayoutParams(
@@ -554,7 +552,7 @@ public class Form_Main extends Activity {
                 button_left.setBackgroundResource(R.drawable.button_left_passive);
                 button_left.setEnabled(false);
                 
-                int initializationValue = 0; //TODO: Nanti di load dari GPS irisan lokasi.
+                int initializationValue = 0; 
                 SetCityEnable(initializationValue); 
                 city_position = 1;
                 for(int a = 0;a<city_display.length;a++){
@@ -566,8 +564,6 @@ public class Form_Main extends Activity {
         
         
         public void CreateCityDisplay(CityList[] cityList){
-                        //TODO: Konversi data list string jadi City Display
-                        //Secara tidak langsung, Create City Display membuat menu indikator
                         final int size = 9;
                         int indicator = 9;
                         if(cityList.length<size){
@@ -651,11 +647,9 @@ public class Form_Main extends Activity {
                          */
                 }
                 if(cityIndex == 0){
-                	for(int a = 0; a< cityIndex;a++){
-                		indicators[a].setEnabled(2);
-                		city_list[a].isNotPassed = false;
-                		
-                		
+                	for(int a = 0; a< city_max_position;a++){
+                		//indicators[a].setEnabled(2);
+                		//city_list[a].isNotPassed = false;
                 	}
                 	return;
                 }
@@ -666,6 +660,7 @@ public class Form_Main extends Activity {
                 }
                 indicators[cityIndex-1].setEnabled(1);
                 city_list[cityIndex-1].isNotPassed = false;
+                
                 for(int aa=cityIndex;aa<city_max_position;aa++){
                         indicators[cityIndex].setEnabled(0);
                         city_list[cityIndex].isNotPassed = true;
@@ -704,8 +699,8 @@ public class Form_Main extends Activity {
 				button_right.setEnabled(true);
 				button_right.setBackgroundResource(R.drawable.button_right_active);
 			}
-			CreateCityDisplay(city_display);
 			SetCityEnable(city_real_position);
+			CreateCityDisplay(city_display);
 		}
 		public void DisableAllButtons(){
 			for(int a = 1; a<= 9;a++){

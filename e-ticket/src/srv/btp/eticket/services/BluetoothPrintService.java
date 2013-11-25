@@ -56,7 +56,7 @@ public class BluetoothPrintService {
 	public static final int STATE_DISCONNECTED = 2;
 	
 	public static final int DEFAULT_RECONNECT_FAIL_TIME = 10000;
-	public static final int DEFAULT_RECONNECT_SUCCESS_TIME = 60000;
+	public static final int DEFAULT_RECONNECT_SUCCESS_TIME = 10000;
 	
 	public ImageView BTIndicator;
 	
@@ -115,10 +115,13 @@ public class BluetoothPrintService {
 		sharedCountdown = new CountDownTimer(RECONNECT_TIMEOUT,RECONNECT_TIMEOUT/10){
 			@Override
 			public void onFinish() {
-				if(!FormObjectTransfer.isQuit && BT_STATE != STATE_CONNECTED)
+				if(!FormObjectTransfer.isQuit /*&& BT_STATE != STATE_CONNECTED*/ )
+				System.out.println("DONE!");
 				ConnectPrinter();
 			}
-			@Override public void onTick(long millisUntilFinished) {}
+			@Override public void onTick(long millisUntilFinished) {
+				System.out.println(millisUntilFinished + " " + "countdown to reconnect");
+			}
 		};
 	}
 
@@ -133,7 +136,7 @@ public class BluetoothPrintService {
 					BT_STATE = STATE_CONNECTING;
 					break;
 				case BixolonPrinter.STATE_CONNECTED:
-					Toast.makeText(selected_activity.getApplicationContext(), "Sambungan ke Bluetooth berhasil.\nSambungan akan diperiksa dalam waktu " + (DEFAULT_RECONNECT_SUCCESS_TIME/1000) + " detik lagi.", Toast.LENGTH_SHORT).show();
+					Toast.makeText(selected_activity.getApplicationContext(), "Sambungan ke Bluetooth berhasil.", Toast.LENGTH_SHORT).show();
 					BT_STATE = STATE_CONNECTED;
 					BTIndicator.setImageResource(R.drawable.indicator_bt_on);
 					FormObjectTransfer.isBTConnected = true;
@@ -143,9 +146,9 @@ public class BluetoothPrintService {
 					sharedCountdown.start();
 					break;
 				case BixolonPrinter.STATE_NONE:
-					if(BT_STATE == STATE_CONNECTED)break;
+					//if(BT_STATE == STATE_CONNECTED)break;
 			        Toast.makeText(selected_activity.getApplicationContext(), 
-			        			"Sambungan printer terputus. Menyambung kembali dalam waktu " + (DEFAULT_RECONNECT_FAIL_TIME/1000) +" detik...\n",
+			        			"Sambungan printer terputus.\n Menyambung kembali dalam waktu " + (DEFAULT_RECONNECT_FAIL_TIME/1000) +" detik...",
 			        			Toast.LENGTH_LONG)
 			        			.show();
 			        

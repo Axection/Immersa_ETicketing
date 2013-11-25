@@ -77,6 +77,9 @@ public class GPSLocationService {
 			@Override public void onTick(long millisUntilFinished) {}
 		};
 	}
+	public void StopGPS(){
+		location_manager.removeUpdates(location_listener);
+	}
 	
 	public boolean ActivateGPS() {
 		location_flag = displayGpsStatus();
@@ -94,14 +97,14 @@ public class GPSLocationService {
 			return true;
 		} else {
 			// GPS mati. siapkan indikator mati :(
-			Toast.makeText(baseContext, "GPS Mati... harap hidupkan secara manual...", Toast.LENGTH_SHORT).show();
+			Toast.makeText(baseContext, "GPS Mati... menggunakan data DUMMY dari daftar koordinat.", Toast.LENGTH_SHORT).show();
 			GPSIndicator.setImageResource(R.drawable.indicator_gps_off);
 			FormObjectTransfer.main_activity.checkStatus();
-			Intent viewIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-			FormObjectTransfer.main_activity.startActivity(viewIntent);
-			ctd.cancel(); //Mematikan fungsi eksisting untuk menyiapkan overriding.
-			RecreateTimer();
-			ctd.start();
+			//Intent viewIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+			//FormObjectTransfer.main_activity.startActivity(viewIntent);
+			//ctd.cancel(); //Mematikan fungsi eksisting untuk menyiapkan overriding.
+			//RecreateTimer();
+			//ctd.start();
 			return false;
 		}
 	}

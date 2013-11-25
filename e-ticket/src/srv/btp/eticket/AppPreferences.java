@@ -245,6 +245,8 @@ public class AppPreferences extends PreferenceActivity {
                     System.out.println(" onClick ");
                     FormObjectTransfer.main_activity.finish(); //Hancurkan main terlebih dahulu
                     FormObjectTransfer.isQuit = true;
+                    FormObjectTransfer.bxl.sharedCountdown.cancel();
+                    FormObjectTransfer.main_activity.gls.StopGPS();
                     finish(); // Close Application method called
                     
                     

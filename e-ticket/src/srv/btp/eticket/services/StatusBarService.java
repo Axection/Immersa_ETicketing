@@ -15,7 +15,7 @@ public class StatusBarService {
 	 */
 	
 	public static String GetSerializedID(int nomorTiket, String PlatBis){
-		/*TODO: Menggunakan kombinasi Platbis, TimeStamp dalam HEXA, dan nomor tiket.
+		/* Menggunakan kombinasi Platbis, TimeStamp dalam HEXA, dan nomor tiket.
 		 * Struktur : 6 Digit Timestap, HEX, Nomor Tiket 2 digit XoR 2 digit pertama plat bis
 		 * 6 Digit Plat mentah.
 		 * 
