@@ -6,10 +6,8 @@ import java.util.Locale;
 
 import srv.btp.eticket.FormObjectTransfer;
 import srv.btp.eticket.R;
-
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -48,6 +46,9 @@ public class GPSLocationService {
 	public String current_city = "";
 	public ImageView GPSIndicator;
 	
+	public static final String LOG_TAG = "GpsMockProvider";
+	public static final String GPS_MOCK_PROVIDER = "GpsMockProvider";
+	
 	private Boolean displayGpsStatus() {
 		ContentResolver contentResolver = baseContext.getContentResolver();
 		boolean gpsStatus = Settings.Secure.isLocationProviderEnabled(
@@ -65,6 +66,7 @@ public class GPSLocationService {
 		GPSIndicator = indicator;
 		location_manager = (LocationManager) baseContext.getSystemService(Context.LOCATION_SERVICE);
 		RecreateTimer();
+		
 	}
 	
 	public void RecreateTimer(){
@@ -100,11 +102,26 @@ public class GPSLocationService {
 			Toast.makeText(baseContext, "GPS Mati... menggunakan data DUMMY dari daftar koordinat.", Toast.LENGTH_SHORT).show();
 			GPSIndicator.setImageResource(R.drawable.indicator_gps_off);
 			FormObjectTransfer.main_activity.checkStatus();
-			//Intent viewIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-			//FormObjectTransfer.main_activity.startActivity(viewIntent);
-			//ctd.cancel(); //Mematikan fungsi eksisting untuk menyiapkan overriding.
-			//RecreateTimer();
-			//ctd.start();
+			
+			//mengetes mock
+			if(!location_manager.isProviderEnabled(GPSLocationService.GPS_MOCK_PROVIDER)) {
+	        	// Membuat test mock provider
+	        	location_manager.addTestProvider(GPSLocationService.GPS_MOCK_PROVIDER, false, false,
+	        			false, false, true, false, false, 0, 5);
+	        	location_manager.setTestProviderEnabled(GPSLocationService.GPS_MOCK_PROVIDER, true);
+	        }  
+	        
+			//summon mock
+	        if(location_manager.isProviderEnabled(GPSLocationService.GPS_MOCK_PROVIDER)) {
+	        	location_manager.requestLocationUpdates(GPSLocationService.GPS_MOCK_PROVIDER, 0, 0, location_listener);
+	        	//TODO; masukkan entry data palsu atau data statik nilai koordinat kota disini
+	        }
+			
+			/*Intent viewIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+			FormObjectTransfer.main_activity.startActivity(viewIntent);
+			ctd.cancel(); //Mematikan fungsi eksisting untuk menyiapkan overriding.
+			RecreateTimer();
+			ctd.start();*/
 			return false;
 		}
 	}

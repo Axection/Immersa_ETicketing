@@ -8,13 +8,7 @@
             android:maxLines="1"
             android:singleLine="true"
             android:title="Nomor Plat Bis" android:dialogTitle="Nomor Plat Bis" android:dialogMessage="PERHATIAN : Spasi pada plat nomor harus ditempatkan dengan benar." android:defaultValue="@string/default_platbis"/>
-        <EditTextPreference
-            android:defaultValue="00"
-            android:inputType="textCapWords"
-            android:key="unique_key"
-            android:singleLine="true"
-            android:summary="Nomor Unik adalah kombinasi karakter yang memiliki identitas.  Isi angka ini sesuai yang diberikan oleh perusahaan masing-masing."
-            android:title="Nomor Unik" android:dialogMessage="Nomor Unik adalah kombinasi karakter yang memiliki identitas.  Isi angka ini sesuai yang diberikan oleh perusahaan masing-masing." android:enabled="false"/>
+        
     </PreferenceCategory>
     <PreferenceCategory android:title="Layanan" >
         <ListPreference
@@ -22,8 +16,10 @@
             android:key="bluetooth_list" android:title="Pilih Bluetooth Printer..."/>
     <EditTextPreference android:dialogTitle="Alamat Layanan" android:dialogMessage="@string/technical_text" android:key="service_address" android:title="Alamat Layanan" android:defaultValue="@string/default_service"/></PreferenceCategory>
     <PreferenceCategory android:title="Maintenance">
-        <ListPreference android:dialogTitle="Daftar Rute" android:key="route_list" android:title="Pilih Daftar Rute..."/>
-        <Preference android:title="Impor Konfigurasi..." android:summary="Impor konfigurasi yang tersimpan di External Storage" android:key="import" /><Preference android:key="export" android:title="Ekspor Konfigurasi..." android:summary="Menyimpan konfigurasi sistem ke External Storage"/>
+        <Preference android:defaultValue="997" android:key="unique_key" android:title="Versi Rute Trayek" android:enabled="true" android:selectable="false"/>
+        <ListPreference android:dialogTitle="Daftar Rute" android:key="route_list" android:title="Pilih Daftar Rute..." android:enabled="false"/>
+        <Preference android:title="Impor Konfigurasi..." android:summary="Impor konfigurasi yang tersimpan di External Storage" android:key="import" />
+        <Preference android:key="export" android:title="Ekspor Konfigurasi..." android:summary="Menyimpan konfigurasi sistem ke External Storage"/>
         
         
     </PreferenceCategory><PreferenceCategory android:title="Bantuan">

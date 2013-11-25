@@ -19,13 +19,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import srv.btp.eticket.*;
-
+import srv.btp.eticket.FormObjectTransfer;
+import srv.btp.eticket.R;
+import srv.btp.eticket.crud.CRUD_Route_Back_Table;
+import srv.btp.eticket.crud.CRUD_Route_Table;
+import srv.btp.eticket.crud.Datafield_Route;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -54,7 +56,22 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 			(Activity) FormObjectTransfer.main_activity);
 	InputStream inputStream = null;
 	String result = "";
-
+	CRUD_Route_Table route = new CRUD_Route_Table(FormObjectTransfer.main_activity.getApplicationContext());
+	CRUD_Route_Back_Table route_back = new CRUD_Route_Back_Table(FormObjectTransfer.main_activity.getApplicationContext());
+	
+	boolean isReversed = false;
+	boolean isVersionChecking = true;
+	//FINALS
+	public static final String FIELD_ID = "id";
+	public static final String FIELD_NAMA = "nama";
+	public static final String FIELD_LAT = "latitude";
+	public static final String FIELD_LONG = "longitude";
+	
+	public static final String URL_SERVICE_FORWARD = "/+/URL_SUB_SERVICE_FORWARD_HERE";
+	public static final String URL_SERVICE_REVERSE = "/+/URL_SUB_SERVICE_REVERSE_HERE";
+	public static final String URL_SERVICE_VERSION_CHECK = "/+/URL_CEK_VERSI_DB";
+	
+	
 	protected void onPreExecute() {
 		progressDialog.setMessage("Processing jsOn Download..");
 		progressDialog.show();
@@ -68,7 +85,15 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	@Override
     protected Void doInBackground(String ... params) {
 
-        String url_select = URLService;
+        String url_select = URLService + params[0];
+        
+        if(params[0].equals(URL_SERVICE_FORWARD)){ 
+        	isReversed = false;
+        }else if(params[0].equals(URL_SERVICE_REVERSE)){ 
+        	isReversed = true;
+        }else if(params[0].equals(URL_SERVICE_VERSION_CHECK)){
+        	isVersionChecking = true;
+        }
                 ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
 
         try {
@@ -119,16 +144,42 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 		// parse JSON data
 		try {
 			JSONArray jArray = new JSONArray(result);
-
+			
 			for (int i = 0; i < jArray.length(); i++) {
 
 				JSONObject jObject = jArray.getJSONObject(i);
 
-				//TODO: Tabel dibaca disini ya.
-				String name = jObject.getString("name");
-				String tab1_text = jObject.getString("tab1_text");
-				int active = jObject.getInt("active");
-			} //end: for
+				if (isVersionChecking) {
+					//TODO:code ngolah cek versi, masukkan ke PreferenceManager
+					int originValue = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(
+							FormObjectTransfer.main_activity.getApplicationContext())
+							.getString("unique_key",
+									"997")
+						);
+					int downloadedValue = jObject.getInt("version");
+					if(downloadedValue>originValue){
+						//TODO:Lakukan perbolehkan perlakuan update.
+						isVersionChecking = false;
+					}else{
+						isVersionChecking = true; //membuat update tidak terjadi.
+					}
+					
+				} else {
+					// TODO: Tabel dibaca disini ya.
+					int id = jObject.getInt(FIELD_ID);
+					String nama = jObject.getString(FIELD_NAMA);
+					double latd = jObject.getDouble(FIELD_LAT);
+					double longd = jObject.getDouble(FIELD_LONG);
+					Datafield_Route dr = new Datafield_Route(id, nama, 0, 0,
+							latd, longd);
+					if (!isReversed) {
+						route.addEntry(dr);
+					} else {
+						route_back.addEntry(dr);
+					}
+				}
+
+			} // end: for
 
 			this.progressDialog.dismiss();
 

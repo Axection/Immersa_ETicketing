@@ -181,6 +181,8 @@ public class Form_Main extends Activity {
                                 CreateCityDisplay(city_display);
                                 Log.d("DebugSetCityEnable","toLeft");
                                 //Toast.makeText(getBaseContext(), "DEBUG: Move SetCityEnable Left to " + city_real_position, Toast.LENGTH_SHORT).show();        
+                                
+                                //fixed posisi animasi bergerak
                                 final int theconst = 40+ (179 * (city_real_position-1));
                                 final int getX = top_scroll.getScrollX();
                                 cd = new CountDownTimer(600, 10) {
@@ -302,7 +304,9 @@ public class Form_Main extends Activity {
                 FormObjectTransfer.bxl = btx;
                 btx.ConnectPrinter();
                 gls.ActivateGPS();
-                PrepareCityList();
+                gdl.getDataFromJSON(); //Disini terjadi async task, mohon menunggu.
+                
+                //PrepareCityList(); //Pindah jadi di generateData();
         }
 
         @Override
@@ -523,15 +527,11 @@ public class Form_Main extends Activity {
         }
         public void PrepareCityList(){
                 //TODO: ngambil data dari SQLite menuju daftar kota via GPSDataList
-        		gdl.getDataFromJSON(); //Disini terjadi async task, mohon menunggu.
-                gdl.generateData();
-        	
-        		String[] namaKota = /* Masih pakai data dummy */ 
-                        gdl.kotaList;
-                int dataSize = namaKota.length;//12;
+        		
+        		String[] namaKota = gdl.kotaList;
+                int dataSize = namaKota.length;
                 int hargaParsial[] = gdl.hargaParsial;
                 	
-                
                 //END
                 city_list = new CityList[dataSize];
                 city_max_position = dataSize;

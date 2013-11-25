@@ -32,7 +32,9 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 	private static final String KEY_NAMA = "nama"; //nama kota
 	private static final String KEY_LEFTPRICE = "leftprice"; //harga kiri
 	private static final String KEY_RIGHTPRICE = "rightprice"; //harga kanan
-	private static final String KEY_LOCATION = "lokasi"; //nama lokasi
+	private static final String KEY_LATITUDE = "latitude"; //nomor latitude
+	private static final String KEY_LONGITUDE = "longitude"; //nomor latitude
+	
 	
 	public CRUD_Route_Back_Table(Context context){
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -41,23 +43,20 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 	public CRUD_Route_Back_Table(Context context, String name, CursorFactory factory,
 			int version) {
 		super(context, name, factory, version);
-		// TODO Auto-generated constructor stub
 	}
-
-		//
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		// TODO Auto-generated method stub
 		String SQL_CREATION = "CREATE TABLE " + TABLE_NAME + "("
 				+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAMA + " TEXT," 
-				+ KEY_LEFTPRICE + " INTEGER," + KEY_RIGHTPRICE + " INTEGER," + KEY_LOCATION + " TEXT"
+				+ KEY_LEFTPRICE + " INTEGER," + KEY_RIGHTPRICE + " INTEGER," 
+				+ KEY_LATITUDE + " NUMBER"
+				+ KEY_LONGITUDE + " NUMBER"
 				+ ")";
 		db.execSQL(SQL_CREATION);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
 		onCreate(db);
 	}
@@ -71,7 +70,8 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 		val.put(KEY_NAMA,t.get_nama());
 		val.put(KEY_LEFTPRICE, t.get_leftprice());
 		val.put(KEY_RIGHTPRICE, t.get_rightprice());
-		val.put(KEY_LOCATION, t.get_lokasi());
+		val.put(KEY_LATITUDE, t.get_latitude());
+		val.put(KEY_LONGITUDE, t.get_longitude());
 		
 		db.insert(TABLE_NAME, null, val);
 		db.close();
@@ -108,7 +108,7 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 		
 		Cursor c = db.query(
 				TABLE_NAME, 
-				new String[] {KEY_ID, KEY_NAMA, KEY_LEFTPRICE, KEY_RIGHTPRICE, KEY_LOCATION},
+				new String[] {KEY_ID, KEY_NAMA, KEY_LEFTPRICE, KEY_RIGHTPRICE, KEY_LATITUDE, KEY_LONGITUDE},
 				KEY_ID + "=?", 
 				new String[] {String.valueOf(id) },
 				null,
@@ -125,8 +125,9 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 				Integer.parseInt(c.getString(0)), //ID
 				c.getString(1), //Nama
 				Integer.parseInt(c.getString(2)), //leftprice
-						Integer.parseInt(c.getString(3)), //rightprice
-				c.getString(4) //namalokasi lel
+				Integer.parseInt(c.getString(3)), //rightprice
+				Double.parseDouble(c.getString(4)),
+				Double.parseDouble(c.getString(5))
 				);
 		return t;
 	}
@@ -150,7 +151,9 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 		val.put(KEY_NAMA,t.get_nama());
 		val.put(KEY_LEFTPRICE, t.get_leftprice());
 		val.put(KEY_RIGHTPRICE, t.get_rightprice());
-		val.put(KEY_LOCATION, t.get_lokasi());
+		val.put(KEY_LATITUDE, t.get_latitude());
+		val.put(KEY_LONGITUDE, t.get_longitude());
+		
 		
 		return db.update(TABLE_NAME, val, KEY_ID + " = ?",
 				new String[]{ String.valueOf(t.get_ID() ) }
