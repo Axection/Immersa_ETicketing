@@ -4,6 +4,7 @@ import srv.btp.eticket.obj.CityList;
 import srv.btp.eticket.obj.Indicator;
 import srv.btp.eticket.services.BluetoothPrintService;
 import srv.btp.eticket.services.GPSLocationService;
+import srv.btp.eticket.services.StatusBarService;
 import srv.btp.eticket.util.SystemUiHider;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -24,6 +25,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -154,6 +156,8 @@ public class Form_Main extends Activity {
                 //indicator set
                 BT_Indicator = (ImageView)findViewById(R.id.img_indicator_bt);
                 GPS_Indicator = (ImageView)findViewById(R.id.img_indicator_gps);
+                BT_Indicator.setOnClickListener(bt_manual_reconnector);
+                GPS_Indicator.setOnClickListener(gps_manual_reconnector);
                 
                 //service initialization
                 btx = new BluetoothPrintService(this,BT_Indicator);
@@ -400,7 +404,10 @@ public class Form_Main extends Activity {
                 FormObjectTransfer.qty = qty;
                 FormObjectTransfer.harga = harga;
                 FormObjectTransfer.total = total;
-                String GeneratedID = "RNDIDXX"; //TODO:Siapkan modul untuk getGeneratedID
+                String GeneratedID = StatusBarService.GetSerializedID(qty, 
+                		PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                		.getString("plat_bis", getResources().getString(R.string.default_platbis)));
+                		//"RNDIDXX"; 
                 //PREPURR to MULTI PRINT
                 for(int a = 0;a < qty; a++){
                         btx.PrintText(GeneratedID, Kota1.toString(), Kota2.toString(), qty, harga);
@@ -547,8 +554,8 @@ public class Form_Main extends Activity {
                 button_left.setBackgroundResource(R.drawable.button_left_passive);
                 button_left.setEnabled(false);
                 
-                int initializationValue = 1; //TODO: Nanti di load dari GPS irisan lokasi.
-                SetCityEnable(0); 
+                int initializationValue = 0; //TODO: Nanti di load dari GPS irisan lokasi.
+                SetCityEnable(initializationValue); 
                 city_position = 1;
                 for(int a = 0;a<city_display.length;a++){
                         city_display[a] = city_list[a];
@@ -693,6 +700,8 @@ public class Form_Main extends Activity {
 			button_right.setEnabled(true);
 			button_right.setBackgroundResource(R.drawable.button_right_active);
 			
+			CreateCityDisplay(city_display);
+			SetCityEnable(city_real_position);
 		}
 		public void DisableAllButtons(){
 			for(int a = 1; a<= 9;a++){
@@ -703,6 +712,30 @@ public class Form_Main extends Activity {
 			button_left.setBackgroundResource(R.drawable.button_left_passive);
 			button_right.setEnabled(false);
 			button_right.setBackgroundResource(R.drawable.button_right_passive);
-			
 		}
+		
+		protected OnClickListener bt_manual_reconnector = new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(!(btx.BT_STATE == BluetoothPrintService.STATE_CONNECTING)){
+				Toast.makeText(getBaseContext(), "Menyambung Bluetooth secara manual...", Toast.LENGTH_SHORT).show();
+				btx.sharedCountdown.cancel();
+				btx.RecreateTimer();
+				btx.ConnectPrinter();
+				}else{
+					Toast.makeText(getBaseContext(), "Menyambung manual tidak memungkinkan, Bluetooth sedang dalam pencarian.", Toast.LENGTH_SHORT).show();
+				}
+			}
+		};
+		protected OnClickListener gps_manual_reconnector = new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(getBaseContext(), "Menyambung GPS secara manual...", Toast.LENGTH_SHORT).show();
+				gls.ctd.cancel();
+				gls.RecreateTimer();
+				gls.ActivateGPS();
+			}
+		};
+		
 }

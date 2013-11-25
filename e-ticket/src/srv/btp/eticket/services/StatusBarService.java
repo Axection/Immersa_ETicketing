@@ -40,7 +40,8 @@ public class StatusBarService {
 		//array pertama = kode kota
 		//array kedua = kode serial plat
 		//array ketiga = kombinasi plat-end
-		
-		return "";
+		String topResult = encoder[0].toUpperCase() + nomorTiket;
+		String MidResult = encoder[1] + encoder[2];
+		return topResult + "-" + MidResult + "-" + HexedTimeStamps;
 	} //end:GetSerializedID
 }

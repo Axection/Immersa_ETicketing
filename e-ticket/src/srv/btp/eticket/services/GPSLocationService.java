@@ -40,7 +40,7 @@ public class GPSLocationService {
 	public static final int SCAN_TIME = 5000;
 	public static final int DISTANCE_LOCK = 50;
 	public static Context baseContext = FormObjectTransfer.main_activity.getBaseContext();
-	private CountDownTimer ctd;
+	public CountDownTimer ctd;
 	
 	//Fast Data Move
 	public double current_longitude = 0;
@@ -64,6 +64,10 @@ public class GPSLocationService {
 		super();
 		GPSIndicator = indicator;
 		location_manager = (LocationManager) baseContext.getSystemService(Context.LOCATION_SERVICE);
+		RecreateTimer();
+	}
+	
+	public void RecreateTimer(){
 		ctd = new CountDownTimer(10000,1000){
 			@Override
 			public void onFinish() {
@@ -96,6 +100,7 @@ public class GPSLocationService {
 			Intent viewIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 			FormObjectTransfer.main_activity.startActivity(viewIntent);
 			ctd.cancel(); //Mematikan fungsi eksisting untuk menyiapkan overriding.
+			RecreateTimer();
 			ctd.start();
 			return false;
 		}

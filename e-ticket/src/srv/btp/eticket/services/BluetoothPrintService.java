@@ -67,14 +67,7 @@ public class BluetoothPrintService {
 		selected_activity = c;
 		btAddr = new ArrayList<String>();
 		BTIndicator = Indicators;
-		sharedCountdown = new CountDownTimer(RECONNECT_TIMEOUT,RECONNECT_TIMEOUT/10){
-			@Override
-			public void onFinish() {
-				if(!FormObjectTransfer.isQuit && BT_STATE != STATE_CONNECTED)
-				ConnectPrinter();
-			}
-			@Override public void onTick(long millisUntilFinished) {}
-		};
+		RecreateTimer();
 		
 	}
 
@@ -116,6 +109,17 @@ public class BluetoothPrintService {
 		bxl.disconnect();
 		
 	}
+	
+	public void RecreateTimer(){
+		sharedCountdown = new CountDownTimer(RECONNECT_TIMEOUT,RECONNECT_TIMEOUT/10){
+			@Override
+			public void onFinish() {
+				if(!FormObjectTransfer.isQuit && BT_STATE != STATE_CONNECTED)
+				ConnectPrinter();
+			}
+			@Override public void onTick(long millisUntilFinished) {}
+		};
+	}
 
 	private final Handler BLUETOOTH_HANDLER = new Handler(new Handler.Callback() {
 		public boolean handleMessage(Message msg) {
@@ -147,6 +151,7 @@ public class BluetoothPrintService {
 					//if(!FormObjectTransfer.isInitalizationState)
 					FormObjectTransfer.main_activity.checkStatus();
 			        sharedCountdown.cancel(); //Untuk menetapkan overriding reconnect manual.
+			        RecreateTimer();
 					sharedCountdown.start();
 					break;
 				}
