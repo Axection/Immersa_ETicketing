@@ -7,7 +7,7 @@
             android:key="plat_bis"
             android:maxLines="1"
             android:singleLine="true"
-            android:title="Nomor Plat Bis" android:dialogTitle="Nomor Plat Bis" android:dialogMessage="PERHATIAN : Spasi pada plat nomor harus ditempatkan dengan benar."/>
+            android:title="Nomor Plat Bis" android:dialogTitle="Nomor Plat Bis" android:dialogMessage="PERHATIAN : Spasi pada plat nomor harus ditempatkan dengan benar." android:defaultValue="@string/default_platbis"/>
         <EditTextPreference
             android:defaultValue="00"
             android:inputType="textCapWords"

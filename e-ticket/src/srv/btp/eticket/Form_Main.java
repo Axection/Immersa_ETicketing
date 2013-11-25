@@ -695,11 +695,15 @@ public class Form_Main extends Activity {
         		Int2Button(a).setEnabled(true);
         		Int2Button(a).setBackgroundResource(R.drawable.button);
         	}
-			button_left.setEnabled(true);
-			button_left.setBackgroundResource(R.drawable.button_left_active);
-			button_right.setEnabled(true);
-			button_right.setBackgroundResource(R.drawable.button_right_active);
+			if (city_position > 1) {
+				button_left.setEnabled(true);
+				button_left.setBackgroundResource(R.drawable.button_left_active);
+			}
 			
+			if (city_position < city_max_position) {
+				button_right.setEnabled(true);
+				button_right.setBackgroundResource(R.drawable.button_right_active);
+			}
 			CreateCityDisplay(city_display);
 			SetCityEnable(city_real_position);
 		}
@@ -720,7 +724,7 @@ public class Form_Main extends Activity {
 				if(!(btx.BT_STATE == BluetoothPrintService.STATE_CONNECTING)){
 				Toast.makeText(getBaseContext(), "Menyambung Bluetooth secara manual...", Toast.LENGTH_SHORT).show();
 				btx.sharedCountdown.cancel();
-				btx.RecreateTimer();
+				btx.RecreateTimer(BluetoothPrintService.DEFAULT_RECONNECT_FAIL_TIME);
 				btx.ConnectPrinter();
 				}else{
 					Toast.makeText(getBaseContext(), "Menyambung manual tidak memungkinkan, Bluetooth sedang dalam pencarian.", Toast.LENGTH_SHORT).show();

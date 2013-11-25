@@ -24,15 +24,15 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 
 
 	private static final int DATABASE_VERSION = 1;
-	private static final String DATABASE_NAME = "queryLogger";
-	private static final String TABLE_NAME = "log";
+	private static final String DATABASE_NAME = "route_table";
+	private static final String TABLE_NAME = "route_reverse";
 	
 	//entries
 	private static final String KEY_ID = "id"; // nomor prioritas
 	private static final String KEY_NAMA = "nama"; //nama kota
-	private static final String KEY_LEFTPRICE = "qty"; //harga kiri
-	private static final String KEY_RIGHTPRICE = "grade"; //harga kanan
-	private static final String KEY_LOCATION = "lokasi";
+	private static final String KEY_LEFTPRICE = "leftprice"; //harga kiri
+	private static final String KEY_RIGHTPRICE = "rightprice"; //harga kanan
+	private static final String KEY_LOCATION = "lokasi"; //nama lokasi
 	
 	public CRUD_Route_Back_Table(Context context){
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -50,7 +50,7 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 		// TODO Auto-generated method stub
 		String SQL_CREATION = "CREATE TABLE " + TABLE_NAME + "("
 				+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAMA + " TEXT," 
-				+ KEY_LEFTPRICE + " INTEGER," + KEY_RIGHTPRICE + " TEXT," + KEY_LOCATION + " TEXT"
+				+ KEY_LEFTPRICE + " INTEGER," + KEY_RIGHTPRICE + " INTEGER," + KEY_LOCATION + " TEXT"
 				+ ")";
 		db.execSQL(SQL_CREATION);
 	}
@@ -91,8 +91,8 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 				Datafield_Route t = new Datafield_Route();
 				t.set_ID(Integer.parseInt(c.getString(0)));
 				t.set_nama(c.getString(1));
-				t.set_leftprice(c.getString(2));
-				t.set_rightprice(c.getString(3));
+				t.set_leftprice(Integer.parseInt(c.getString(2)));
+				t.set_rightprice(Integer.parseInt(c.getString(3)));
 				t.set_lokasi(c.getString(4));
 				
 				l.add(t);
@@ -122,11 +122,11 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 		}
 		
 		Datafield_Route t = new Datafield_Route(
-				Integer.parseInt(c.getString(0)), 
-				c.getString(1), 
-				c.getString(2),
-				c.getString(3),
-				c.getString(4)
+				Integer.parseInt(c.getString(0)), //ID
+				c.getString(1), //Nama
+				Integer.parseInt(c.getString(2)), //leftprice
+						Integer.parseInt(c.getString(3)), //rightprice
+				c.getString(4) //namalokasi lel
 				);
 		return t;
 	}

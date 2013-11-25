@@ -24,15 +24,15 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 
 
 	private static final int DATABASE_VERSION = 1;
-	private static final String DATABASE_NAME = "queryLogger";
-	private static final String TABLE_NAME = "log";
+	private static final String DATABASE_NAME = "route_table";
+	private static final String TABLE_NAME = "route_forward"; //TABEL MAJU
 	
 	//entries
-	private static final String KEY_ID = "id";
-	private static final String KEY_NAMA = "nama";
-	private static final String KEY_QTY = "qty";
-	private static final String KEY_GRADE = "grade";
-	private static final String KEY_LOKASI = "lokasi";
+	private static final String KEY_ID = "id"; // nomor prioritas
+	private static final String KEY_NAMA = "nama"; //nama kota
+	private static final String KEY_LEFTPRICE = "leftprice"; //harga kiri
+	private static final String KEY_RIGHTPRICE = "rightprice"; //harga kanan
+	private static final String KEY_LOCATION = "lokasi"; //nama lokasi
 	
 	public CRUD_Route_Table(Context context){
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -50,7 +50,7 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 		// TODO Auto-generated method stub
 		String SQL_CREATION = "CREATE TABLE " + TABLE_NAME + "("
 				+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAMA + " TEXT," 
-				+ KEY_QTY + " INTEGER," + KEY_GRADE + " TEXT," + KEY_LOKASI + " TEXT"
+				+ KEY_LEFTPRICE + " INTEGER," + KEY_RIGHTPRICE + " INTEGER," + KEY_LOCATION + " TEXT"
 				+ ")";
 		db.execSQL(SQL_CREATION);
 	}
@@ -69,9 +69,9 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 		ContentValues val = new ContentValues();
 		val.put(KEY_ID, t.get_ID());
 		val.put(KEY_NAMA,t.get_nama());
-		val.put(KEY_QTY, t.get_leftprice());
-		val.put(KEY_GRADE, t.get_rightprice());
-		val.put(KEY_LOKASI, t.get_lokasi());
+		val.put(KEY_LEFTPRICE, t.get_leftprice());
+		val.put(KEY_RIGHTPRICE, t.get_rightprice());
+		val.put(KEY_LOCATION, t.get_lokasi());
 		
 		db.insert(TABLE_NAME, null, val);
 		db.close();
@@ -91,8 +91,8 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 				Datafield_Route t = new Datafield_Route();
 				t.set_ID(Integer.parseInt(c.getString(0)));
 				t.set_nama(c.getString(1));
-				t.set_leftprice(c.getString(2));
-				t.set_rightprice(c.getString(3));
+				t.set_leftprice(Integer.parseInt(c.getString(2)));
+				t.set_rightprice(Integer.parseInt(c.getString(3)));
 				t.set_lokasi(c.getString(4));
 				
 				l.add(t);
@@ -108,7 +108,7 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 		
 		Cursor c = db.query(
 				TABLE_NAME, 
-				new String[] {KEY_ID, KEY_NAMA, KEY_QTY, KEY_GRADE, KEY_LOKASI},
+				new String[] {KEY_ID, KEY_NAMA, KEY_LEFTPRICE, KEY_RIGHTPRICE, KEY_LOCATION},
 				KEY_ID + "=?", 
 				new String[] {String.valueOf(id) },
 				null,
@@ -122,11 +122,11 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 		}
 		
 		Datafield_Route t = new Datafield_Route(
-				Integer.parseInt(c.getString(0)), 
-				c.getString(1), 
-				c.getString(2),
-				c.getString(3),
-				c.getString(4)
+				Integer.parseInt(c.getString(0)), //ID
+				c.getString(1), //Nama
+				Integer.parseInt(c.getString(2)), //leftprice
+						Integer.parseInt(c.getString(3)), //rightprice
+				c.getString(4) //namalokasi lel
 				);
 		return t;
 	}
@@ -148,9 +148,9 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 		ContentValues val = new ContentValues();
 		val.put(KEY_ID, t.get_ID());
 		val.put(KEY_NAMA,t.get_nama());
-		val.put(KEY_QTY, t.get_leftprice());
-		val.put(KEY_GRADE, t.get_rightprice());
-		val.put(KEY_LOKASI, t.get_lokasi());
+		val.put(KEY_LEFTPRICE, t.get_leftprice());
+		val.put(KEY_RIGHTPRICE, t.get_rightprice());
+		val.put(KEY_LOCATION, t.get_lokasi());
 		
 		return db.update(TABLE_NAME, val, KEY_ID + " = ?",
 				new String[]{ String.valueOf(t.get_ID() ) }

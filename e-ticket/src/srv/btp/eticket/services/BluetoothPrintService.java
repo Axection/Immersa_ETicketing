@@ -55,7 +55,8 @@ public class BluetoothPrintService {
 	public static final int STATE_CONNECTING = 1;
 	public static final int STATE_DISCONNECTED = 2;
 	
-	public static final int RECONNECT_TIMEOUT = 10000;
+	public static final int DEFAULT_RECONNECT_FAIL_TIME = 10000;
+	public static final int DEFAULT_RECONNECT_SUCCESS_TIME = 60000;
 	
 	public ImageView BTIndicator;
 	
@@ -67,7 +68,7 @@ public class BluetoothPrintService {
 		selected_activity = c;
 		btAddr = new ArrayList<String>();
 		BTIndicator = Indicators;
-		RecreateTimer();
+		RecreateTimer(DEFAULT_RECONNECT_FAIL_TIME);
 		
 	}
 
@@ -110,7 +111,7 @@ public class BluetoothPrintService {
 		
 	}
 	
-	public void RecreateTimer(){
+	public void RecreateTimer(int RECONNECT_TIMEOUT){
 		sharedCountdown = new CountDownTimer(RECONNECT_TIMEOUT,RECONNECT_TIMEOUT/10){
 			@Override
 			public void onFinish() {
@@ -132,16 +133,19 @@ public class BluetoothPrintService {
 					BT_STATE = STATE_CONNECTING;
 					break;
 				case BixolonPrinter.STATE_CONNECTED:
-					Toast.makeText(selected_activity.getApplicationContext(), "Sambungan ke Bluetooth berhasil.", Toast.LENGTH_SHORT).show();
+					Toast.makeText(selected_activity.getApplicationContext(), "Sambungan ke Bluetooth berhasil.\nSambungan akan diperiksa dalam waktu " + (DEFAULT_RECONNECT_SUCCESS_TIME/1000) + " detik lagi.", Toast.LENGTH_SHORT).show();
 					BT_STATE = STATE_CONNECTED;
 					BTIndicator.setImageResource(R.drawable.indicator_bt_on);
 					FormObjectTransfer.isBTConnected = true;
 					FormObjectTransfer.main_activity.checkStatus();
+			        sharedCountdown.cancel(); //Untuk menetapkan overriding reconnect manual.
+			        RecreateTimer(DEFAULT_RECONNECT_SUCCESS_TIME);
+					sharedCountdown.start();
 					break;
 				case BixolonPrinter.STATE_NONE:
 					if(BT_STATE == STATE_CONNECTED)break;
 			        Toast.makeText(selected_activity.getApplicationContext(), 
-			        			"Sambungan printer terputus. Menyambung kembali dalam waktu " + (RECONNECT_TIMEOUT/1000) +" detik...\n",
+			        			"Sambungan printer terputus. Menyambung kembali dalam waktu " + (DEFAULT_RECONNECT_FAIL_TIME/1000) +" detik...\n",
 			        			Toast.LENGTH_LONG)
 			        			.show();
 			        
@@ -151,7 +155,7 @@ public class BluetoothPrintService {
 					//if(!FormObjectTransfer.isInitalizationState)
 					FormObjectTransfer.main_activity.checkStatus();
 			        sharedCountdown.cancel(); //Untuk menetapkan overriding reconnect manual.
-			        RecreateTimer();
+			        RecreateTimer(DEFAULT_RECONNECT_FAIL_TIME);
 					sharedCountdown.start();
 					break;
 				}
@@ -203,17 +207,23 @@ public class BluetoothPrintService {
 		 * 
 		 * Gambaran print:
 		 * 
-		 * ************************* ****MOBILE TICKETING*****
-		 * ************************* <hari>, <tgl> Waktu : <jam> NOMOR TIKET:
-		 * <ID>
+		 * ************************* 
+		 * ****MOBILE TICKETING*****
+		 * ************************* 
+		 * <hari>, <tgl> Waktu : <jam> 
+		 * NOMOR TIKET:<ID>
 		 * 
-		 * DETAIL TIKET ANDA ASAL : <asal> TUJUAN <tujuan>
+		 * DETAIL TIKET ANDA 
+		 * ASAL : <asal> 
+		 * TUJUAN <tujuan>
 		 * 
 		 * [<harga>]
 		 * 
-		 * ************************* TERIMA KASIH Mobile Ticketing oleh Immersa
-		 * Labs 2013 *************************
-		 * 
+		 * ************************* 
+		 * TERIMA KASIH 
+		 * Mobile Ticketing 
+		 * oleh Immersa Labs 2013 
+		 * *************************
 		 */
 		String theDate = c.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG,
 				Locale.US)
