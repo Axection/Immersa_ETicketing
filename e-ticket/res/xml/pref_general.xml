@@ -7,25 +7,25 @@
             android:key="plat_bis"
             android:maxLines="1"
             android:singleLine="true"
-            android:title="Nomor Plat Bis" android:dialogTitle="Nomor Plat Bis" android:dialogMessage="Nomor plat bis yang beroperasi di bawah sistem ini."/>
+            android:title="Nomor Plat Bis" android:dialogTitle="Nomor Plat Bis" android:dialogMessage="PERHATIAN : Spasi pada plat nomor harus ditempatkan dengan benar."/>
         <EditTextPreference
             android:defaultValue="00"
             android:inputType="textCapWords"
             android:key="unique_key"
             android:singleLine="true"
             android:summary="Nomor Unik adalah kombinasi karakter yang memiliki identitas.  Isi angka ini sesuai yang diberikan oleh perusahaan masing-masing."
-            android:title="Nomor Unik" android:dialogMessage="Nomor Unik adalah kombinasi karakter yang memiliki identitas.  Isi angka ini sesuai yang diberikan oleh perusahaan masing-masing."/>
+            android:title="Nomor Unik" android:dialogMessage="Nomor Unik adalah kombinasi karakter yang memiliki identitas.  Isi angka ini sesuai yang diberikan oleh perusahaan masing-masing." android:enabled="false"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Printer" >
+    <PreferenceCategory android:title="Layanan" >
         <ListPreference
             android:dialogTitle="Pilih Bluetooth Printer dari daftar pairing."
             android:key="bluetooth_list" android:title="Pilih Bluetooth Printer..."/>
-    </PreferenceCategory>
+    <EditTextPreference android:dialogTitle="Alamat Layanan" android:dialogMessage="@string/technical_text" android:key="service_address" android:title="Alamat Layanan" android:defaultValue="@string/default_service"/></PreferenceCategory>
     <PreferenceCategory android:title="Maintenance">
         <ListPreference android:dialogTitle="Daftar Rute" android:key="route_list" android:title="Pilih Daftar Rute..."/>
-        <Preference android:key="export" android:title="Ekspor Konfigurasi..." android:summary="Menyimpan konfigurasi sistem ke External Storage"/>
-        <Preference android:title="Impor Konfigurasi..." android:summary="Impor konfigurasi yang tersimpan di External Storage" android:key="import"/>
-        <EditTextPreference android:dialogTitle="Alamat Layanan" android:dialogMessage="@string/technical_text" android:key="service_address" android:title="Alamat Layanan"/>
+        <Preference android:title="Impor Konfigurasi..." android:summary="Impor konfigurasi yang tersimpan di External Storage" android:key="import" /><Preference android:key="export" android:title="Ekspor Konfigurasi..." android:summary="Menyimpan konfigurasi sistem ke External Storage"/>
+        
+        
     </PreferenceCategory><PreferenceCategory android:title="Bantuan">
         <Preference android:summary="Tentang Aplikasi Ini" android:key="pref_about" android:title="Tentang"/><Preference android:title="Keluar" android:summary="Keluar dari Aplikasi" android:key="pref_quit"/>
         

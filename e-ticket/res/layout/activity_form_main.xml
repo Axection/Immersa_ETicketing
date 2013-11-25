@@ -258,22 +258,42 @@
             android:textStyle="bold" />
 
         <Button
+            android:id="@+id/dbg_btnRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/dbg_btnLeft"
+            android:layout_alignBottom="@+id/dbg_btnLeft"
+            android:layout_marginLeft="55dp"
+            android:layout_toRightOf="@+id/dbg_btnLeft"
+            android:text=">" />
+
+        <ImageView
+            android:id="@+id/img_indicator_bt"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignTop="@+id/btn_config"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@+id/btnRightSide"
+            android:src="@drawable/indicator_bt_off" />
+
+        <ImageView
+            android:id="@+id/img_indicator_gps"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignTop="@+id/img_indicator_bt"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@+id/img_indicator_bt"
+            android:src="@drawable/indicator_gps_off" />
+
+        <Button
             android:id="@+id/dbg_btnLeft"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/btn_config"
             android:layout_alignBottom="@+id/btn_config"
-            android:layout_toLeftOf="@+id/btnMidRight"
+            android:layout_alignLeft="@+id/btnTopTop"
+            android:layout_marginLeft="44dp"
             android:text="&lt;" />
-
-        <Button
-            android:id="@+id/dbg_btnRight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/btn_config"
-            android:layout_alignLeft="@+id/btnTopRight"
-            android:layout_marginLeft="25dp"
-            android:text=">" />
 
     </RelativeLayout>
 

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import srv.btp.eticket.FormObjectTransfer;
+import srv.btp.eticket.R;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -13,6 +16,7 @@ import android.content.Intent;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bixolon.printer.BixolonPrinter;
@@ -37,6 +41,7 @@ public class BluetoothPrintService {
 	 */
 	private List<String> btAddr;
 	public String btSelectedAddr;
+	public CountDownTimer sharedCountdown;
 	BluetoothAdapter mBluetoothAdapter;
 
 	String dataPrint = "";
@@ -52,14 +57,25 @@ public class BluetoothPrintService {
 	
 	public static final int RECONNECT_TIMEOUT = 10000;
 	
+	public ImageView BTIndicator;
 	
 	private Activity selected_activity;
 
-	public BluetoothPrintService(Activity c) {
+	public BluetoothPrintService(Activity c, ImageView Indicators) {
 		bxl = new BixolonPrinter(c.getBaseContext(), BLUETOOTH_HANDLER, null);
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		selected_activity = c;
 		btAddr = new ArrayList<String>();
+		BTIndicator = Indicators;
+		sharedCountdown = new CountDownTimer(RECONNECT_TIMEOUT,RECONNECT_TIMEOUT/10){
+			@Override
+			public void onFinish() {
+				if(!FormObjectTransfer.isQuit && BT_STATE != STATE_CONNECTED)
+				ConnectPrinter();
+			}
+			@Override public void onTick(long millisUntilFinished) {}
+		};
+		
 	}
 
 	/***
@@ -108,26 +124,30 @@ public class BluetoothPrintService {
 				switch (msg.arg1) {
 				case BixolonPrinter.STATE_CONNECTING:
 					Toast.makeText(selected_activity.getApplicationContext(), "Menyambung ke printer bluetooth...", Toast.LENGTH_SHORT).show();	
+					BTIndicator.setImageResource(R.drawable.indicator_bt_warn);
 					BT_STATE = STATE_CONNECTING;
 					break;
 				case BixolonPrinter.STATE_CONNECTED:
 					Toast.makeText(selected_activity.getApplicationContext(), "Sambungan ke Bluetooth berhasil.", Toast.LENGTH_SHORT).show();
 					BT_STATE = STATE_CONNECTED;
+					BTIndicator.setImageResource(R.drawable.indicator_bt_on);
+					FormObjectTransfer.isBTConnected = true;
+					FormObjectTransfer.main_activity.checkStatus();
 					break;
 				case BixolonPrinter.STATE_NONE:
+					if(BT_STATE == STATE_CONNECTED)break;
 			        Toast.makeText(selected_activity.getApplicationContext(), 
 			        			"Sambungan printer terputus. Menyambung kembali dalam waktu " + (RECONNECT_TIMEOUT/1000) +" detik...\n",
 			        			Toast.LENGTH_LONG)
 			        			.show();
+			        
+					BTIndicator.setImageResource(R.drawable.indicator_bt_off);
 					BT_STATE = STATE_DISCONNECTED;
-			        CountDownTimer ctd = new CountDownTimer(RECONNECT_TIMEOUT,1000){
-						@Override
-						public void onFinish() {
-							ConnectPrinter();
-						}
-						@Override public void onTick(long millisUntilFinished) {}
-					};
-					ctd.start();
+					FormObjectTransfer.isBTConnected = false;
+					//if(!FormObjectTransfer.isInitalizationState)
+					FormObjectTransfer.main_activity.checkStatus();
+			        sharedCountdown.cancel(); //Untuk menetapkan overriding reconnect manual.
+					sharedCountdown.start();
 					break;
 				}
 				break;

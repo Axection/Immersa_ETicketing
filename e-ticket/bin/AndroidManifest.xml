@@ -14,6 +14,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -46,7 +48,7 @@
         </activity>
         <activity
             android:name="srv.btp.eticket.AppPreferences"
-            android:label="@string/title_activity_app_preferences" android:theme="@style/Theme.NoTitle">
+            android:label="@string/title_activity_app_preferences" android:theme="@style/Theme.NoTitle" android:configChanges="touchscreen|keyboardHidden|orientation" android:logo="@drawable/ic_settings" android:icon="@drawable/ic_settings" android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER"/>
                 

@@ -56,7 +56,7 @@ public class AppPreferences extends PreferenceActivity {
 		
 		//Preference for Bluetooth List
 		bluetoothList = (ListPreference) findPreference("bluetooth_list");
-		btx = new BluetoothPrintService(this);
+		btx = new BluetoothPrintService(this,null);
 		if(btx.FindPrinters() == 0){
 			Log.d("BTX",btx.toString() + " address access : " + btx.getBtAddr().size() );
 			btListAddress = new CharSequence[btx.getBtAddr().size()];
@@ -244,7 +244,9 @@ public class AppPreferences extends PreferenceActivity {
                 public void onClick(DialogInterface dialog,int id) {
                     System.out.println(" onClick ");
                     FormObjectTransfer.main_activity.finish(); //Hancurkan main terlebih dahulu
+                    FormObjectTransfer.isQuit = true;
                     finish(); // Close Application method called
+                    
                     
                 }
             });

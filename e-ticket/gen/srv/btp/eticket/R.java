@@ -73,57 +73,65 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int button_right_passive=0x7f020014;
         public static final int button_right_pressed=0x7f020015;
         public static final int ic_launcher=0x7f020016;
-        public static final int indicator_disabled=0x7f020017;
-        public static final int indicator_line=0x7f020018;
-        public static final int indicator_off=0x7f020019;
-        public static final int indicator_on=0x7f02001a;
+        public static final int ic_settings=0x7f020017;
+        public static final int indicator_bt_off=0x7f020018;
+        public static final int indicator_bt_on=0x7f020019;
+        public static final int indicator_bt_warn=0x7f02001a;
+        public static final int indicator_disabled=0x7f02001b;
+        public static final int indicator_gps_off=0x7f02001c;
+        public static final int indicator_gps_on=0x7f02001d;
+        public static final int indicator_gps_warn=0x7f02001e;
+        public static final int indicator_line=0x7f02001f;
+        public static final int indicator_off=0x7f020020;
+        public static final int indicator_on=0x7f020021;
     }
     public static final class id {
-        public static final int RelativeLayout1=0x7f0b002a;
+        public static final int RelativeLayout1=0x7f0b002b;
         public static final int border=0x7f0b0003;
-        public static final int border_passsive=0x7f0b0015;
-        public static final int btnBackspace=0x7f0b0025;
+        public static final int border_passsive=0x7f0b0017;
+        public static final int btnBackspace=0x7f0b0026;
         public static final int btnBotLeft=0x7f0b0009;
         public static final int btnBotMId=0x7f0b0008;
         public static final int btnBotRight=0x7f0b000d;
-        public static final int btnCancel=0x7f0b0027;
-        public static final int btnEight=0x7f0b0021;
-        public static final int btnFive=0x7f0b001e;
-        public static final int btnFour=0x7f0b001d;
+        public static final int btnCancel=0x7f0b0028;
+        public static final int btnEight=0x7f0b0023;
+        public static final int btnFive=0x7f0b0020;
+        public static final int btnFour=0x7f0b001f;
         public static final int btnLeftSide=0x7f0b000f;
         public static final int btnMidLeft=0x7f0b000a;
         public static final int btnMidMid=0x7f0b0007;
         public static final int btnMidRight=0x7f0b000c;
-        public static final int btnNine=0x7f0b0023;
-        public static final int btnOne=0x7f0b001a;
-        public static final int btnPrint=0x7f0b0026;
+        public static final int btnNine=0x7f0b0025;
+        public static final int btnOne=0x7f0b001c;
+        public static final int btnPrint=0x7f0b0027;
         public static final int btnRightSide=0x7f0b000e;
-        public static final int btnSeven=0x7f0b0020;
-        public static final int btnSix=0x7f0b001f;
-        public static final int btnThree=0x7f0b001c;
+        public static final int btnSeven=0x7f0b0022;
+        public static final int btnSix=0x7f0b0021;
+        public static final int btnThree=0x7f0b001e;
         public static final int btnTopLeft=0x7f0b0006;
         public static final int btnTopRight=0x7f0b000b;
         public static final int btnTopTop=0x7f0b0005;
-        public static final int btnTwo=0x7f0b001b;
-        public static final int btnZero=0x7f0b0022;
+        public static final int btnTwo=0x7f0b001d;
+        public static final int btnZero=0x7f0b0024;
         public static final int btn_config=0x7f0b0011;
-        public static final int btn_done=0x7f0b002b;
-        public static final int dbg_btnLeft=0x7f0b0012;
-        public static final int dbg_btnRight=0x7f0b0013;
-        public static final int imageView1=0x7f0b0024;
+        public static final int btn_done=0x7f0b002c;
+        public static final int dbg_btnLeft=0x7f0b0013;
+        public static final int dbg_btnRight=0x7f0b0012;
+        public static final int img_indicator_bt=0x7f0b0014;
+        public static final int img_indicator_gps=0x7f0b0015;
         public static final int relInside=0x7f0b0004;
-        public static final int rel_print=0x7f0b0018;
+        public static final int rel_print=0x7f0b001a;
         public static final int relayout=0x7f0b0000;
-        public static final int relayout_print=0x7f0b0014;
+        public static final int relayout_print=0x7f0b0016;
         public static final int scrollMap=0x7f0b0001;
-        public static final int text_title=0x7f0b0019;
-        public static final int title_layout=0x7f0b0016;
+        public static final int text_title=0x7f0b001b;
+        public static final int title_layout=0x7f0b0018;
         public static final int top_linear=0x7f0b0002;
-        public static final int txtIndicator=0x7f0b0017;
-        public static final int txtKota=0x7f0b002c;
-        public static final int txtNumbers=0x7f0b0028;
+        public static final int txtIndicator=0x7f0b0019;
+        public static final int txtKota=0x7f0b002d;
+        public static final int txtNumbers=0x7f0b0029;
         public static final int txtTitle=0x7f0b0010;
-        public static final int txtTotal=0x7f0b0029;
+        public static final int txtTotal=0x7f0b002a;
     }
     public static final class layout {
         public static final int activity_form_main=0x7f030000;
@@ -132,34 +140,35 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class string {
         public static final int app_name=0x7f080000;
+        public static final int default_service=0x7f080007;
         public static final int dummy_button=0x7f080001;
         public static final int dummy_city_text=0x7f080005;
         public static final int dummy_content=0x7f080002;
         public static final int dummy_string=0x7f080003;
         public static final int dummy_title=0x7f080004;
-        public static final int pref_default_display_name=0x7f08000c;
-        public static final int pref_description_social_recommendations=0x7f08000a;
+        public static final int pref_default_display_name=0x7f08000d;
+        public static final int pref_description_social_recommendations=0x7f08000b;
         /**  Example settings for Data & Sync 
          */
-        public static final int pref_header_data_sync=0x7f08000e;
+        public static final int pref_header_data_sync=0x7f08000f;
         /**  Strings related to Settings 
  Example General settings 
          */
-        public static final int pref_header_general=0x7f080008;
+        public static final int pref_header_general=0x7f080009;
         /**  Example settings for Notifications 
          */
-        public static final int pref_header_notifications=0x7f080011;
-        public static final int pref_ringtone_silent=0x7f080014;
-        public static final int pref_title_add_friends_to_messages=0x7f08000d;
-        public static final int pref_title_display_name=0x7f08000b;
-        public static final int pref_title_new_message_notifications=0x7f080012;
-        public static final int pref_title_ringtone=0x7f080013;
-        public static final int pref_title_social_recommendations=0x7f080009;
-        public static final int pref_title_sync_frequency=0x7f08000f;
-        public static final int pref_title_system_sync_settings=0x7f080010;
-        public static final int pref_title_vibrate=0x7f080015;
+        public static final int pref_header_notifications=0x7f080012;
+        public static final int pref_ringtone_silent=0x7f080015;
+        public static final int pref_title_add_friends_to_messages=0x7f08000e;
+        public static final int pref_title_display_name=0x7f08000c;
+        public static final int pref_title_new_message_notifications=0x7f080013;
+        public static final int pref_title_ringtone=0x7f080014;
+        public static final int pref_title_social_recommendations=0x7f08000a;
+        public static final int pref_title_sync_frequency=0x7f080010;
+        public static final int pref_title_system_sync_settings=0x7f080011;
+        public static final int pref_title_vibrate=0x7f080016;
         public static final int technical_text=0x7f080006;
-        public static final int title_activity_app_preferences=0x7f080007;
+        public static final int title_activity_app_preferences=0x7f080008;
     }
     public static final class style {
         /** 

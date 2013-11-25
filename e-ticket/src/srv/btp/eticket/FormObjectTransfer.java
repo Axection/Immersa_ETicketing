@@ -16,6 +16,10 @@ public class FormObjectTransfer {
 	public static String btAddress;
 	public static BluetoothPrintService bxl;
 	public static int CURRENT_STATE;
+	public static boolean isBTConnected = false;
+	public static boolean isGPSConnected = false;
+	public static boolean isInitalizationState = true;
+	public static boolean isQuit = false;
 	/***
 	 * Daftar STATE :
 	 * 0 - 
