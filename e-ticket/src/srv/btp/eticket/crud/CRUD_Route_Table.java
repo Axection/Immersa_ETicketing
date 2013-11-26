@@ -33,7 +33,7 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 	public static final String KEY_LEFTPRICE = "leftprice"; //harga kiri
 	public static final String KEY_RIGHTPRICE = "rightprice"; //harga kanan
 	public static final String KEY_LATITUDE = "latitude"; //nomor latitude
-	public static final String KEY_LONGITUDE = "longitude"; //nomor latitude
+	public static final String KEY_LONGITUDE = "longitude"; //nomor longitude
 	
 	
 	public CRUD_Route_Table(Context context){

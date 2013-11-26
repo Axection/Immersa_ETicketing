@@ -86,6 +86,7 @@ public class GPSDataList {
 		String URL_LIST_SERVICE[] = {
 				ServerDatabaseService.URL_SERVICE_VERSION_CHECK,
 				ServerDatabaseService.URL_SERVICE_FORWARD,
+				ServerDatabaseService.URL_SERVICE_REVERSE,
 				ServerDatabaseService.URL_SERVICE_PRICE_FORWARD,
 				ServerDatabaseService.URL_SERVICE_PRICE_REVERSE
 		};
@@ -101,6 +102,7 @@ public class GPSDataList {
 		public void run() {
 			// TODO Auto-generated method stub
 			if(ServerDatabaseService.isDone){
+				this.cancel();
 				generateData();
 			}
 			

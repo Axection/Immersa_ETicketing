@@ -16,6 +16,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -35,7 +36,7 @@ public class GPSLocationService {
 	public boolean location_flag = false;
 	public MyLocationListener location_listener;
 	public LocationManager location_manager;
-	public static final int SCAN_TIME = 5000;
+	public static final int SCAN_TIME = 30000;
 	public static final int DISTANCE_LOCK = 50;
 	public static Context baseContext = FormObjectTransfer.main_activity.getBaseContext();
 	public CountDownTimer ctd;
@@ -85,9 +86,10 @@ public class GPSLocationService {
 	
 	public boolean ActivateGPS() {
 		location_flag = displayGpsStatus();
+		location_listener = new MyLocationListener();
 		if (location_flag) {
 			Toast.makeText(baseContext, "GPS Menyala. Lakukan scanning...", Toast.LENGTH_SHORT).show();
-			location_listener = new MyLocationListener();
+			
 			location_manager.requestLocationUpdates(
 					LocationManager.GPS_PROVIDER, SCAN_TIME, DISTANCE_LOCK,
 					location_listener);
@@ -109,7 +111,8 @@ public class GPSLocationService {
 	        	location_manager.addTestProvider(GPSLocationService.GPS_MOCK_PROVIDER, false, false,
 	        			false, false, true, false, false, 0, 5);
 	        	location_manager.setTestProviderEnabled(GPSLocationService.GPS_MOCK_PROVIDER, true);
-	        }  
+	        	GPSIndicator.setImageResource(R.drawable.indicator_gps_mocked);
+			}  
 	        
 			//summon mock
 	        if(location_manager.isProviderEnabled(GPSLocationService.GPS_MOCK_PROVIDER)) {
@@ -149,7 +152,7 @@ public class GPSLocationService {
 				addresses = gcd.getFromLocation(loc.getLatitude(),
 						loc.getLongitude(), 1);
 				if (addresses.size() > 0)
-					System.out.println(addresses.get(0).getLocality());
+					Log.d(this.getClass().toString(),addresses.get(0).getLocality());
 				current_city = addresses.get(0).getLocality();
 			} catch (IOException e) {
 				e.printStackTrace();

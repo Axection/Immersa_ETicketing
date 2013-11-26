@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -116,11 +117,11 @@ public class BluetoothPrintService {
 			@Override
 			public void onFinish() {
 				if(!FormObjectTransfer.isQuit /*&& BT_STATE != STATE_CONNECTED*/ )
-				System.out.println("DONE!");
+				Log.d(this.getClass().toString(),"DONE!");
 				ConnectPrinter();
 			}
 			@Override public void onTick(long millisUntilFinished) {
-				System.out.println(millisUntilFinished + " " + "countdown to reconnect");
+				Log.d(this.getClass().toString(),millisUntilFinished + " " + "countdown to reconnect");
 			}
 		};
 	}

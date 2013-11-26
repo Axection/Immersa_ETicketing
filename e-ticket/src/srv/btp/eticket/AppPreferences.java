@@ -55,8 +55,14 @@ public class AppPreferences extends PreferenceActivity {
 		
 		//pemeriksaan asal dari intent
 		try{
-		if(savedInstanceState.getBoolean("fromParent")){
+		if(this.getIntent().getBooleanExtra("fromParent", false)){
 			findPreference("pref_quit").setEnabled(true);
+		}else{
+			/*findPreference("pref_quit").setEnabled(false);
+			findPreference("pref_quit").setSelectable(false);
+			findPreference("pref_quit").setTitle("");
+			findPreference("pref_quit").setSummary("");*/
+		
 		}
 		}catch (NullPointerException e){
 			findPreference("pref_quit").setEnabled(false);

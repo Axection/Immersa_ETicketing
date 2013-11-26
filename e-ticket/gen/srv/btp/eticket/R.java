@@ -78,12 +78,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int indicator_bt_on=0x7f020019;
         public static final int indicator_bt_warn=0x7f02001a;
         public static final int indicator_disabled=0x7f02001b;
-        public static final int indicator_gps_off=0x7f02001c;
-        public static final int indicator_gps_on=0x7f02001d;
-        public static final int indicator_gps_warn=0x7f02001e;
-        public static final int indicator_line=0x7f02001f;
-        public static final int indicator_off=0x7f020020;
-        public static final int indicator_on=0x7f020021;
+        public static final int indicator_gps_mocked=0x7f02001c;
+        public static final int indicator_gps_off=0x7f02001d;
+        public static final int indicator_gps_on=0x7f02001e;
+        public static final int indicator_gps_warn=0x7f02001f;
+        public static final int indicator_line=0x7f020020;
+        public static final int indicator_off=0x7f020021;
+        public static final int indicator_on=0x7f020022;
     }
     public static final class id {
         public static final int RelativeLayout1=0x7f0b002b;

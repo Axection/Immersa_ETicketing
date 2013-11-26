@@ -53,6 +53,7 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 				+ KEY_LONGITUDE + " NUMBER"
 				+ ")";
 		db.execSQL(SQL_CREATION);
+		
 	}
 
 	@Override
