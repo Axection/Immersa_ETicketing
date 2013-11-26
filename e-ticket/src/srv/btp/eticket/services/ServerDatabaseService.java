@@ -75,8 +75,8 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	public static final String FIELD_LAT = "latitude";
 	public static final String FIELD_LONG = "longitude";
 	
-	public static final String FIELD_ID_SRC = "id_lokasi_asal";
-	public static final String FIELD_ID_DST = "id_lokasi_tujuan";
+	public static final String FIELD_ID_SRC = "ID_lokasi_asal";
+	public static final String FIELD_ID_DST = "ID_lokasi_tujuan";
 	public static final String FIELD_PRICE = "harga";
 	
 	
@@ -139,9 +139,12 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 			// STATE detection
 			if (parameter.equals(URL_SERVICE_FORWARD)) {
 				connStatus = CHECK_ROUTE_FORWARD;
+				route.onUpgrade(route.getWritableDatabase(), 1, 1);
 				// progressDialog.setMessage("Mendownload informasi trayek...");
 			} else if (parameter.equals(URL_SERVICE_REVERSE)) {
 				connStatus = CHECK_ROUTE_REVERSE;
+				route_back.onUpgrade(
+						route_back.getWritableDatabase(), 1, 1);
 				// progressDialog.setMessage("Mendownload informasi trayek arah balik...");
 			} else if (parameter.equals(URL_SERVICE_VERSION_CHECK)) {
 				connStatus = CHECK_STATE_VERSION;
@@ -211,7 +214,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 					JSONArray jArray = new JSONArray(result);
 					for (int i = 0; i < jArray.length(); i++) {
 						JSONObject jObject = jArray.getJSONObject(i);
-
+						Log.d("JOBJECT" + i +  " " + connStatus,  " " + jObject.toString());
 						switch (connStatus) {
 						case CHECK_STATE_VERSION:
 							int originValue = Integer
@@ -221,7 +224,9 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 															.getApplicationContext())
 											.getString("unique_key", "00"));
 							int downloadedValue = jObject.getInt("version");
+							Log.d("STATE"+i, "version:"+downloadedValue + " internal:"+originValue);
 							if (downloadedValue > originValue) {
+								
 								isVersionUptoDate = false;
 							} else {
 								isVersionUptoDate = true; // membuat update
@@ -240,25 +245,24 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 							int id_src_fwd = jObject.getInt(FIELD_ID_SRC);
 							int id_dst_fwd = jObject.getInt(FIELD_ID_DST);
 							int price_fwd = jObject.getInt(FIELD_PRICE);
+							
 							ContentValues c = new ContentValues();
-							c.put(CRUD_Route_Table.KEY_LEFTPRICE, price_fwd / 2); // insert
-																					// ke
-																					// id_dst
+							c.put(CRUD_Route_Table.KEY_LEFTPRICE, price_fwd / 2); 
 							route.getWritableDatabase().update(
 									CRUD_Route_Table.TABLE_NAME, // nama tabel
 									c, // konten yang diupdate
-									CRUD_Route_Table.KEY_ID + " = ?", // where
-									new String[] { String.valueOf(id_dst_fwd) } // id=dst
+									CRUD_Route_Table.KEY_ID + " = " + id_dst_fwd, null
 									);
+							
 							c = new ContentValues();
-							c.put(CRUD_Route_Table.KEY_RIGHTPRICE,
-									price_fwd / 2); // insert ke id src
+							c.put(CRUD_Route_Table.KEY_RIGHTPRICE, price_fwd / 2); 
 							route.getWritableDatabase().update(
 									CRUD_Route_Table.TABLE_NAME, // nama tabel
 									c, // konten yang diupdate
-									CRUD_Route_Table.KEY_ID + " = ?", // where
-									new String[] { String.valueOf(id_src_fwd) } // id=dst
+									CRUD_Route_Table.KEY_ID + " = "+ id_src_fwd, null
 									);
+							
+							Log.d("STATE+i", "host:" + id_src_fwd + " dest:"+ id_dst_fwd + " price:" + price_fwd);
 							break;
 						case CHECK_PRICE_REVERSE:
 							if (isVersionUptoDate)
@@ -274,9 +278,9 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 									CRUD_Route_Back_Table.TABLE_NAME, // nama
 																		// tabel
 									cc, // konten yang diupdate
-									CRUD_Route_Back_Table.KEY_ID + " = ?", // where
-									new String[] { String.valueOf(id_dst_rev) } // id=dst
+									CRUD_Route_Back_Table.KEY_ID + " = " + id_dst_rev, null
 									);
+							
 							cc = new ContentValues();
 							cc.put(CRUD_Route_Back_Table.KEY_RIGHTPRICE,
 									price_rev / 2); // insert ke id src
@@ -284,15 +288,17 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 									CRUD_Route_Back_Table.TABLE_NAME, // nama
 																		// tabel
 									cc, // konten yang diupdate
-									CRUD_Route_Back_Table.KEY_ID + " = ?", // where
-									new String[] { String.valueOf(id_src_rev) } // id=dst
+									CRUD_Route_Back_Table.KEY_ID + " = " + id_src_rev, null 
 									);
+							Log.d("STATE"+i, "host:" + id_src_rev + " dest:"+ id_dst_rev + " price:" + price_rev);
 							break;
 						case CHECK_ROUTE_FORWARD:
 							if (isVersionUptoDate)
 								break;
-							route.onUpgrade(route.getWritableDatabase(), 1, 1);
+							
 
+							Log.d("JOBJECT" + i +  " " + connStatus,  " " + jObject.toString());
+							
 							int id_forward = jObject.getInt(FIELD_ID);
 							String nama_forward = jObject.getString(FIELD_NAMA);
 							double latd_forward = jObject.getDouble(FIELD_LAT);
@@ -302,13 +308,13 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 									id_forward, nama_forward, 0, 0,
 									latd_forward, longd_forward);
 							route.addEntry(dr_forward);
+							
+							Log.d("STATE"+i,dr_forward.toString());
 							break;
 
 						case CHECK_ROUTE_REVERSE:
 							if (isVersionUptoDate)
 								break;
-							route_back.onUpgrade(
-									route_back.getWritableDatabase(), 1, 1);
 
 							int id_reverse = jObject.getInt(FIELD_ID);
 							String nama_reverse = jObject.getString(FIELD_NAMA);
@@ -318,9 +324,11 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 							Datafield_Route dr_reverse = new Datafield_Route(
 									id_reverse, nama_reverse, 0, 0,
 									latd_reverse, longd_reverse);
-							route.addEntry(dr_reverse);
+							route_back.addEntry(dr_reverse);
+							
+							Log.d("STATE"+i,dr_reverse.toString());
 							break;
-						}
+						}//end: switch
 
 					} // end: for
 				} catch (JSONException e) {

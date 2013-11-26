@@ -1,6 +1,8 @@
 package srv.btp.eticket;
 
 import srv.btp.eticket.services.BluetoothPrintService;
+import srv.btp.eticket.services.GPSDataList;
+import srv.btp.eticket.services.GPSLocationService;
 import android.app.Activity;
 
 public class FormObjectTransfer {
@@ -15,6 +17,7 @@ public class FormObjectTransfer {
 	public static int qty, harga, total;
 	public static String btAddress;
 	public static BluetoothPrintService bxl;
+	public static GPSDataList gdl;
 	public static int CURRENT_STATE;
 	public static boolean isBTConnected = false;
 	public static boolean isGPSConnected = false;

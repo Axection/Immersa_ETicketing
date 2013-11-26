@@ -47,9 +47,9 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		String SQL_CREATION = "CREATE TABLE " + TABLE_NAME + "("
-				+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAMA + " TEXT," 
+				+ KEY_ID + " INTEGER," + KEY_NAMA + " TEXT," 
 				+ KEY_LEFTPRICE + " INTEGER," + KEY_RIGHTPRICE + " INTEGER," 
-				+ KEY_LATITUDE + " NUMBER"
+				+ KEY_LATITUDE + " NUMBER,"
 				+ KEY_LONGITUDE + " NUMBER"
 				+ ")";
 		db.execSQL(SQL_CREATION);

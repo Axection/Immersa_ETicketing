@@ -168,6 +168,8 @@ public class Form_Main extends Activity {
                 gls = new GPSLocationService(GPS_Indicator);
                 gdl = new GPSDataList();
                 
+                FormObjectTransfer.gdl = this.gdl;
+                
                 //FIX:DEBUG SET
                 //Disini terdapat percontohan fungsi memindahkan indikator
                 //

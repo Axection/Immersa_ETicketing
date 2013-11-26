@@ -26,6 +26,8 @@ public class CustomDialogControl extends Dialog implements
 		super(a);
 		// TODO Auto-generated constructor stub
 		this.c = a;
+		this.setCanceledOnTouchOutside(false);
+		this.setCancelable(false);
 	}
 	
 

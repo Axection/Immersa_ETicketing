@@ -1,11 +1,15 @@
 package srv.btp.eticket.services;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import srv.btp.eticket.FormObjectTransfer;
 import srv.btp.eticket.R;
+import srv.btp.eticket.crud.CRUD_Route_Back_Table;
+import srv.btp.eticket.crud.CRUD_Route_Table;
+import srv.btp.eticket.crud.Datafield_Route;
 import android.preference.PreferenceManager;
 
 public class GPSDataList {
@@ -34,16 +38,24 @@ public class GPSDataList {
 	private String[] kotaListForward;
 	private int listSizeForward;
 	private int hargaParsialForward[];
+	private double[] lat_kota_forward;
+	private double[] long_kota_forward; 
 	
 	private String[] kotaListReverse;
 	private int listSizeReverse;
 	private int[] hargaParsialReverse;
+	private double[] lat_kota_rev;
+	private double[] long_kota_rev;
 	
 	//properti publik
 	public String[] kotaList;
 	public int listSize;
 	public int hargaParsial[];
-	public boolean isReversed = false;
+	public boolean ReverseStatus = false;
+	
+	public double[] lat_kota;
+	public double[] long_kota;
+	
 	//Layanan
 	ServerDatabaseService sdd;
 	String ServiceBaseURL = PreferenceManager.getDefaultSharedPreferences(
@@ -52,19 +64,17 @@ public class GPSDataList {
 					FormObjectTransfer.main_activity.getResources().getString(
 							R.string.default_service));
 	
-	
-	
-	public void ReverseTrack(){
-		if(isReversed){
+	public void SetTrack(boolean isReversed){
+		if(!isReversed){
 			kotaList = kotaListForward;
 			listSize = listSizeForward;
 			hargaParsial = hargaParsialForward;
-			isReversed = false;
+			ReverseStatus = isReversed;
 		}else{
 			kotaList = kotaListReverse;
 			listSize = listSizeReverse;
 			hargaParsial = hargaParsialReverse;
-			isReversed = true;
+			ReverseStatus = isReversed;
 		}
 	}
 	
@@ -103,7 +113,13 @@ public class GPSDataList {
 			// TODO Auto-generated method stub
 			if(ServerDatabaseService.isDone){
 				this.cancel();
-				generateData();
+				FormObjectTransfer.main_activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						FormObjectTransfer.gdl.generateData();
+						
+					}
+				});
 			}
 			
 		}
@@ -116,6 +132,96 @@ public class GPSDataList {
 		 * 
 		 * Setelah itu, data akan masuk ke data forward berikut reverse.
 		 */
+		
+		
+		//initialisasi
+		CRUD_Route_Table crud_forward = new CRUD_Route_Table(FormObjectTransfer.main_activity.getBaseContext());
+		CRUD_Route_Back_Table crud_reverse = new CRUD_Route_Back_Table(FormObjectTransfer.main_activity.getBaseContext());
+		
+		//Membersihkan data dari trayek tak terpakai
+				crud_forward.getWritableDatabase().delete(
+						CRUD_Route_Table.TABLE_NAME, 
+							CRUD_Route_Table.KEY_LEFTPRICE + " = 0 AND " + 
+							CRUD_Route_Table.KEY_RIGHTPRICE+ " = 0" 
+						,null);
+				crud_reverse.getWritableDatabase().delete(
+						CRUD_Route_Back_Table.TABLE_NAME, 
+							CRUD_Route_Back_Table.KEY_LEFTPRICE + " = 0 AND " + 
+							CRUD_Route_Back_Table.KEY_RIGHTPRICE+ " = 0" 
+						,null);
+				
+		//prosesi data forward
+		ArrayList<Datafield_Route> datafield = (ArrayList<Datafield_Route>)crud_forward.getAllEntries();
+		int counter = 0;
+		int previousrightprice = 0;
+		int size = datafield.size();
+		kotaListForward = new String[size];
+		hargaParsialForward = new int[size+2];
+		long_kota_forward = new double[size];
+		lat_kota_forward = new double[size];
+		
+		//initialisasi format data
+		hargaParsialForward[0] = 0;
+		
+		for(Datafield_Route dr: datafield){
+			int numbering = (int)dr.get_ID();
+			kotaListForward[numbering-1] = dr.get_nama();
+			if(numbering-1 == 0){
+				hargaParsialForward[numbering-1]=0;
+				previousrightprice = dr.get_rightprice();
+			}else{
+				hargaParsialForward[numbering-1] = dr.get_leftprice() + previousrightprice;
+				previousrightprice = dr.get_rightprice();
+			}
+			long_kota_forward[numbering-1] = dr.get_longitude();
+			lat_kota_forward[numbering-1] = dr.get_latitude();
+			
+			counter++;
+		}
+		hargaParsialForward[counter] = 0;
+		
+		//Mulai prosesi data route reverse
+		ArrayList<Datafield_Route> datafield_reversed = (ArrayList<Datafield_Route>)crud_reverse.getAllEntries();
+		counter = 0;
+		previousrightprice = 0;
+		size = datafield_reversed.size();
+		kotaListReverse = new String[size];
+		hargaParsialReverse = new int[size+2];
+		long_kota_rev= new double[size];
+		lat_kota_rev = new double[size];
+		
+		//initialisasi format data
+		hargaParsialReverse[0] = 0;
+		
+		for(Datafield_Route dr: datafield){
+			int numbering = (int)dr.get_ID();
+			kotaListReverse[numbering-1] = dr.get_nama();
+			if(numbering-1 == 0){
+				hargaParsialReverse[numbering-1]=0;
+				previousrightprice = dr.get_rightprice();
+			}else{
+				hargaParsialReverse[numbering-1] = dr.get_leftprice() + previousrightprice;
+				previousrightprice = dr.get_rightprice();
+			}
+			long_kota_rev[numbering-1] = dr.get_longitude();
+			lat_kota_rev[numbering-1] = dr.get_latitude();
+			
+			counter++;
+		}
+		hargaParsialReverse[counter] = 0;
+		
+		//PREPURRR
+		String valueIntended = PreferenceManager.getDefaultSharedPreferences(
+				FormObjectTransfer.main_activity.getBaseContext()).getString(
+						"trajectory_direction", 
+						FormObjectTransfer.main_activity.getResources().getStringArray(
+								R.array.direction_entry)[0]);
+		if(valueIntended=="maju"){
+			SetTrack(false);
+		}else{
+			SetTrack(true);
+		}
+
 		FormObjectTransfer.main_activity.PrepareCityList();
 	}
 }

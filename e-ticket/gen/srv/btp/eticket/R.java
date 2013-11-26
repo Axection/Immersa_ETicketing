@@ -23,10 +23,12 @@ public final class R {
         public static final int rotation=0x7f04000b;
     }
     public static final class array {
-        public static final int pref_example_list_titles=0x7f090000;
-        public static final int pref_example_list_values=0x7f090001;
-        public static final int pref_sync_frequency_titles=0x7f090002;
-        public static final int pref_sync_frequency_values=0x7f090003;
+        public static final int direction_entry=0x7f090000;
+        public static final int direction_values=0x7f090001;
+        public static final int pref_example_list_titles=0x7f090002;
+        public static final int pref_example_list_values=0x7f090003;
+        public static final int pref_sync_frequency_titles=0x7f090004;
+        public static final int pref_sync_frequency_values=0x7f090005;
     }
     public static final class attr {
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"

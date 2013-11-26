@@ -108,7 +108,8 @@ public class AppPreferences extends PreferenceActivity {
 		}else{
 			bluetoothList.setEnabled(false);
 		}
-
+		//setting nilai summary-summary
+		
 	}
 
 	
@@ -221,6 +222,14 @@ public class AppPreferences extends PreferenceActivity {
 				// simple string representation.
 				preference.setSummary(stringValue);
 			}
+			
+			//Value update
+			if( preference.getTitle().equals("Alamat Layanan") || 
+					preference.getTitle().equals("Versi Trayek") || 
+					preference.getTitle().equals("Arah Trayek")){
+				preference.setSummary(stringValue);
+			}
+			
 			return true;
 		}
 	};
