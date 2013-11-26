@@ -489,9 +489,11 @@ public class Form_Main extends Activity {
         
                         @Override
                         public void onClick(View arg0) {
+                        		Bundle opt = new Bundle();
+                        		opt.putBoolean("fromParent", true);
                                 button_pref.setBackgroundResource(R.drawable.button_config);
                                 intentPref = new Intent(getApplicationContext(), AppPreferences.class);
-                                startActivity(intentPref);
+                                startActivity(intentPref,opt);
                         }
                 });
                 button_pref.setOnTouchListener(new OnTouchListener() {        

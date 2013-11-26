@@ -26,6 +26,7 @@ import srv.btp.eticket.crud.CRUD_Route_Table;
 import srv.btp.eticket.crud.Datafield_Route;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
@@ -55,25 +56,51 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	private ProgressDialog progressDialog = new ProgressDialog(
 			(Activity) FormObjectTransfer.main_activity);
 	InputStream inputStream = null;
-	String result = "";
+	ArrayList<String> result;
 	CRUD_Route_Table route = new CRUD_Route_Table(FormObjectTransfer.main_activity.getApplicationContext());
 	CRUD_Route_Back_Table route_back = new CRUD_Route_Back_Table(FormObjectTransfer.main_activity.getApplicationContext());
 	
 	boolean isReversed = false;
-	boolean isVersionChecking = true;
+	boolean isVersionUptoDate = false;
+	boolean isPricing = false;
+	
 	//FINALS
-	public static final String FIELD_ID = "id";
-	public static final String FIELD_NAMA = "nama";
+	public static final String FIELD_ID = "ID";
+	public static final String FIELD_NAMA = "nama_kota";
 	public static final String FIELD_LAT = "latitude";
 	public static final String FIELD_LONG = "longitude";
 	
-	public static final String URL_SERVICE_FORWARD = "/+/URL_SUB_SERVICE_FORWARD_HERE";
-	public static final String URL_SERVICE_REVERSE = "/+/URL_SUB_SERVICE_REVERSE_HERE";
+	public static final String FIELD_ID_SRC = "id_lokasi_asal";
+	public static final String FIELD_ID_DST = "id_lokasi_tujuan";
+	public static final String FIELD_PRICE = "harga";
+	
+	
+	public static final String URL_SERVICE_FORWARD = "lokasi";
+	public static final String URL_SERVICE_REVERSE = "lokasi";
+	
+	public static final String URL_SERVICE_PRICE_FORWARD = "harga_lokasi_trayek";
+	public static final String URL_SERVICE_PRICE_REVERSE = "harga_lokasi_trayek";
 	public static final String URL_SERVICE_VERSION_CHECK = "/+/URL_CEK_VERSI_DB";
+	
+	public static final String URL_SERVICE_TRAJECTORY = "trayek";
+	
+	
+	public static final int CHECK_STATE_VERSION = 1;
+	public static final int CHECK_ROUTE_FORWARD = 2;
+	public static final int CHECK_ROUTE_REVERSE = 3;
+	public static final int CHECK_PRICE_FORWARD = 4;
+	public static final int CHECK_PRICE_REVERSE = 5;
+	public static final int CHECK_UNKNOWN = 0;
+	
+	public int connStatus = 0;
+	public static boolean isDone;
+
+
 	
 	
 	protected void onPreExecute() {
-		progressDialog.setMessage("Processing jsOn Download..");
+		isDone = false;
+		progressDialog.setMessage("Mendownload beberapa informasi data...");
 		progressDialog.show();
 		progressDialog.setOnCancelListener(new OnCancelListener() {
 			public void onCancel(DialogInterface arg0) {
@@ -84,18 +111,27 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 
 	@Override
     protected Void doInBackground(String ... params) {
-
-        String url_select = URLService + params[0];
+		result = new ArrayList<String>();
+		
+		for(String parameter: params){
+		String url_select = URLService + parameter;
         
-        if(params[0].equals(URL_SERVICE_FORWARD)){ 
-        	isReversed = false;
-        }else if(params[0].equals(URL_SERVICE_REVERSE)){ 
-        	isReversed = true;
-        }else if(params[0].equals(URL_SERVICE_VERSION_CHECK)){
-        	isVersionChecking = true;
+        //STATE detection
+        if(parameter.equals(URL_SERVICE_FORWARD)){
+        	connStatus = CHECK_ROUTE_FORWARD;
+        }else if(parameter.equals(URL_SERVICE_REVERSE)){ 
+        	connStatus = CHECK_ROUTE_REVERSE;
+        }else if(parameter.equals(URL_SERVICE_VERSION_CHECK)){
+        	connStatus = CHECK_STATE_VERSION;
+        	isVersionUptoDate = false; //Agar doInBackground wajib melakukan download versioning.
+        }else if(parameter.equals(URL_SERVICE_PRICE_FORWARD)){
+        	connStatus = CHECK_PRICE_FORWARD;
+        }else if(parameter.equals(URL_SERVICE_PRICE_REVERSE)){
+        	connStatus = CHECK_ROUTE_REVERSE;
         }
+        
                 ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-
+        if(!isVersionUptoDate){ //ketika versi telah terupdate, perlu adanya pencegahan download.
         try {
             // Set up HTTP post
             // HttpClient is more then less deprecated. Need to change to URLConnection
@@ -132,24 +168,30 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
             }
 
             inputStream.close();
-            result = sBuilder.toString();
+            
+            result.add(sBuilder.toString());
+            //result = ;
 
         } catch (Exception e) {
             Log.e("StringBuilding & BufferedReader", "Error converting result " + e.toString());
         }
+        }//end: !isVersionUptoDate
+		}//end: for
 		return null;
     } //end: protected Void doInBackground(String... params)
 
 	protected void onPostExecute(Void v) {
-		// parse JSON data
+		// parse massive JSON data from result
+		for(String resultset: result){
 		try {
-			JSONArray jArray = new JSONArray(result);
+			JSONArray jArray = new JSONArray(resultset);
 			
 			for (int i = 0; i < jArray.length(); i++) {
-
+				
 				JSONObject jObject = jArray.getJSONObject(i);
-
-				if (isVersionChecking) {
+				Log.d("proc",resultset);
+				switch(connStatus){
+				case CHECK_STATE_VERSION:
 					//TODO:code ngolah cek versi, masukkan ke PreferenceManager
 					int originValue = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(
 							FormObjectTransfer.main_activity.getApplicationContext())
@@ -158,36 +200,94 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 						);
 					int downloadedValue = jObject.getInt("version");
 					if(downloadedValue>originValue){
-						//TODO:Lakukan perbolehkan perlakuan update.
-						isVersionChecking = false;
+						isVersionUptoDate = false;
 					}else{
-						isVersionChecking = true; //membuat update tidak terjadi.
+						isVersionUptoDate = true; //membuat update tidak terjadi.
 					}
+					break;
+				/*
+				 * Untuk CHECK PRICE dibutuhkan sesuatu pemrosesan lanjut agar data
+				 * left price sama right pricenya masuk ke database yang benar, bukan
+				 * membuat tabel baru.
+				 */
+				case CHECK_PRICE_FORWARD:
+					if(isVersionUptoDate)break;
+					int id_src_fwd = jObject.getInt(FIELD_ID_SRC);
+					int id_dst_fwd = jObject.getInt(FIELD_ID_DST);
+					int price_fwd = jObject.getInt(FIELD_PRICE);
+					ContentValues c = new ContentValues();
+					c.put(CRUD_Route_Table.KEY_LEFTPRICE, price_fwd/2); //insert ke id_dst
+					route.getWritableDatabase().update(
+							CRUD_Route_Table.TABLE_NAME, //nama tabel
+							c, //konten yang diupdate
+							CRUD_Route_Table.KEY_ID + " = ?", //where
+							new String[]{ String.valueOf(id_dst_fwd) } //id=dst
+							);
+					c = new ContentValues();
+					c.put(CRUD_Route_Table.KEY_RIGHTPRICE, price_fwd/2); //insert ke id src
+					route.getWritableDatabase().update(
+							CRUD_Route_Table.TABLE_NAME, //nama tabel
+							c, //konten yang diupdate
+							CRUD_Route_Table.KEY_ID + " = ?", //where
+							new String[]{ String.valueOf(id_src_fwd) } //id=dst
+							);
+				case CHECK_PRICE_REVERSE:
+					if(isVersionUptoDate)break;
+					int id_src_rev = jObject.getInt(FIELD_ID_SRC);
+					int id_dst_rev = jObject.getInt(FIELD_ID_DST);
+					int price_rev = jObject.getInt(FIELD_PRICE);
 					
-				} else {
-					// TODO: Tabel dibaca disini ya.
-					int id = jObject.getInt(FIELD_ID);
-					String nama = jObject.getString(FIELD_NAMA);
-					double latd = jObject.getDouble(FIELD_LAT);
-					double longd = jObject.getDouble(FIELD_LONG);
-					Datafield_Route dr = new Datafield_Route(id, nama, 0, 0,
-							latd, longd);
-					if (!isReversed) {
-						route.addEntry(dr);
-					} else {
-						route_back.addEntry(dr);
-					}
+					ContentValues cc = new ContentValues();
+					cc.put(CRUD_Route_Back_Table.KEY_LEFTPRICE, price_rev/2); //insert ke id_dst
+					route_back.getWritableDatabase().update(
+							CRUD_Route_Back_Table.TABLE_NAME, //nama tabel
+							cc, //konten yang diupdate
+							CRUD_Route_Back_Table.KEY_ID + " = ?", //where
+							new String[]{ String.valueOf(id_dst_rev) } //id=dst
+							);
+					cc = new ContentValues();
+					cc.put(CRUD_Route_Back_Table.KEY_RIGHTPRICE, price_rev/2); //insert ke id src
+					route_back.getWritableDatabase().update(
+							CRUD_Route_Back_Table.TABLE_NAME, //nama tabel
+							cc, //konten yang diupdate
+							CRUD_Route_Back_Table.KEY_ID + " = ?", //where
+							new String[]{ String.valueOf(id_src_rev) } //id=dst
+							);
+					
+				case CHECK_ROUTE_FORWARD:
+					if(isVersionUptoDate)break;
+					int id_forward = jObject.getInt(FIELD_ID);
+					String nama_forward = jObject.getString(FIELD_NAMA);
+					double latd_forward = jObject.getDouble(FIELD_LAT);
+					double longd_forward = jObject.getDouble(FIELD_LONG);
+					Datafield_Route dr_forward = new Datafield_Route(id_forward, nama_forward, 0, 0,
+							latd_forward, longd_forward);
+					route.addEntry(dr_forward);
+					break;
+				case CHECK_ROUTE_REVERSE:
+					if(isVersionUptoDate)break;
+					int id_reverse = jObject.getInt(FIELD_ID);
+					String nama_reverse = jObject.getString(FIELD_NAMA);
+					double latd_reverse = jObject.getDouble(FIELD_LAT);
+					double longd_reverse = jObject.getDouble(FIELD_LONG);
+					Datafield_Route dr_reverse = new Datafield_Route(id_reverse, nama_reverse, 0, 0,
+							latd_reverse, longd_reverse);
+					route.addEntry(dr_reverse);
+					break;
 				}
 
 			} // end: for
 
 			this.progressDialog.dismiss();
+			isDone = true;
 
 		} catch (JSONException e) {
 
 			Log.e("JSONException", "Error: " + e.toString());
 
 		} //end: catch (JSONException e)
+		
+		}//end: for(String resultset:result){
 
 	} //end: protected void onPostExecute(Void v)
 	

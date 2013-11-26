@@ -24,16 +24,16 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 
 
 	private static final int DATABASE_VERSION = 1;
-	private static final String DATABASE_NAME = "route_table";
-	private static final String TABLE_NAME = "route_forward";
+	public static final String DATABASE_NAME = "route_table";
+	public static final String TABLE_NAME = "route_forward";
 	
 	//entries
-	private static final String KEY_ID = "id"; // nomor prioritas
-	private static final String KEY_NAMA = "nama"; //nama kota
-	private static final String KEY_LEFTPRICE = "leftprice"; //harga kiri
-	private static final String KEY_RIGHTPRICE = "rightprice"; //harga kanan
-	private static final String KEY_LATITUDE = "latitude"; //nomor latitude
-	private static final String KEY_LONGITUDE = "longitude"; //nomor latitude
+	public static final String KEY_ID = "id"; // nomor prioritas
+	public static final String KEY_NAMA = "nama"; //nama kota
+	public static final String KEY_LEFTPRICE = "leftprice"; //harga kiri
+	public static final String KEY_RIGHTPRICE = "rightprice"; //harga kanan
+	public static final String KEY_LATITUDE = "latitude"; //nomor latitude
+	public static final String KEY_LONGITUDE = "longitude"; //nomor latitude
 	
 	
 	public CRUD_Route_Table(Context context){

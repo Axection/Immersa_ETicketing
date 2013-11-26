@@ -53,7 +53,18 @@ public class AppPreferences extends PreferenceActivity {
 		overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
 		setupSimplePreferencesScreen();
 		
-		
+		//pemeriksaan asal dari intent
+		try{
+		if(savedInstanceState.getBoolean("fromParent")){
+			findPreference("pref_quit").setEnabled(true);
+		}
+		}catch (NullPointerException e){
+			findPreference("pref_quit").setEnabled(false);
+			findPreference("pref_quit").setSelectable(false);
+			findPreference("pref_quit").setTitle("");
+			findPreference("pref_quit").setSummary("");
+		}
+	
 		//Preference for Bluetooth List
 		bluetoothList = (ListPreference) findPreference("bluetooth_list");
 		btx = new BluetoothPrintService(this,null);

@@ -1,5 +1,9 @@
 package srv.btp.eticket.services;
 
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import srv.btp.eticket.FormObjectTransfer;
 import srv.btp.eticket.R;
 import android.preference.PreferenceManager;
@@ -48,6 +52,8 @@ public class GPSDataList {
 					FormObjectTransfer.main_activity.getResources().getString(
 							R.string.default_service));
 	
+	
+	
 	public void ReverseTrack(){
 		if(isReversed){
 			kotaList = kotaListForward;
@@ -77,10 +83,29 @@ public class GPSDataList {
 		
 		//session 1
 		sdd = new ServerDatabaseService();
-		sdd.execute(ServiceBaseURL + "");
+		String URL_LIST_SERVICE[] = {
+				ServerDatabaseService.URL_SERVICE_VERSION_CHECK,
+				ServerDatabaseService.URL_SERVICE_FORWARD,
+				ServerDatabaseService.URL_SERVICE_PRICE_FORWARD,
+				ServerDatabaseService.URL_SERVICE_PRICE_REVERSE
+		};
+		Timer td = new Timer(true);
+		td.schedule(TaskUpdate, Calendar.getInstance().getTime(), 1000);
+		sdd.execute(URL_LIST_SERVICE);
+
 		
-		generateData();
 	}
+	protected TimerTask TaskUpdate = new TimerTask() {
+		
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			if(ServerDatabaseService.isDone){
+				generateData();
+			}
+			
+		}
+	};
 	
 	public void generateData(){
 		/*

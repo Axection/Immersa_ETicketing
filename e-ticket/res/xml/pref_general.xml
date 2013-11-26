@@ -18,8 +18,8 @@
     <PreferenceCategory android:title="Maintenance">
         <Preference android:defaultValue="997" android:key="unique_key" android:title="Versi Rute Trayek" android:enabled="true" android:selectable="false"/>
         <ListPreference android:dialogTitle="Daftar Rute" android:key="route_list" android:title="Pilih Daftar Rute..." android:enabled="false"/>
-        <Preference android:title="Impor Konfigurasi..." android:summary="Impor konfigurasi yang tersimpan di External Storage" android:key="import" />
-        <Preference android:key="export" android:title="Ekspor Konfigurasi..." android:summary="Menyimpan konfigurasi sistem ke External Storage"/>
+        <Preference android:title="Impor Konfigurasi..." android:summary="Impor konfigurasi yang tersimpan di External Storage" android:key="import" android:enabled="false"/>
+        <Preference android:key="export" android:title="Ekspor Konfigurasi..." android:summary="Menyimpan konfigurasi sistem ke External Storage" android:enabled="false"/>
         
         
     </PreferenceCategory><PreferenceCategory android:title="Bantuan">
