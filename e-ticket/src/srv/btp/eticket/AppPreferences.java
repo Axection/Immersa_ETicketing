@@ -216,19 +216,24 @@ public class AppPreferences extends PreferenceActivity {
 				preference
 						.setSummary(index >= 0 ? listPreference.getEntries()[index]
 								: null);
-
+				
 			} else {
 				// For all other preferences, set the summary to the value's
 				// simple string representation.
 				preference.setSummary(stringValue);
 			}
 			
+			/*PreferenceManager.getDefaultSharedPreferences(
+					preference.getContext())
+					.edit().putString(preference.getKey(), preference.getSummary().toString() ).commit();
+			*/
+			
 			//Value update
-			if( preference.getTitle().equals("Alamat Layanan") || 
+			/*if( preference.getTitle().equals("Alamat Layanan") || 
 					preference.getTitle().equals("Versi Trayek") || 
 					preference.getTitle().equals("Arah Trayek")){
 				preference.setSummary(stringValue);
-			}
+			}*/
 			
 			return true;
 		}
@@ -269,7 +274,11 @@ public class AppPreferences extends PreferenceActivity {
         	//Yes
                 public void onClick(DialogInterface dialog,int id) {
                     System.out.println(" onClick ");
-                    FormObjectTransfer.main_activity.finish(); //Hancurkan main terlebih dahulu
+                    try{
+                    	FormObjectTransfer.main_activity.finish(); //Hancurkan main terlebih dahulu
+                    }catch(NullPointerException e){
+                    	Log.w("EXIT_STATE", "Program called from launcher, not activity.");
+                    }
                     FormObjectTransfer.isQuit = true;
                     FormObjectTransfer.bxl.sharedCountdown.cancel();
                     FormObjectTransfer.main_activity.gls.StopGPS();

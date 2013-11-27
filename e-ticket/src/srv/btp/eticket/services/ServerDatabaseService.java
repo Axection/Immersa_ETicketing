@@ -100,7 +100,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	
 	public int connStatus = 0;
 	public static boolean isDone;
-
+	public static boolean isFail = false;
 
 	protected CountDownTimer ctd = new CountDownTimer(MAXIMUM_WAITING_TIME,1000) {
 		@Override public void onTick(long arg0) {Log.d("ServerTickingWaiting",arg0+ " JSON waiting time." );}
@@ -123,8 +123,9 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 		progressDialog.setOnCancelListener(new OnCancelListener() {
 			@Override public void onCancel(DialogInterface arg0) {
 				Toast.makeText(FormObjectTransfer.main_activity.getBaseContext(), 
-						"Proses dibatalkan. Menggunakan data dari eksisting.", Toast.LENGTH_SHORT).show();
+						"Proses dibatalkan. Menggunakan data dari yang ada.", Toast.LENGTH_SHORT).show();
 				progressDialog.dismiss();
+				isDone = true;
 				cancel(true);
 				
 			}
@@ -139,12 +140,11 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 			// STATE detection
 			if (parameter.equals(URL_SERVICE_FORWARD)) {
 				connStatus = CHECK_ROUTE_FORWARD;
-				route.onUpgrade(route.getWritableDatabase(), 1, 1);
+				
 				// progressDialog.setMessage("Mendownload informasi trayek...");
 			} else if (parameter.equals(URL_SERVICE_REVERSE)) {
 				connStatus = CHECK_ROUTE_REVERSE;
-				route_back.onUpgrade(
-						route_back.getWritableDatabase(), 1, 1);
+
 				// progressDialog.setMessage("Mendownload informasi trayek arah balik...");
 			} else if (parameter.equals(URL_SERVICE_VERSION_CHECK)) {
 				connStatus = CHECK_STATE_VERSION;
@@ -176,15 +176,19 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 				} catch (UnsupportedEncodingException e1) {
 					Log.e("UnsupportedEncodingException", e1.toString());
 					e1.printStackTrace();
+					isFail = true;
 				} catch (ClientProtocolException e2) {
 					Log.e("ClientProtocolException", e2.toString());
 					e2.printStackTrace();
+					isFail = true;
 				} catch (IllegalStateException e3) {
 					Log.e("IllegalStateException", e3.toString());
 					e3.printStackTrace();
+					isFail = true;
 				} catch (IOException e4) {
 					Log.e("IOException", e4.toString());
 					e4.printStackTrace();
+					isFail = true;
 				}
 				// Convert response to string using String Builder
 				try {
@@ -212,6 +216,19 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 				Log.d("CONNECTION_STATUS", "Connection Status = "+ String.valueOf(connStatus));
 				try {
 					JSONArray jArray = new JSONArray(result);
+					//Jikala entri data berhasil, maka dipersiapkan cleaning database
+					//apabila isi JSON salah, maka otomatis akan terlempar langsung ke catch dan
+					//data sementara akan aman tidak diubah/dibersihkan.
+					
+					if(connStatus == CHECK_ROUTE_FORWARD){
+						route.onUpgrade(route.getWritableDatabase(), 1, 1);
+					}else if(connStatus == CHECK_ROUTE_REVERSE){
+						route_back.onUpgrade(
+								route_back.getWritableDatabase(), 1, 1);
+					}
+					
+					
+					//Mulai prosesi 
 					for (int i = 0; i < jArray.length(); i++) {
 						JSONObject jObject = jArray.getJSONObject(i);
 						Log.d("JOBJECT" + i +  " " + connStatus,  " " + jObject.toString());
@@ -221,13 +238,16 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 									.parseInt(PreferenceManager
 											.getDefaultSharedPreferences(
 													FormObjectTransfer.main_activity
-															.getApplicationContext())
-											.getString("unique_key", "00"));
+															.getBaseContext())
+											.getString("unique_key", "0"));
 							int downloadedValue = jObject.getInt("version");
 							Log.d("STATE"+i, "version:"+downloadedValue + " internal:"+originValue);
 							if (downloadedValue > originValue) {
 								
 								isVersionUptoDate = false;
+								PreferenceManager.getDefaultSharedPreferences(
+										FormObjectTransfer.main_activity.getBaseContext())
+										.edit().putString("unique_key", String.valueOf(downloadedValue) ).commit();
 							} else {
 								isVersionUptoDate = true; // membuat update
 															// tidak terjadi.
@@ -292,6 +312,12 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 									);
 							Log.d("STATE"+i, "host:" + id_src_rev + " dest:"+ id_dst_rev + " price:" + price_rev);
 							break;
+							
+						/*
+						 * Check Route adalah pengolahan JSON menjadi entri data.
+						 * 
+						 * 
+						 */
 						case CHECK_ROUTE_FORWARD:
 							if (isVersionUptoDate)
 								break;
@@ -332,7 +358,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 
 					} // end: for
 				} catch (JSONException e) {
-
+					isFail = true;
 					Log.e("JSONException", "Error: " + e.toString());
 
 				} // end: catch (JSONException e)

@@ -104,6 +104,7 @@ public class BluetoothPrintService {
 		boolean b = EnableBT();
 		if (!b)
 			return;
+		Log.e("BTAddress", btSelectedAddr);
 		bxl.connect(btSelectedAddr);
 	}
 	

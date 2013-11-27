@@ -6,11 +6,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import srv.btp.eticket.FormObjectTransfer;
+import srv.btp.eticket.Form_Main;
 import srv.btp.eticket.R;
 import srv.btp.eticket.crud.CRUD_Route_Back_Table;
 import srv.btp.eticket.crud.CRUD_Route_Table;
 import srv.btp.eticket.crud.Datafield_Route;
+import android.database.sqlite.SQLiteException;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.Toast;
 
 public class GPSDataList {
 
@@ -70,11 +74,15 @@ public class GPSDataList {
 			listSize = listSizeForward;
 			hargaParsial = hargaParsialForward;
 			ReverseStatus = isReversed;
+			lat_kota = lat_kota_forward;
+			long_kota = long_kota_forward;
 		}else{
 			kotaList = kotaListReverse;
 			listSize = listSizeReverse;
 			hargaParsial = hargaParsialReverse;
 			ReverseStatus = isReversed;
+			lat_kota = lat_kota_rev;
+			long_kota = long_kota_rev;
 		}
 	}
 	
@@ -110,12 +118,15 @@ public class GPSDataList {
 		
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
 			if(ServerDatabaseService.isDone){
 				this.cancel();
 				FormObjectTransfer.main_activity.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
+						if(ServerDatabaseService.isFail)
+							Toast.makeText(FormObjectTransfer.main_activity.getBaseContext(), 
+								"Ada masalah pada jaringan. Mengambil data trayek dari update terakhir.", Toast.LENGTH_LONG).show();
+						
 						FormObjectTransfer.gdl.generateData();
 						
 					}
@@ -139,6 +150,7 @@ public class GPSDataList {
 		CRUD_Route_Back_Table crud_reverse = new CRUD_Route_Back_Table(FormObjectTransfer.main_activity.getBaseContext());
 		
 		//Membersihkan data dari trayek tak terpakai
+				try{
 				crud_forward.getWritableDatabase().delete(
 						CRUD_Route_Table.TABLE_NAME, 
 							CRUD_Route_Table.KEY_LEFTPRICE + " = 0 AND " + 
@@ -149,7 +161,9 @@ public class GPSDataList {
 							CRUD_Route_Back_Table.KEY_LEFTPRICE + " = 0 AND " + 
 							CRUD_Route_Back_Table.KEY_RIGHTPRICE+ " = 0" 
 						,null);
-				
+				}catch(SQLiteException sqle){
+					
+				}
 		//prosesi data forward
 		ArrayList<Datafield_Route> datafield = (ArrayList<Datafield_Route>)crud_forward.getAllEntries();
 		int counter = 0;
@@ -179,6 +193,8 @@ public class GPSDataList {
 			counter++;
 		}
 		hargaParsialForward[counter] = 0;
+		listSizeForward = datafield.size();
+		Log.d("TESTVALUE",kotaListForward.length+ " datalength = " + listSizeForward);
 		
 		//Mulai prosesi data route reverse
 		ArrayList<Datafield_Route> datafield_reversed = (ArrayList<Datafield_Route>)crud_reverse.getAllEntries();
@@ -209,6 +225,8 @@ public class GPSDataList {
 			counter++;
 		}
 		hargaParsialReverse[counter] = 0;
+		listSizeReverse = datafield_reversed.size();
+		Log.d("TESTVALUE",kotaListReverse.length+ " datalength_REVERSED = " + listSizeReverse);
 		
 		//PREPURRR
 		String valueIntended = PreferenceManager.getDefaultSharedPreferences(
@@ -221,7 +239,21 @@ public class GPSDataList {
 		}else{
 			SetTrack(true);
 		}
+		Log.d("VALUE_INTENDED",valueIntended);
 
 		FormObjectTransfer.main_activity.PrepareCityList();
+	}
+	
+	public int getNearestCity(double longSrc, double latSrc){
+			double lastShortestDistance = 999999.;
+			int lastNearestCity = 0;
+			for(int a = 0;a < listSize;a++){
+				double dist = Distance.calculateDistanceCoordinates(longSrc, latSrc , long_kota[a], lat_kota[a]);
+				if(dist < lastShortestDistance){
+					lastNearestCity = a+1;
+					lastShortestDistance = dist;
+				}
+			}
+		return lastNearestCity;
 	}
 }

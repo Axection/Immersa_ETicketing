@@ -9,9 +9,12 @@ import srv.btp.eticket.services.StatusBarService;
 import srv.btp.eticket.util.SystemUiHider;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
@@ -57,12 +60,12 @@ public class Form_Main extends Activity {
 
         private Indicator[] indicators;
         private CityList[] city_list;
-        private CityList[] city_display;
+        public CityList[] city_display;
 
         private RelativeLayout top_layout;
         @SuppressWarnings("unused")
 		private RelativeLayout mid_layout;
-        private HorizontalScrollView top_scroll;
+        public HorizontalScrollView top_scroll;
         
         private ImageView BT_Indicator;
         private ImageView GPS_Indicator;
@@ -86,6 +89,7 @@ public class Form_Main extends Activity {
         private Button dbg_btnLeft;
         private Button dbg_btnRight;
         // !endregion
+		private boolean isNotInitialized = true;
 
         /***
          * Listener Section disini berisi daftar Listener atas objek-objek Form
@@ -179,7 +183,28 @@ public class Form_Main extends Activity {
                 dbg_btnLeft.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                                SetCityEnable(city_real_position-1);
+                        	// translate to actual GPS location
+            				Location location = new Location(GPSLocationService.GPS_MOCK_PROVIDER);
+            				int mocked = PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+            						.getInt("mocked", 2) - 1;
+            				location.setLatitude(gdl.lat_kota[mocked]);
+            				location.setLongitude(gdl.long_kota[mocked]);
+            				location.setTime(System.currentTimeMillis());
+            				location.setAccuracy(0);
+            				location.setElapsedRealtimeNanos(System.currentTimeMillis());
+
+            				// show debug message in log
+            				Log.d(GPSLocationService.LOG_TAG, location.toString());
+
+            				// provide the new location
+            				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            				locationManager.setTestProviderLocation(GPSLocationService.GPS_MOCK_PROVIDER, location);
+                        	
+            				PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+            					.edit().putInt("mocked", mocked).commit();
+            				
+                                /*** Obsolete
+                                 SetCityEnable(city_real_position-1);
                                 CreateCityDisplay(city_display);
                                 Log.d("DebugSetCityEnable","toLeft");
                                 //Toast.makeText(getBaseContext(), "DEBUG: Move SetCityEnable Left to " + city_real_position, Toast.LENGTH_SHORT).show();        
@@ -200,12 +225,31 @@ public class Form_Main extends Activity {
                                         }
                                 };
                                 cd.start();
+                                */
                         }
                 });
                 dbg_btnRight.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                                SetCityEnable(city_real_position+1);
+                        	Location location = new Location(GPSLocationService.GPS_MOCK_PROVIDER);
+            				int mocked = PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+            						.getInt("mocked", 2) + 1;
+            				location.setLatitude(gdl.lat_kota[mocked]);
+            				location.setLongitude(gdl.long_kota[mocked]);
+            				location.setTime(System.currentTimeMillis());
+            				location.setAccuracy(0);
+            				location.setElapsedRealtimeNanos(System.currentTimeMillis());
+            				// show debug message in log
+            				Log.d(GPSLocationService.LOG_TAG, location.toString());
+
+            				// provide the new location
+            				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            				locationManager.setTestProviderLocation(GPSLocationService.GPS_MOCK_PROVIDER, location);
+                        	
+            				PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+            					.edit().putInt("mocked", mocked).commit();    
+                        	
+                        	/*SetCityEnable(city_real_position+1);
                                 CreateCityDisplay(city_display);
                                 Log.d("DebugSetCityEnable","toRight");
                                 //Toast.makeText(getBaseContext(), "DEBUG: Move SetCityEnable Right to " + city_real_position, Toast.LENGTH_SHORT).show();        
@@ -224,7 +268,7 @@ public class Form_Main extends Activity {
                                         }
                                 };
                                 cd.start();
-                                
+                                */
                         }
                 });
                 //END DEBUG
@@ -299,7 +343,7 @@ public class Form_Main extends Activity {
                 super.onPostCreate(savedInstanceState);
                 //Menyambung ke bluetooth printer
                 btx._setBtAddr(                
-                                PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                                PreferenceManager.getDefaultSharedPreferences(getBaseContext())
                                                 .getString("bluetooth_list", "00:00:00:00:00:00")
                                         );
                 Log.d("BluetoothAddressLoader",btx.btSelectedAddr);
@@ -530,17 +574,14 @@ public class Form_Main extends Activity {
         	
         }
         public void PrepareCityList(){
-                //TODO: ngambil data dari SQLite menuju daftar kota via GPSDataList
-        		
         		String[] namaKota = gdl.kotaList;
                 int dataSize = namaKota.length;
                 int hargaParsial[] = gdl.hargaParsial;
-                	
-                //END
+                
                 city_list = new CityList[dataSize];
                 city_max_position = dataSize;
                 top_layout.setLayoutParams(new FrameLayout.LayoutParams(
-                                (180 * dataSize) + 60, -2)); //180, 60, -2 adalah konstanta tetap panjang layout. jangan diubah.
+                                (180 * dataSize) + 60, -2)); //180, 60, -2 adalah konstanta tetap panjang layout. Untuk saat ini, jangan diubah.
                 CreateIndicator(dataSize);
                 city_display = new CityList[dataSize<9 ? dataSize : 9];
                 Log.d("debug", String.valueOf(indicators[0].txt.getLeft()));
@@ -555,15 +596,16 @@ public class Form_Main extends Activity {
                  }
                 button_left.setBackgroundResource(R.drawable.button_left_passive);
                 button_left.setEnabled(false);
-                
-                int initializationValue = 0; 
+                isNotInitialized = false;
+                int initializationValue = PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getInt("mocked", 1);
                 SetCityEnable(initializationValue); 
                 city_position = 1;
                 for(int a = 0;a<city_display.length;a++){
                         city_display[a] = city_list[a];
                 }
                 CreateCityDisplay(city_display);
-                DisableAllButtons();
+                
+                //DisableAllButtons();
         }
         
         
@@ -644,7 +686,7 @@ public class Form_Main extends Activity {
                 }
                 if(cityIndex == city_max_position){
                         /*
-                         * Disini terjadi pertanyaan reset rute ato menyudahi rute,
+                         * TODO:Disini terjadi pertanyaan reset rute ato menyudahi rute,
                          * karena CityEnable sudah tiba di titik poin terakhir.
                          * Tindakan yang perlu dilakukan adalah menanyakan kembali
                          * rute.
@@ -679,6 +721,7 @@ public class Form_Main extends Activity {
                 return;
         }
 		public boolean checkStatus() {
+			
 			//emergency recovery status
 			if(FormObjectTransfer.isBTConnected && FormObjectTransfer.isGPSConnected){
 				EnableAllButtons();
@@ -703,8 +746,10 @@ public class Form_Main extends Activity {
 				button_right.setEnabled(true);
 				button_right.setBackgroundResource(R.drawable.button_right_active);
 			}
-			SetCityEnable(city_real_position);
-			CreateCityDisplay(city_display);
+			if(!isNotInitialized){
+				SetCityEnable(city_real_position);
+				CreateCityDisplay(city_display);
+			}
 		}
 		public void DisableAllButtons(){
 			for(int a = 1; a<= 9;a++){
