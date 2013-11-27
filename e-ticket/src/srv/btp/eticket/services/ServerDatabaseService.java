@@ -328,8 +328,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 							int id_forward = jObject.getInt(FIELD_ID);
 							String nama_forward = jObject.getString(FIELD_NAMA);
 							double latd_forward = jObject.getDouble(FIELD_LAT);
-							double longd_forward = jObject
-									.getDouble(FIELD_LONG);
+							double longd_forward= jObject.getDouble(FIELD_LONG);
 							Datafield_Route dr_forward = new Datafield_Route(
 									id_forward, nama_forward, 0, 0,
 									latd_forward, longd_forward);

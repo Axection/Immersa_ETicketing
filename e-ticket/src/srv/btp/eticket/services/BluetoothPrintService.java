@@ -47,7 +47,9 @@ public class BluetoothPrintService {
 
 	String dataPrint = "";
 	int lastStatus = 0;
-
+	
+	public boolean READY_STATE = false;
+	
 	BixolonPrinter bxl;
 	private int REQUEST_ENABLE_BT;
 	
@@ -70,7 +72,8 @@ public class BluetoothPrintService {
 		btAddr = new ArrayList<String>();
 		BTIndicator = Indicators;
 		RecreateTimer(DEFAULT_RECONNECT_FAIL_TIME);
-		
+		DisconnectPrinter();
+		READY_STATE = true;
 	}
 
 	/***
@@ -110,7 +113,6 @@ public class BluetoothPrintService {
 	
 	public void DisconnectPrinter(){
 		bxl.disconnect();
-		
 	}
 	
 	public void RecreateTimer(int RECONNECT_TIMEOUT){
@@ -126,6 +128,7 @@ public class BluetoothPrintService {
 			}
 		};
 	}
+
 
 	private final Handler BLUETOOTH_HANDLER = new Handler(new Handler.Callback() {
 		public boolean handleMessage(Message msg) {
@@ -148,6 +151,7 @@ public class BluetoothPrintService {
 					sharedCountdown.start();
 					break;
 				case BixolonPrinter.STATE_NONE:
+					DisconnectPrinter();
 					//if(BT_STATE == STATE_CONNECTED)break;
 			        Toast.makeText(selected_activity.getApplicationContext(), 
 			        			"Sambungan printer terputus.\n Menyambung kembali dalam waktu " + (DEFAULT_RECONNECT_FAIL_TIME/1000) +" detik...",
@@ -156,12 +160,14 @@ public class BluetoothPrintService {
 			        
 					BTIndicator.setImageResource(R.drawable.indicator_bt_off);
 					BT_STATE = STATE_DISCONNECTED;
-					FormObjectTransfer.isBTConnected = false;
-					//if(!FormObjectTransfer.isInitalizationState)
-					FormObjectTransfer.main_activity.checkStatus();
-			        sharedCountdown.cancel(); //Untuk menetapkan overriding reconnect manual.
-			        RecreateTimer(DEFAULT_RECONNECT_FAIL_TIME);
-					sharedCountdown.start();
+					if(READY_STATE){
+						FormObjectTransfer.isBTConnected = false;
+						//if(!FormObjectTransfer.isInitalizationState)
+						FormObjectTransfer.main_activity.checkStatus();
+				        sharedCountdown.cancel(); //Untuk menetapkan overriding reconnect manual.
+				        RecreateTimer(DEFAULT_RECONNECT_FAIL_TIME);
+						sharedCountdown.start();
+					}
 					break;
 				}
 				break;

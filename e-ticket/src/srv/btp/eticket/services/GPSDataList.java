@@ -244,10 +244,11 @@ public class GPSDataList {
 		FormObjectTransfer.main_activity.PrepareCityList();
 	}
 	
-	public int getNearestCity(double longSrc, double latSrc){
+	public int getNearestCity(double latSrc, double longSrc){
 			double lastShortestDistance = 999999.;
 			int lastNearestCity = 0;
 			for(int a = 0;a < listSize;a++){
+				Log.w("getNearestCity",long_kota[a] + "," +  lat_kota[a] + " compared to " + longSrc + "," + latSrc);
 				double dist = Distance.calculateDistanceCoordinates(longSrc, latSrc , long_kota[a], lat_kota[a]);
 				if(dist < lastShortestDistance){
 					lastNearestCity = a+1;

@@ -274,12 +274,15 @@ public class AppPreferences extends PreferenceActivity {
         	//Yes
                 public void onClick(DialogInterface dialog,int id) {
                     System.out.println(" onClick ");
+                    FormObjectTransfer.bxl.READY_STATE = false;
+                    FormObjectTransfer.bxl.DisconnectPrinter();
                     try{
                     	FormObjectTransfer.main_activity.finish(); //Hancurkan main terlebih dahulu
                     }catch(NullPointerException e){
                     	Log.w("EXIT_STATE", "Program called from launcher, not activity.");
                     }
                     FormObjectTransfer.isQuit = true;
+                    
                     FormObjectTransfer.bxl.sharedCountdown.cancel();
                     FormObjectTransfer.main_activity.gls.StopGPS();
                     finish(); // Close Application method called

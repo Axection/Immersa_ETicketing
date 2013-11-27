@@ -98,7 +98,8 @@ public class CRUD_Route_Back_Table extends SQLiteOpenHelper {
 				t.set_nama(c.getString(1));
 				t.set_leftprice(Integer.parseInt(c.getString(2)));
 				t.set_rightprice(Integer.parseInt(c.getString(3)));
-				t.set_lokasi(c.getString(4));
+				t.set_latitude(Double.parseDouble(c.getString(4)));
+				t.set_longitude(Double.parseDouble(c.getString(5)));
 				
 				l.add(t);
 			} while (c.moveToNext());

@@ -187,14 +187,16 @@ public class Form_Main extends Activity {
             				Location location = new Location(GPSLocationService.GPS_MOCK_PROVIDER);
             				int mocked = PreferenceManager.getDefaultSharedPreferences(getBaseContext())
             						.getInt("mocked", 2) - 1;
-            				location.setLatitude(gdl.lat_kota[mocked]);
-            				location.setLongitude(gdl.long_kota[mocked]);
+            				location.setLatitude(gdl.lat_kota[mocked-1]);
+            				location.setLongitude(gdl.long_kota[mocked-1]);
             				location.setTime(System.currentTimeMillis());
             				location.setAccuracy(0);
             				location.setElapsedRealtimeNanos(System.currentTimeMillis());
 
             				// show debug message in log
-            				Log.d(GPSLocationService.LOG_TAG, location.toString());
+            				Log.d(GPSLocationService.LOG_TAG, "mock Index=" + mocked + " " + location.toString());
+            				Log.d(GPSLocationService.LOG_TAG, "longitude="+ gdl.long_kota[mocked-1] );
+            				Log.d(GPSLocationService.LOG_TAG, "latitude="+ gdl.lat_kota[mocked-1] );
 
             				// provide the new location
             				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -233,14 +235,16 @@ public class Form_Main extends Activity {
                         public void onClick(View v) {
                         	Location location = new Location(GPSLocationService.GPS_MOCK_PROVIDER);
             				int mocked = PreferenceManager.getDefaultSharedPreferences(getBaseContext())
-            						.getInt("mocked", 2) + 1;
-            				location.setLatitude(gdl.lat_kota[mocked]);
-            				location.setLongitude(gdl.long_kota[mocked]);
+            						.getInt("mocked", 0) + 1;
+            				location.setLatitude(gdl.lat_kota[mocked-1]);
+            				location.setLongitude(gdl.long_kota[mocked-1]);
             				location.setTime(System.currentTimeMillis());
             				location.setAccuracy(0);
             				location.setElapsedRealtimeNanos(System.currentTimeMillis());
             				// show debug message in log
-            				Log.d(GPSLocationService.LOG_TAG, location.toString());
+            				Log.d(GPSLocationService.LOG_TAG, "mock Index=" + mocked + " " + location.toString());
+            				Log.d(GPSLocationService.LOG_TAG, "longitude="+ gdl.long_kota[mocked-1] );
+            				Log.d(GPSLocationService.LOG_TAG, "latitude="+ gdl.lat_kota[mocked-1] );
 
             				// provide the new location
             				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);

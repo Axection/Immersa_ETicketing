@@ -175,8 +175,8 @@ public class GPSLocationService {
 									R.array.direction_entry)[0]);
 			Log.d("VALUE_INTENDED",valueIntended);
 			
-				current_city = FormObjectTransfer.gdl.getNearestCity(current_latitude, current_longitude);
-			
+			current_city = FormObjectTransfer.gdl.getNearestCity(current_latitude, current_longitude);
+			Log.d("NEAREST_City",current_city + " is city " + FormObjectTransfer.gdl.kotaList[current_city-1]);
 			if(current_city != lastCity){
 				final Form_Main e = FormObjectTransfer.main_activity;
 	            e.SetCityEnable(current_city);
