@@ -73,17 +73,16 @@ public class GPSDataList {
 			kotaList = kotaListForward;
 			listSize = listSizeForward;
 			hargaParsial = hargaParsialForward;
-			ReverseStatus = isReversed;
 			lat_kota = lat_kota_forward;
 			long_kota = long_kota_forward;
 		}else{
 			kotaList = kotaListReverse;
 			listSize = listSizeReverse;
 			hargaParsial = hargaParsialReverse;
-			ReverseStatus = isReversed;
 			lat_kota = lat_kota_rev;
 			long_kota = long_kota_rev;
 		}
+		ReverseStatus = isReversed;
 	}
 	
 	public void getDataFromJSON(){
@@ -198,7 +197,7 @@ public class GPSDataList {
 		
 		//Mulai prosesi data route reverse
 		ArrayList<Datafield_Route> datafield_reversed = (ArrayList<Datafield_Route>)crud_reverse.getAllEntries();
-		counter = 0;
+
 		previousrightprice = 0;
 		size = datafield_reversed.size();
 		kotaListReverse = new String[size];
@@ -206,25 +205,26 @@ public class GPSDataList {
 		long_kota_rev= new double[size];
 		lat_kota_rev = new double[size];
 		
+		counter = size-1;
 		//initialisasi format data
-		hargaParsialReverse[0] = 0;
+		hargaParsialReverse[counter] = 0;
 		
 		for(Datafield_Route dr: datafield){
-			int numbering = (int)dr.get_ID();
-			kotaListReverse[numbering-1] = dr.get_nama();
-			if(numbering-1 == 0){
-				hargaParsialReverse[numbering-1]=0;
+			int numbering = size-(int)dr.get_ID();
+			kotaListReverse[numbering] = dr.get_nama();
+			if(numbering == size){
+				hargaParsialReverse[numbering]=0;
 				previousrightprice = dr.get_rightprice();
 			}else{
-				hargaParsialReverse[numbering-1] = dr.get_leftprice() + previousrightprice;
+				hargaParsialReverse[numbering] = dr.get_leftprice() + previousrightprice;
 				previousrightprice = dr.get_rightprice();
 			}
-			long_kota_rev[numbering-1] = dr.get_longitude();
-			lat_kota_rev[numbering-1] = dr.get_latitude();
+			long_kota_rev[numbering] = dr.get_longitude();
+			lat_kota_rev[numbering] = dr.get_latitude();
 			
-			counter++;
+			counter--;
 		}
-		hargaParsialReverse[counter] = 0;
+		hargaParsialReverse[0] = 0;
 		listSizeReverse = datafield_reversed.size();
 		Log.d("TESTVALUE",kotaListReverse.length+ " datalength_REVERSED = " + listSizeReverse);
 		

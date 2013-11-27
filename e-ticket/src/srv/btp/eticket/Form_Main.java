@@ -9,7 +9,9 @@ import srv.btp.eticket.services.StatusBarService;
 import srv.btp.eticket.util.SystemUiHider;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -17,6 +19,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -69,7 +72,7 @@ public class Form_Main extends Activity {
         
         private ImageView BT_Indicator;
         private ImageView GPS_Indicator;
-        
+        private ImageView line;
         //Service Objects
         BluetoothPrintService btx;
         GPSLocationService gls;
@@ -481,7 +484,7 @@ public class Form_Main extends Activity {
                 int block_indicator_size = 150; //Ukuran per indikator
 
                 // Pembuatan garis indikator
-                ImageView line = new ImageView(this);
+                line = new ImageView(this);
                 line.setImageResource(R.drawable.indicator_line);
                 RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(73
                                 * (2 * (num - 1)) + (icon_size * (num - 1)), 8);
@@ -571,11 +574,17 @@ public class Form_Main extends Activity {
         }
         
         public void CleanCityList(){
-        	//Bersih-bersih indikator perlu dilakukan agar memory bersih
+        	//TODO: Bersih-bersih indikator perlu dilakukan agar memory bersih
         	
         	//dari indikator
-        	top_scroll.removeAllViews();
-        	
+	        for(int a=0;a<top_layout.getChildCount();a++){
+	        	top_layout.removeView(indicators[a].balloon);
+	        	top_layout.removeView(indicators[a].img);
+	        	top_layout.removeView(indicators[a].num);
+	        	top_layout.removeView(indicators[a].txt);
+	        }
+	        //garis
+	        top_layout.removeView(line);
         }
         public void PrepareCityList(){
         		String[] namaKota = gdl.kotaList;
@@ -587,6 +596,7 @@ public class Form_Main extends Activity {
                 top_layout.setLayoutParams(new FrameLayout.LayoutParams(
                                 (180 * dataSize) + 60, -2)); //180, 60, -2 adalah konstanta tetap panjang layout. Untuk saat ini, jangan diubah.
                 CreateIndicator(dataSize);
+                Log.d("INDICATOR","CreatedIndicator");
                 city_display = new CityList[dataSize<9 ? dataSize : 9];
                 Log.d("debug", String.valueOf(indicators[0].txt.getLeft()));
                 for(int a = 0; a<dataSize;a++){
@@ -695,6 +705,17 @@ public class Form_Main extends Activity {
                          * Tindakan yang perlu dilakukan adalah menanyakan kembali
                          * rute.
                          */
+                	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                	builder.setMessage("Bis telah mencapai area titik akhir rute dari trayek. Klik OK untuk memutar balik rute.")
+                	       .setTitle("Rute berakhir");
+                	builder.setCancelable(false);
+                	builder.setPositiveButton("OK", rute_berputar);
+
+                	// 3. Get the AlertDialog from create()
+                	AlertDialog dialog = builder.create();
+                	dialog.setCanceledOnTouchOutside(false);
+                	dialog.setCancelable(false);
+                	dialog.show();
                 }
                 if(cityIndex == 0){
                 	for(int a = 0; a< city_max_position;a++){
@@ -765,6 +786,41 @@ public class Form_Main extends Activity {
 			button_right.setEnabled(false);
 			button_right.setBackgroundResource(R.drawable.button_right_passive);
 		}
+		
+		protected DialogInterface.OnClickListener rute_berputar = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Fungsi membalik rute
+				String valueIntended = PreferenceManager.getDefaultSharedPreferences(
+						getBaseContext()).getString(
+								"trajectory_direction", 
+								"");
+				Log.d("Traject",valueIntended);
+				if(valueIntended.equals("maju")){
+					//Langsung balikkan data jadi balik
+					PreferenceManager.getDefaultSharedPreferences(
+							getBaseContext()).edit()
+							.putString("trajectory_direction", "balik")
+							.commit();
+					//dan putar datanya
+					gdl.SetTrack(true);
+				}else{
+					//Langsung balikkan data jadi balik
+					PreferenceManager.getDefaultSharedPreferences(
+							getBaseContext()).edit()
+							.putString("trajectory_direction", "maju")
+							.commit();
+					//dan putar datanya
+					gdl.SetTrack(false);
+				}
+				//Pertama bersihkan dulu indikator
+				CleanCityList();
+				PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+				.edit().putInt("mocked", 1).commit();
+				PrepareCityList();
+				
+			}
+		};
 		
 		protected OnClickListener bt_manual_reconnector = new OnClickListener() {
 			@Override
