@@ -295,6 +295,15 @@
             android:layout_marginLeft="44dp"
             android:text="&lt;" />
 
+        <ImageView
+            android:id="@+id/img_direction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_alignLeft="@+id/img_indicator_gps"
+            android:layout_below="@+id/img_indicator_gps"
+            android:src="@drawable/direction_maju" />
+
     </RelativeLayout>
 
 </RelativeLayout>

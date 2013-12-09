@@ -6,7 +6,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import srv.btp.eticket.FormObjectTransfer;
-import srv.btp.eticket.Form_Main;
 import srv.btp.eticket.R;
 import srv.btp.eticket.crud.CRUD_Route_Back_Table;
 import srv.btp.eticket.crud.CRUD_Route_Table;
@@ -109,8 +108,12 @@ public class GPSDataList {
 		};
 		Timer td = new Timer(true);
 		td.schedule(TaskUpdate, Calendar.getInstance().getTime(), 1000);
+		try{
 		sdd.execute(URL_LIST_SERVICE);
-
+		}catch(Exception e){
+			td.cancel();
+			generateData();
+		}
 		
 	}
 	protected TimerTask TaskUpdate = new TimerTask() {
@@ -189,6 +192,7 @@ public class GPSDataList {
 			long_kota_forward[numbering-1] = dr.get_longitude();
 			lat_kota_forward[numbering-1] = dr.get_latitude();
 			
+			System.out.println(counter  + " forward " + hargaParsialForward[counter]+"");
 			counter++;
 		}
 		hargaParsialForward[counter] = 0;
@@ -198,7 +202,7 @@ public class GPSDataList {
 		//Mulai prosesi data route reverse
 		ArrayList<Datafield_Route> datafield_reversed = (ArrayList<Datafield_Route>)crud_reverse.getAllEntries();
 
-		previousrightprice = 0;
+		int previousleftprice = 0;
 		size = datafield_reversed.size();
 		kotaListReverse = new String[size];
 		hargaParsialReverse = new int[size+2];
@@ -209,22 +213,36 @@ public class GPSDataList {
 		//initialisasi format data
 		hargaParsialReverse[counter] = 0;
 		
-		for(Datafield_Route dr: datafield){
+		for(Datafield_Route dr: datafield_reversed){
 			int numbering = size-(int)dr.get_ID();
 			kotaListReverse[numbering] = dr.get_nama();
 			if(numbering == size){
-				hargaParsialReverse[numbering]=0;
-				previousrightprice = dr.get_rightprice();
+				//hargaParsialReverse[numbering]=0;
+				previousleftprice = dr.get_leftprice();
 			}else{
-				hargaParsialReverse[numbering] = dr.get_leftprice() + previousrightprice;
-				previousrightprice = dr.get_rightprice();
+				hargaParsialReverse[numbering+1] = dr.get_rightprice() + previousleftprice;
+				previousleftprice = dr.get_leftprice();
 			}
 			long_kota_rev[numbering] = dr.get_longitude();
 			lat_kota_rev[numbering] = dr.get_latitude();
 			
+			
+			
 			counter--;
+			
 		}
-		hargaParsialReverse[0] = 0;
+		
+		for(int a = 0;a<hargaParsialReverse.length;a++){
+			System.out.println(a  + " ref " + hargaParsialForward[a]+"");
+		}
+		/*//well, anti bug proceed :v
+		int hrgTmp[] = new int[datafield.size()];
+		for(int a=0;a<datafield.size();a++){
+			hrgTmp[a] = hargaParsialReverse[a];
+		}
+		for(int a=datafield)*/
+		
+		
 		listSizeReverse = datafield_reversed.size();
 		Log.d("TESTVALUE",kotaListReverse.length+ " datalength_REVERSED = " + listSizeReverse);
 		

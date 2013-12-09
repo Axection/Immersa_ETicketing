@@ -56,10 +56,12 @@ public class Form_Main extends Activity {
         private Button button_left;
         private Button button_right;
 
+        
         private Button button_pref;
         
         private Intent intentPrint;
         private Intent intentPref;
+        
 
         private Indicator[] indicators;
         private CityList[] city_list;
@@ -73,6 +75,7 @@ public class Form_Main extends Activity {
         private ImageView BT_Indicator;
         private ImageView GPS_Indicator;
         private ImageView line;
+        private ImageView Direction_Indicator;
         //Service Objects
         BluetoothPrintService btx;
         GPSLocationService gls;
@@ -167,8 +170,21 @@ public class Form_Main extends Activity {
                 //indicator set
                 BT_Indicator = (ImageView)findViewById(R.id.img_indicator_bt);
                 GPS_Indicator = (ImageView)findViewById(R.id.img_indicator_gps);
+                Direction_Indicator = (ImageView)findViewById(R.id.img_direction);
+                
+                String valueIntended = PreferenceManager.getDefaultSharedPreferences(
+						getBaseContext()).getString(
+								"trajectory_direction", 
+								"");
+				Log.d("Traject",valueIntended);
+				if(valueIntended.equals("maju")){
+					Direction_Indicator.setImageResource(R.drawable.direction_maju);
+				}else{
+					Direction_Indicator.setImageResource(R.drawable.direction_balik);
+				}
                 BT_Indicator.setOnClickListener(bt_manual_reconnector);
                 GPS_Indicator.setOnClickListener(gps_manual_reconnector);
+                
                 
                 //service initialization
                 btx = new BluetoothPrintService(this,BT_Indicator);
@@ -804,6 +820,8 @@ public class Form_Main extends Activity {
 							.commit();
 					//dan putar datanya
 					gdl.SetTrack(true);
+					Direction_Indicator.setImageResource(R.drawable.direction_balik);
+					
 				}else{
 					//Langsung balikkan data jadi balik
 					PreferenceManager.getDefaultSharedPreferences(
@@ -812,6 +830,7 @@ public class Form_Main extends Activity {
 							.commit();
 					//dan putar datanya
 					gdl.SetTrack(false);
+					Direction_Indicator.setImageResource(R.drawable.direction_maju);
 				}
 				//Pertama bersihkan dulu indikator
 				CleanCityList();

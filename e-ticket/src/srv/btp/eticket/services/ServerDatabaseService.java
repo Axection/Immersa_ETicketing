@@ -110,6 +110,9 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 			progressDialog.cancel();
 		}
 	};
+
+
+	private boolean isGetDataFailed;
 	
 	protected void onPreExecute() {
 		isDone = false;
@@ -138,6 +141,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 			String url_select = URLService + parameter;
 			Log.e("URLService", url_select);
 			// STATE detection
+			
 			if (parameter.equals(URL_SERVICE_FORWARD)) {
 				connStatus = CHECK_ROUTE_FORWARD;
 				
@@ -160,6 +164,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 			}
 
 			ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
+			isGetDataFailed = false;
 			if (!isVersionUptoDate) { // ketika versi telah terupdate, perlu
 										// adanya pencegahan download.
 				try {
@@ -210,11 +215,13 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 				} catch (Exception e) {
 					Log.e("StringBuilding & BufferedReader",
 							"Error converting result " + e.toString());
+					isGetDataFailed = true;
 				}
 
 				// Langsung proses?
 				Log.d("CONNECTION_STATUS", "Connection Status = "+ String.valueOf(connStatus));
 				try {
+					if(!isGetDataFailed){
 					JSONArray jArray = new JSONArray(result);
 					//Jikala entri data berhasil, maka dipersiapkan cleaning database
 					//apabila isi JSON salah, maka otomatis akan terlempar langsung ke catch dan
@@ -356,6 +363,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 						}//end: switch
 
 					} // end: for
+					}
 				} catch (JSONException e) {
 					isFail = true;
 					Log.e("JSONException", "Error: " + e.toString());
