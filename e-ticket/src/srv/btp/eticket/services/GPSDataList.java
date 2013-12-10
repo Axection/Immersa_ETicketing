@@ -68,7 +68,7 @@ public class GPSDataList {
 							R.string.default_service));
 	
 	public void SetTrack(boolean isReversed){
-		if(!isReversed){
+		if(isReversed == false){
 			kotaList = kotaListForward;
 			listSize = listSizeForward;
 			hargaParsial = hargaParsialForward;
@@ -252,12 +252,15 @@ public class GPSDataList {
 						"trajectory_direction", 
 						FormObjectTransfer.main_activity.getResources().getStringArray(
 								R.array.direction_entry)[0]);
-		if(valueIntended=="maju"){
+		if(valueIntended.equals("maju")){
 			SetTrack(false);
+			Log.d("VALUE_INTENDED","maju");
 		}else{
 			SetTrack(true);
+			Log.d("VALUE_INTENDED","terbalik");
+			
 		}
-		Log.d("VALUE_INTENDED",valueIntended);
+		
 
 		FormObjectTransfer.main_activity.PrepareCityList();
 	}

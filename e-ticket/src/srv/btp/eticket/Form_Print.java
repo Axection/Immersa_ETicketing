@@ -26,7 +26,8 @@ public class Form_Print extends Activity {
 	/***
 	 * Hardcoded constants
 	 */
-	private static final int MAX_VALUES_BOUND = 99;
+	private static final int MAX_VALUES_BOUND = 45;
+	private static final int WARN_VALUES_BOUND = 8;
 
 	// !endregion
 

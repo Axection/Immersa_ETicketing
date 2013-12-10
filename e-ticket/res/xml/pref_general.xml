@@ -17,10 +17,11 @@
     <EditTextPreference android:dialogTitle="Alamat Layanan" android:dialogMessage="@string/technical_text" android:key="service_address" android:title="Alamat Layanan" android:defaultValue="@string/default_service"/></PreferenceCategory>
     <PreferenceCategory android:title="Maintenance">
         <Preference android:defaultValue="0" android:key="unique_key" android:title="Versi Trayek" android:enabled="true" android:selectable="false"/>
-        <ListPreference android:dialogTitle="Daftar Rute" android:key="route_list" android:title="Pilih Daftar Rute..." android:enabled="false"/>
-        <Preference android:title="Impor Konfigurasi..." android:summary="Impor konfigurasi yang tersimpan di External Storage" android:key="import" android:enabled="false"/>
+        <EditTextPreference android:dialogTitle="Password Kontrol Administrasi" android:key="input_password" android:dialogMessage="Masukkan password untuk mengganti kode akses kontrol aplikasi." android:defaultValue="1234" android:title="Password Keamanan" android:summary="Mengubah akses password panel ini" /><ListPreference android:dialogTitle="Daftar Rute" android:key="route_list" android:title="Pilih Daftar Rute..." android:enabled="false"/>
+        <ListPreference android:dialogTitle="Pilih arah arus" android:title="Arah Trayek" android:key="trajectory_direction" android:defaultValue="Maju" android:entryValues="@array/direction_values" android:entries="@array/direction_entry" /><Preference android:title="Impor Konfigurasi..." android:summary="Impor konfigurasi yang tersimpan di External Storage" android:key="import" android:enabled="false"/>
         <Preference android:key="export" android:title="Ekspor Konfigurasi..." android:summary="Menyimpan konfigurasi sistem ke External Storage" android:enabled="false"/>
-        <ListPreference android:dialogTitle="Pilih arah arus" android:title="Arah Trayek" android:key="trajectory_direction" android:defaultValue="Maju" android:entryValues="@array/direction_values" android:entries="@array/direction_entry"/>
+        
+        
         
         
     </PreferenceCategory><PreferenceCategory android:title="Bantuan">

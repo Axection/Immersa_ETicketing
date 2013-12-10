@@ -304,6 +304,21 @@
             android:layout_below="@+id/img_indicator_gps"
             android:src="@drawable/direction_maju" />
 
+        <TextView
+            android:id="@+id/txtDebugLog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/dbg_btnLeft"
+            android:layout_alignBottom="@+id/dbg_btnLeft"
+            android:layout_marginLeft="34dp"
+            android:layout_toRightOf="@+id/dbg_btnRight"
+            android:text="TextView"
+            android:textColor="@color/yellow"
+            android:textSize="@dimen/text_caption_size"
+            android:textStyle="bold"
+            android:typeface="sans"
+            android:visibility="visible" />
+
     </RelativeLayout>
 
 </RelativeLayout>

@@ -7,6 +7,7 @@ import srv.btp.eticket.services.GPSDataList;
 import srv.btp.eticket.services.GPSLocationService;
 import srv.btp.eticket.services.StatusBarService;
 import srv.btp.eticket.util.SystemUiHider;
+import srv.btp.eticket.R;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,6 +33,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -92,8 +94,9 @@ public class Form_Main extends Activity {
         private CountDownTimer cd;
 
         //DEBUGITEMS
-        private Button dbg_btnLeft;
-        private Button dbg_btnRight;
+        public Button dbg_btnLeft;
+        public Button dbg_btnRight;
+        public TextView dbg_txtLog;
         // !endregion
 		private boolean isNotInitialized = true;
 
@@ -198,6 +201,7 @@ public class Form_Main extends Activity {
                 //
                 dbg_btnLeft = (Button)this.findViewById(R.id.dbg_btnLeft);
                 dbg_btnRight = (Button)this.findViewById(R.id.dbg_btnRight);
+                dbg_txtLog = (TextView)this.findViewById(R.id.txtDebugLog);
                 
                 dbg_btnLeft.setOnClickListener(new OnClickListener() {
                         @Override
@@ -482,13 +486,13 @@ public class Form_Main extends Activity {
                 FormObjectTransfer.qty = qty;
                 FormObjectTransfer.harga = harga;
                 FormObjectTransfer.total = total;
-                String GeneratedID = StatusBarService.GetSerializedID(qty, 
-                		PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                		.getString("plat_bis", getResources().getString(R.string.default_platbis)));
-                		//"RNDIDXX"; 
                 //PREPURR to MULTI PRINT
                 for(int a = 0;a < qty; a++){
-                        btx.PrintText(GeneratedID, Kota1.toString(), Kota2.toString(), qty, harga);
+                	String GeneratedID = StatusBarService.GetSerializedID(a+1, 
+                    		PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                    		.getString("plat_bis", getResources().getString(R.string.default_platbis)));
+                    
+                	btx.PrintText(GeneratedID, Kota1.toString(), Kota2.toString(), qty, harga);
                 }
                 CustomDialogControl dlg = new CustomDialogControl((Activity) this);
                 dlg.show();

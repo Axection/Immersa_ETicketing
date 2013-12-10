@@ -1,9 +1,11 @@
 package srv.btp.eticket;
 
 import srv.btp.eticket.services.BluetoothPrintService;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -18,6 +20,9 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -109,7 +114,8 @@ public class AppPreferences extends PreferenceActivity {
 			bluetoothList.setEnabled(false);
 		}
 		//setting nilai summary-summary
-		
+		findPreference("input_password").setSummary("****");
+		CallPassword();
 	}
 
 	
@@ -141,6 +147,7 @@ public class AppPreferences extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference("plat_bis"));
 		bindPreferenceSummaryToValue(findPreference("unique_key"));
 		bindPreferenceSummaryToValue(findPreference("bluetooth_list"));
+		bindPreferenceSummaryToValue(findPreference("input_password"));
 		
 		//Tambahan fitur keluar
 		Preference p = findPreference("pref_quit");
@@ -263,6 +270,46 @@ public class AppPreferences extends PreferenceActivity {
 	}
 //!endregion
 
+	private void CallPassword() {
+		final String thePassword =  PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getString("input_password","1234");
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Keamanan Kontrol");
+		builder.setMessage("Masukkan password hak akses: ");
+		final EditText input = new EditText(AppPreferences.this);  
+		final Activity thisAct = this;
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+		                        LinearLayout.LayoutParams.MATCH_PARENT,
+		                        LinearLayout.LayoutParams.MATCH_PARENT);
+		input.setLayoutParams(lp);
+		builder.setView(input);
+		builder.setCancelable(false);
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				arg0.dismiss();
+				if(! input.getText().toString().equals(thePassword)){
+					CallPassword();
+				}
+				else{
+					findPreference("input_password").setSummary(thePassword);
+				}
+			}
+		}
+		);
+		builder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface di, int wat) {
+				di.cancel();
+				thisAct.onBackPressed();
+			}
+		});
+
+		AlertDialog alert = builder.create();
+		alert.setCanceledOnTouchOutside(false);
+		alert.show();
+	}
+	
 	private void CallExit(){
 		AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
@@ -303,6 +350,7 @@ public class AppPreferences extends PreferenceActivity {
             AlertDialog alert = builder.create();
             alert.show();
 	}
+	
 	private void CallAbout(){
 		AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);

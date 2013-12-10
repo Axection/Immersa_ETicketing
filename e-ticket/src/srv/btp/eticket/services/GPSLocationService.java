@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import srv.btp.eticket.FormObjectTransfer;
 import srv.btp.eticket.Form_Main;
@@ -20,6 +22,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
@@ -45,10 +48,11 @@ public class GPSLocationService {
 	public boolean location_flag = false;
 	public MyLocationListener location_listener;
 	public LocationManager location_manager;
-	public static final int SCAN_TIME = 60000;
-	public static final int DISTANCE_LOCK = 50;
+	public LocationResult locationResult;
+	public static final int SCAN_TIME = 180000;
+	public static final int DISTANCE_LOCK = 100;
 	public static Context baseContext = FormObjectTransfer.main_activity.getBaseContext();
-	public CountDownTimer ctd;
+	public Timer ctd;
 	
 	//Fast Data Move
 	public double current_longitude = 0;
@@ -85,15 +89,11 @@ public class GPSLocationService {
 	}
 	
 	public void RecreateTimer(){
-		ctd = new CountDownTimer(10000,1000){
-			@Override
-			public void onFinish() {
-				if(!FormObjectTransfer.isQuit)
-				ActivateGPS();
-			}
-			@Override public void onTick(long millisUntilFinished) {}
-		};
+		ctd = new Timer();
+		ctd.schedule(new GetLastLocation(), SCAN_TIME);
+
 	}
+	
 	public void StopGPS(){
 		location_manager.removeUpdates(location_listener);
 	}
@@ -104,12 +104,19 @@ public class GPSLocationService {
 		if (location_flag) {
 			Toast.makeText(baseContext, "GPS Menyala. Lakukan scanning...", Toast.LENGTH_SHORT).show();
 			
+			//Mengatur Demo Debug Mode
+			FormObjectTransfer.main_activity.dbg_btnLeft.setVisibility(View.INVISIBLE);
+			FormObjectTransfer.main_activity.dbg_btnRight.setVisibility(View.INVISIBLE);
+			
+			//END
+			
 			location_manager.requestLocationUpdates(
-					LocationManager.GPS_PROVIDER, SCAN_TIME, DISTANCE_LOCK,
+					LocationManager.GPS_PROVIDER, 0, 0, /*** telah diganti dari SCAN_TIME */
 					location_listener);
 			// GPS nyala, siapkan indikator :D
 			FormObjectTransfer.isGPSConnected = true;
-			//if(!FormObjectTransfer.isInitalizationState)
+			RecreateTimer();
+			
 			FormObjectTransfer.main_activity.checkStatus();
 			GPSIndicator.setImageResource(R.drawable.indicator_gps_warn);
 			return true;
@@ -154,18 +161,22 @@ public class GPSLocationService {
 			 * Setiap posisinya berpindah, listener ini akan terus terupdate.
 			 * Mendapatkan lokasi baru dan dicocokkan dengan daftar kota.
 			 */
+			ctd.cancel();
+			
 			if(!isMocked){
 				GPSIndicator.setImageResource(R.drawable.indicator_gps_on);
 			}
 			//Sekarang ini hanya untuk debugging
 			Log.d("GPSLocationDebug",loc.getTime()+" timelock.");
+			String txt = "Terdeteksi lokasi berpindah :\n Lat: " + loc.getLatitude() + " Lng: "
+					+ loc.getLongitude();
 			Toast.makeText(
 					baseContext,
-					"Terdeteksi lokasi berpindah :\n Lat: " + loc.getLatitude() + " Lng: "
-							+ loc.getLongitude(), Toast.LENGTH_SHORT).show();
+					txt , Toast.LENGTH_SHORT).show();
 
 			current_longitude = loc.getLongitude();
 			current_latitude =  loc.getLatitude();
+			FormObjectTransfer.main_activity.dbg_txtLog.setText(txt);
 			
 			//Dapatkan status pergerakan, apakah format maju atau format mundur
 			String valueIntended = PreferenceManager.getDefaultSharedPreferences(
@@ -207,13 +218,13 @@ public class GPSLocationService {
 			try {
 				addresses = gcd.getFromLocation(loc.getLatitude(),
 						loc.getLongitude(), 1);
-				if (addresses.size() > 0)
-					Log.d(this.getClass().toString(),addresses.get(0).getLocality());
+				if (addresses.size() > 0);
+
 				//current_city = addresses.get(0).getLocality();
 			} catch (IOException ee) {
 				ee.printStackTrace();
 			}
-
+			RecreateTimer();
 		}
 		//Unused Callbacks
 		@Override public void onProviderDisabled(String provider) {}
@@ -221,6 +232,26 @@ public class GPSLocationService {
 		@Override public void onStatusChanged(String provider, int status, Bundle extras) {}
 
 	}
+	
+	//EXTENDED
+	class GetLastLocation extends TimerTask {
+        @Override
+        public void run() {
+             location_manager.removeUpdates(location_listener);
+             Location gps_loc=null;
+             try{
+                 gps_loc=location_manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                 locationResult.gotLocation(gps_loc);
+             }catch(NullPointerException e){
+            	 RecreateTimer();
+             }
+             
+        }
+    }
+	
+	public static abstract class LocationResult{
+        public abstract void gotLocation(Location location);
+    }
 }
 
 
