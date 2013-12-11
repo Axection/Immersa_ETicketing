@@ -4,6 +4,8 @@ import srv.btp.eticket.services.BluetoothPrintService;
 import srv.btp.eticket.util.SystemUiHider;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -39,6 +41,7 @@ public class Form_Print extends Activity {
 	private TextView txtPrintNumber;
 	private TextView txtIndicator;
 
+	private Form_Print thisForm = this;
 	// !endregion
 
 	// !region Value Calculations
@@ -175,15 +178,46 @@ public class Form_Print extends Activity {
 						 * agar terjamin, cek Bluetooth harus dipastikan terlebih dahulu.
 						 */
 						if(FormObjectTransfer.bxl.BT_STATE == BluetoothPrintService.STATE_CONNECTED){
-						FormObjectTransfer.main_activity.SummonButton(
-								FormObjectTransfer.Kota1, 
-								FormObjectTransfer.Kota2, 
-								ticket_num, 
-								FormObjectTransfer.harga, 
-								FormObjectTransfer.harga*ticket_num);
-								onBackPressed();
+							if(ticket_num >=WARN_VALUES_BOUND){
+								AlertDialog.Builder builder;
+						        builder = new AlertDialog.Builder(thisForm);
+						        builder.setTitle("Peringatan");
+								builder.setMessage("Anda akan mencetak jumlah tiket yang cukup besar. Yakin ingin melanjutkan?\nJumlah tiket:"+ticket_num);
+						        builder.setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface arg0, int arg1) {
+										FormObjectTransfer.main_activity.SummonButton(
+												FormObjectTransfer.Kota1, 
+												FormObjectTransfer.Kota2, 
+												ticket_num, 
+												FormObjectTransfer.harga, 
+												FormObjectTransfer.harga*ticket_num);
+												onBackPressed();
+										
+									}
+								});
+						        builder.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface arg0, int arg1) {
+										Toast.makeText(getApplicationContext(), "Dibatalkan.", Toast.LENGTH_SHORT).show();
+									}
+								});
+						        AlertDialog alert = builder.create();
+					            alert.show();
+							}
+							else{
+								FormObjectTransfer.main_activity.SummonButton(
+										FormObjectTransfer.Kota1, 
+										FormObjectTransfer.Kota2, 
+										ticket_num, 
+										FormObjectTransfer.harga, 
+										FormObjectTransfer.harga*ticket_num);
+										onBackPressed();
+							}
 						//Setelah ini harusnya dilakukan pencatatan histori pembelian
 						//TODO: INSERT QUERY PELAPORAN
+							
+							
 						}else{
 							FormObjectTransfer.bxl.ConnectPrinter();
 							Toast.makeText(getApplicationContext(), "Bluetooth tidak sedang dalam keadaan tersambung.", Toast.LENGTH_SHORT).show();

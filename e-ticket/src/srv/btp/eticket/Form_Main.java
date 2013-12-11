@@ -7,7 +7,6 @@ import srv.btp.eticket.services.GPSDataList;
 import srv.btp.eticket.services.GPSLocationService;
 import srv.btp.eticket.services.StatusBarService;
 import srv.btp.eticket.util.SystemUiHider;
-import srv.btp.eticket.R;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,7 +19,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -369,19 +367,23 @@ public class Form_Main extends Activity {
         protected void onPostCreate(Bundle savedInstanceState) {
                 super.onPostCreate(savedInstanceState);
                 //Menyambung ke bluetooth printer
-                btx._setBtAddr(                
-                                PreferenceManager.getDefaultSharedPreferences(getBaseContext())
-                                                .getString("bluetooth_list", "00:00:00:00:00:00")
-                                        );
-                Log.d("BluetoothAddressLoader",btx.btSelectedAddr);
-                FormObjectTransfer.bxl = btx;
-                btx.ConnectPrinter();
+                
                 gls.ActivateGPS();
                 gdl.getDataFromJSON(); //Disini terjadi async task, mohon menunggu.
                 
                 //PrepareCityList(); //Pindah jadi di generateData();
         }
 
+        protected void postExecution(){
+        	btx._setBtAddr(                
+                    PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+                                    .getString("bluetooth_list", "00:00:00:00:00:00")
+                            );
+        	Log.d("BluetoothAddressLoader",btx.btSelectedAddr);
+        	FormObjectTransfer.bxl = btx;
+        	btx.ConnectPrinter();
+        }
+        
         @Override
         public void onBackPressed() {
                 // Mematikan fungsi default onBackPressed
@@ -431,7 +433,7 @@ public class Form_Main extends Activity {
                                  */
                                 
                                 FormObjectTransfer.Kota1 = city_list[city_real_position-1].Nama;
-                                FormObjectTransfer.Kota2 = b.getText();
+                                FormObjectTransfer.Kota2 = city_list[ButtonID2Int(b.getId())-1 + city_position-1].Nama;
                                 FormObjectTransfer.harga = 0;
                                 //Tarif Loops
                                 for(int a=city_real_position-1;a<city_position-1+ButtonID2Int(b.getId());a++){
@@ -594,7 +596,7 @@ public class Form_Main extends Activity {
         }
         
         public void CleanCityList(){
-        	//TODO: Bersih-bersih indikator perlu dilakukan agar memory bersih
+        	//Bersih-bersih indikator perlu dilakukan agar memory bersih
         	
         	//dari indikator
 	        for(int a=0;a<top_layout.getChildCount();a++){
@@ -630,55 +632,73 @@ public class Form_Main extends Activity {
                  }
                 button_left.setBackgroundResource(R.drawable.button_left_passive);
                 button_left.setEnabled(false);
-                isNotInitialized = false;
-                int initializationValue = PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getInt("mocked", 1);
+                
+                
+                //Mempersiapkan default value
+                double longi = (double)PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getFloat("long", (float) gdl.long_kota[0]);
+                double lati =  (double)PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getFloat("lat", (float) gdl.lat_kota[0]);
+                int current_city = FormObjectTransfer.gdl.getNearestCity(lati, longi);
+                dbg_txtLog.setText("long:"+ longi + "\n "  +
+                				   "lat :"+ lati );
+    			
+                int initializationValue = current_city;
+                
+                		
+                		
                 SetCityEnable(initializationValue); 
                 city_position = 1;
                 for(int a = 0;a<city_display.length;a++){
                         city_display[a] = city_list[a];
                 }
                 CreateCityDisplay(city_display);
-                
-                //DisableAllButtons();
+
+                if (isNotInitialized){
+    				postExecution();
+    				isNotInitialized = false;
+    			}
         }
         
         
-        public void CreateCityDisplay(CityList[] cityList){
-                        final int size = 9;
-                        int indicator = 9;
-                        if(cityList.length<size){
-                                indicator = cityList.length;
-                                button_right.setBackgroundResource(R.drawable.button_right_passive);
-                                button_right.setEnabled(false);
-                        }
-                        for(int a = 0; a < indicator; a++){
-                                Int2Button(a+1).setText(cityList[a].Nama);
-                                if(cityList[a].isNotPassed){
-                                        Int2Button(a+1).setBackgroundResource(R.drawable.button);
-                                        Int2Button(a+1).setEnabled(true);
-                                }else{
-                                        if(cityList[a].Priority == city_real_position){
-                                                Int2Button(a+1).setBackgroundResource(R.drawable.button_disabled);
-                                                Int2Button(a+1).setEnabled(false);
-                                        }else{
-                                                Int2Button(a+1).setBackgroundResource(R.drawable.button_passive);
-                                                Int2Button(a+1).setEnabled(false);
-                                        }
-                                }
-                        }
-                        for(int a = indicator;a<size;a++){
-                                Int2Button(a+1).setText("-");
-                                Int2Button(a+1).setBackgroundResource(R.drawable.button_passive);
-                                Int2Button(a+1).setEnabled(false);
-                        }
-                }
-        
+	public void CreateCityDisplay(CityList[] cityList) {
+		final int size = 9;
+		int indicator = 9;
+		if (cityList.length < size) {
+			indicator = cityList.length;
+			button_right.setBackgroundResource(R.drawable.button_right_passive);
+			button_right.setEnabled(false);
+		}
+		for (int a = 0; a < indicator; a++) {
+			Int2Button(a + 1).setText(
+					(cityList[a].Nama.length() > 11 ? cityList[a].Nama
+							.substring(0, 11) + "..." : cityList[a].Nama));
+			if (cityList[a].isNotPassed) {
+				Int2Button(a + 1).setBackgroundResource(R.drawable.button);
+				Int2Button(a + 1).setEnabled(true);
+			} else {
+				if (cityList[a].Priority == city_real_position) {
+					Int2Button(a + 1).setBackgroundResource(
+							R.drawable.button_disabled);
+					Int2Button(a + 1).setEnabled(false);
+				} else {
+					Int2Button(a + 1).setBackgroundResource(
+							R.drawable.button_passive);
+					Int2Button(a + 1).setEnabled(false);
+				}
+			}
+		}
+		for (int a = indicator; a < size; a++) {
+			Int2Button(a + 1).setText("-");
+			Int2Button(a + 1).setBackgroundResource(R.drawable.button_passive);
+			Int2Button(a + 1).setEnabled(false);
+		}
+	}
+
         /***
          * Memindahkan Display City ke arah kiri atau kanan.
          * @param whichArrow (0 = Panah kiri, 1 = Panah Kanan)
          */
         public void SwitchCity(int whichArrow) {
-                if (whichArrow == 0 && city_position > 9) {
+                if (whichArrow == 0 && city_position > 9) { // Kiri 
                         city_display = new CityList[9];
                         city_position -= 9;
                         for (int a = city_position; a < city_position + 9; a++) {
@@ -688,12 +708,12 @@ public class Form_Main extends Activity {
                                 button_left
                                                 .setBackgroundResource(R.drawable.button_left_passive);
                                 button_left.setEnabled(false);
-
-                                button_right
-                                                .setBackgroundResource(R.drawable.button_right_active);
-                                button_right.setEnabled(true);
+                                
                         }
-                } else if (whichArrow == 1 && city_position < city_max_position) {
+                        button_right.setBackgroundResource(R.drawable.button_right_active);
+                        button_right.setEnabled(true);
+                        
+                } else if (whichArrow == 1 && city_position < city_max_position) { //Kanan
                         Log.d("DEBUG_POSITION", city_position + " " + city_max_position + " real : "+ city_real_position);
                         city_position += 9;
                         city_display = new CityList[city_max_position-city_position<=9?city_max_position-city_position+1 : 9];
@@ -703,12 +723,10 @@ public class Form_Main extends Activity {
                         if (city_max_position - city_position<=9) {
                                 button_right
                                                 .setBackgroundResource(R.drawable.button_right_passive);
-                                button_right.setEnabled(false);
-
-                                button_left
-                                                .setBackgroundResource(R.drawable.button_left_active);
-                                button_left.setEnabled(true);
+                                button_right.setEnabled(false);              
                         }
+                        button_left.setBackgroundResource(R.drawable.button_left_active);
+                        button_left.setEnabled(true);
                 }
                 CreateCityDisplay(city_display);
         }
@@ -720,7 +738,7 @@ public class Form_Main extends Activity {
                 }
                 if(cityIndex == city_max_position){
                         /*
-                         * TODO:Disini terjadi pertanyaan reset rute ato menyudahi rute,
+                         * Disini terjadi pertanyaan reset rute ato menyudahi rute,
                          * karena CityEnable sudah tiba di titik poin terakhir.
                          * Tindakan yang perlu dilakukan adalah menanyakan kembali
                          * rute.
@@ -792,6 +810,8 @@ public class Form_Main extends Activity {
 				button_right.setBackgroundResource(R.drawable.button_right_active);
 			}
 			if(!isNotInitialized){
+                //sedikit perlakuan setelah semua jalan
+				
 				SetCityEnable(city_real_position);
 				CreateCityDisplay(city_display);
 			}
@@ -810,7 +830,7 @@ public class Form_Main extends Activity {
 		protected DialogInterface.OnClickListener rute_berputar = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Fungsi membalik rute
+				// Fungsi membalik rute
 				String valueIntended = PreferenceManager.getDefaultSharedPreferences(
 						getBaseContext()).getString(
 								"trajectory_direction", 

@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.Normalizer.Form;
 import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
@@ -49,8 +50,8 @@ public class GPSLocationService {
 	public MyLocationListener location_listener;
 	public LocationManager location_manager;
 	public LocationResult locationResult;
-	public static final int SCAN_TIME = 180000;
-	public static final int DISTANCE_LOCK = 100;
+	public static final int SCAN_TIME = 180000; //OBSOLETE
+	public static final int DISTANCE_LOCK = 0;
 	public static Context baseContext = FormObjectTransfer.main_activity.getBaseContext();
 	public Timer ctd;
 	
@@ -89,8 +90,8 @@ public class GPSLocationService {
 	}
 	
 	public void RecreateTimer(){
-		ctd = new Timer();
-		ctd.schedule(new GetLastLocation(), SCAN_TIME);
+		//ctd = new Timer();
+		//ctd.schedule(new GetLastLocation(), SCAN_TIME);
 
 	}
 	
@@ -111,7 +112,7 @@ public class GPSLocationService {
 			//END
 			
 			location_manager.requestLocationUpdates(
-					LocationManager.GPS_PROVIDER, 0, 0, /*** telah diganti dari SCAN_TIME */
+					LocationManager.GPS_PROVIDER, 0, DISTANCE_LOCK, /*** telah diganti dari SCAN_TIME */
 					location_listener);
 			// GPS nyala, siapkan indikator :D
 			FormObjectTransfer.isGPSConnected = true;
@@ -161,7 +162,7 @@ public class GPSLocationService {
 			 * Setiap posisinya berpindah, listener ini akan terus terupdate.
 			 * Mendapatkan lokasi baru dan dicocokkan dengan daftar kota.
 			 */
-			ctd.cancel();
+			//ctd.cancel(); //OBSOLETE
 			
 			if(!isMocked){
 				GPSIndicator.setImageResource(R.drawable.indicator_gps_on);
@@ -170,13 +171,20 @@ public class GPSLocationService {
 			Log.d("GPSLocationDebug",loc.getTime()+" timelock.");
 			String txt = "Terdeteksi lokasi berpindah :\n Lat: " + loc.getLatitude() + " Lng: "
 					+ loc.getLongitude();
-			Toast.makeText(
-					baseContext,
-					txt , Toast.LENGTH_SHORT).show();
+			//Toast.makeText(
+			//		baseContext,
+			//		txt , Toast.LENGTH_SHORT).show();
 
 			current_longitude = loc.getLongitude();
 			current_latitude =  loc.getLatitude();
 			FormObjectTransfer.main_activity.dbg_txtLog.setText(txt);
+			
+			PreferenceManager.getDefaultSharedPreferences(
+					FormObjectTransfer.main_activity.getBaseContext())
+					.edit()
+						.putFloat("long", (float)current_longitude)
+						.putFloat("lat", (float)current_latitude)
+					.commit();
 			
 			//Dapatkan status pergerakan, apakah format maju atau format mundur
 			String valueIntended = PreferenceManager.getDefaultSharedPreferences(
@@ -209,11 +217,17 @@ public class GPSLocationService {
 	            cd.start();
 	            //Animasi selesai
 	            lastCity = current_city;
+	            /**TODO:Masukkan data upload lokasi
+	             * lokasi latitude diwakili oleh variabel "current_latitude"
+	             * lokasi longitude diwakili oleh variabel "current_longitude"
+	             * 
+	             * 
+	             */
 			}
 
 			/*----------to get City-Name from coordinates 
 			 * 			Opsional ------------- */
-			Geocoder gcd = new Geocoder(baseContext, Locale.getDefault());
+			/*Geocoder gcd = new Geocoder(baseContext, Locale.getDefault());
 			List<Address> addresses;
 			try {
 				addresses = gcd.getFromLocation(loc.getLatitude(),
@@ -223,7 +237,7 @@ public class GPSLocationService {
 				//current_city = addresses.get(0).getLocality();
 			} catch (IOException ee) {
 				ee.printStackTrace();
-			}
+			}*/
 			RecreateTimer();
 		}
 		//Unused Callbacks

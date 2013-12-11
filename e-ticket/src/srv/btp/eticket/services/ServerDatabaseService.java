@@ -89,7 +89,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	
 	public static final String URL_SERVICE_TRAJECTORY = "trayek";
 	
-	public static final int MAXIMUM_WAITING_TIME = 60000;
+	public static final int MAXIMUM_WAITING_TIME = 180000;
 	
 	public static final int CHECK_STATE_VERSION = 1;
 	public static final int CHECK_ROUTE_FORWARD = 2;
@@ -102,8 +102,12 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	public static boolean isDone;
 	public static boolean isFail = false;
 
-	protected CountDownTimer ctd = new CountDownTimer(MAXIMUM_WAITING_TIME,1000) {
-		@Override public void onTick(long arg0) {Log.d("ServerTickingWaiting",arg0+ " JSON waiting time." );}
+	public static String message = "Mendownload beberapa informasi data...";
+	protected CountDownTimer ctd = new CountDownTimer(MAXIMUM_WAITING_TIME,200) {
+		@Override public void onTick(long arg0) {
+			Log.d("ServerTickingWaiting",arg0+ " JSON waiting time." );
+			progressDialog.setMessage(message+"\nTekan tombol 'Back' untuk batal.");
+		}
 		
 		@Override
 		public void onFinish() {
@@ -117,7 +121,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	protected void onPreExecute() {
 		isDone = false;
 		
-		progressDialog.setMessage("Mendownload beberapa informasi data...");
+		progressDialog.setMessage(message);
 		progressDialog.setCanceledOnTouchOutside(false);
 		progressDialog.setCancelable(true);
 		progressDialog.show();
@@ -144,22 +148,26 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 			
 			if (parameter.equals(URL_SERVICE_FORWARD)) {
 				connStatus = CHECK_ROUTE_FORWARD;
-				
+				message="Mendownload informasi trayek...";
 				// progressDialog.setMessage("Mendownload informasi trayek...");
+				
 			} else if (parameter.equals(URL_SERVICE_REVERSE)) {
 				connStatus = CHECK_ROUTE_REVERSE;
-
+				message="Mendownload informasi trayek arah balik...";
 				// progressDialog.setMessage("Mendownload informasi trayek arah balik...");
 			} else if (parameter.equals(URL_SERVICE_VERSION_CHECK)) {
 				connStatus = CHECK_STATE_VERSION;
+				message="Memeriksa update versi trayek...";
 				// progressDialog.setMessage("Memeriksa update versi trayek...");
 				isVersionUptoDate = false; // Agar doInBackground wajib
 											// melakukan download versioning.
 			} else if (parameter.equals(URL_SERVICE_PRICE_FORWARD)) {
 				connStatus = CHECK_PRICE_FORWARD;
+				message="Mendownload daftar harga trayek...";
 				// progressDialog.setMessage("Mendownload daftar harga trayek...");
 			} else if (parameter.equals(URL_SERVICE_PRICE_REVERSE)) {
 				connStatus = CHECK_PRICE_REVERSE;
+				message="Mendownload daftar harga trayek arah balik...";
 				// progressDialog.setMessage("Mendownload daftar harga trayek arah balik...");
 			}
 
@@ -200,6 +208,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 					BufferedReader reader = new BufferedReader(
 							new InputStreamReader(inputStream, "iso-8859-1"), 65728);
 					StringBuilder sb = new StringBuilder();
+					message="Mengolah data...";
 					// progressDialog.setMessage("Memprosesi data...");
 					String line = null;
 

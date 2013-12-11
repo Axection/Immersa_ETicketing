@@ -347,8 +347,8 @@ public class AppPreferences extends PreferenceActivity {
                 }
             });
 
-            AlertDialog alert = builder.create();
-            alert.show();
+        AlertDialog alert = builder.create();
+        alert.show();
 	}
 	
 	private void CallAbout(){

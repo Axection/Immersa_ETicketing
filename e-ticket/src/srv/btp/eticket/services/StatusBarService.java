@@ -1,5 +1,6 @@
 package srv.btp.eticket.services;
 
+import android.annotation.SuppressLint;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -14,6 +15,7 @@ public class StatusBarService {
 	 * Info menyusul
 	 */
 	
+	@SuppressLint("DefaultLocale")
 	public static String GetSerializedID(int nomorTiket, String PlatBis){
 		/* Menggunakan kombinasi Platbis, TimeStamp dalam HEXA, dan nomor tiket.
 		 * Struktur : 6 Digit Timestap, HEX, Nomor Tiket 2 digit XoR 2 digit pertama plat bis
@@ -42,6 +44,6 @@ public class StatusBarService {
 		//array ketiga = kombinasi plat-end
 		String topResult = encoder[0].toUpperCase() + nomorTiket;
 		String MidResult = encoder[1] + encoder[2];
-		return topResult + "-" + MidResult + "-" + HexedTimeStamps;
+		return topResult + "-" + MidResult + "-" + HexedTimeStamps.toUpperCase();
 	} //end:GetSerializedID
 }

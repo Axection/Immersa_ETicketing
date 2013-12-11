@@ -187,6 +187,7 @@
             android:layout_toLeftOf="@+id/btnTopTop"
             android:background="@drawable/button"
             android:cropToPadding="false"
+            android:gravity="center_vertical|center_horizontal"
             android:longClickable="false"
             android:scaleType="centerCrop"
             android:text="@string/dummy_string"
