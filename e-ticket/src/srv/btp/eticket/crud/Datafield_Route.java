@@ -7,7 +7,7 @@ public class Datafield_Route {
 	private String _nama;
 	private int _leftprice;
 	private int _rightprice;
-	private String _lokasi;
+//	private String _lokasi;
 	private double _latitude;
 	private double _longitude;
 	
@@ -56,13 +56,13 @@ public class Datafield_Route {
 		this._nama = _nama;
 	}
 
-	public String get_lokasi() {
-		return _lokasi;
-	}
+//	public String get_lokasi() {
+//		return _lokasi;
+//	}
 
-	public void set_lokasi(String _lokasi) {
-		this._lokasi = _lokasi;
-	}
+//	public void set_lokasi(String _lokasi) {
+//		this._lokasi = _lokasi;
+//	}
 
 	public double get_latitude() {
 		return _latitude;

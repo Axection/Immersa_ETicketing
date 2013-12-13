@@ -1,6 +1,12 @@
 package srv.btp.eticket;
 
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import srv.btp.eticket.services.BluetoothPrintService;
+import srv.btp.eticket.services.RouteService;
+import srv.btp.eticket.services.ServerDatabaseService;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -21,8 +27,10 @@ import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.webkit.WebView.FindListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -48,75 +56,140 @@ public class AppPreferences extends PreferenceActivity {
 	private CharSequence[] btListNames;
 	private ListPreference bluetoothList;
 
+	private ListPreference route_list;
+	private CharSequence[] routeListCode;
+	private CharSequence[] routeListName;
+	
 	private BluetoothPrintService btx;
+
+	private RouteService rd;
+	
+	protected static boolean isRouteClicked = false;
 	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		//Must Have
+		// Must Have
 		super.onCreate(savedInstanceState);
+        FormObjectTransfer.current_activity = this;
 		overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
 		setupSimplePreferencesScreen();
-		
-		//pemeriksaan asal dari intent
-		try{
-		if(this.getIntent().getBooleanExtra("fromParent", false)){
-			findPreference("pref_quit").setEnabled(true);
-		}else{
-			/*findPreference("pref_quit").setEnabled(false);
-			findPreference("pref_quit").setSelectable(false);
-			findPreference("pref_quit").setTitle("");
-			findPreference("pref_quit").setSummary("");*/
-		
-		}
-		}catch (NullPointerException e){
+
+		// pemeriksaan asal dari intent
+		try {
+			if (this.getIntent().getBooleanExtra("fromParent", false)) {
+				findPreference("pref_quit").setEnabled(true);
+			} else {
+				/*
+				 * findPreference("pref_quit").setEnabled(false);
+				 * findPreference("pref_quit").setSelectable(false);
+				 * findPreference("pref_quit").setTitle("");
+				 * findPreference("pref_quit").setSummary("");
+				 */
+
+			}
+		} catch (NullPointerException e) {
 			findPreference("pref_quit").setEnabled(false);
 			findPreference("pref_quit").setSelectable(false);
 			findPreference("pref_quit").setTitle("");
 			findPreference("pref_quit").setSummary("");
 		}
-	
-		//Preference for Bluetooth List
+
+		//registrasi klik Route
+		findPreference("route_list").setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference arg0) {
+				isRouteClicked = true;
+				return false;
+			}
+		});
+		
+		// Preference for Bluetooth List
 		bluetoothList = (ListPreference) findPreference("bluetooth_list");
-		btx = new BluetoothPrintService(this,null);
-		if(btx.FindPrinters() == 0){
-			Log.d("BTX",btx.toString() + " address access : " + btx.getBtAddr().size() );
+		btx = new BluetoothPrintService(this, null);
+		if (btx.FindPrinters() == 0) {
+			Log.d("BTX", btx.toString() + " address access : "
+					+ btx.getBtAddr().size());
 			btListAddress = new CharSequence[btx.getBtAddr().size()];
 			btListNames = new CharSequence[btx.getBtAddr().size()];
-			Log.d("BTX",btListAddress.toString() + " " + btListNames + " access address");
+			Log.d("BTX", btListAddress.toString() + " " + btListNames
+					+ " access address");
 			int a = 0;
-			for(String s : btx.getBtAddr()){
-				//Log.d("BTX",s + " get address");
-				btListNames  [a] = s.substring(0, s.indexOf("|"));
-				btListAddress[a] =  s.substring(s.indexOf("|")+1,s.length());
-				Log.d("BTXData",btListAddress[a] + " ... " + btListNames[a]);
+			for (String s : btx.getBtAddr()) {
+				// Log.d("BTX",s + " get address");
+				btListNames[a] = s.substring(0, s.indexOf("|"));
+				btListAddress[a] = s.substring(s.indexOf("|") + 1, s.length());
+				Log.d("BTXData", btListAddress[a] + " ... " + btListNames[a]);
 				a++;
 			}
 			bluetoothList.setEntries(btListNames);
 			bluetoothList.setEntryValues(btListAddress);
-			Log.d("BTX",bluetoothList.toString() +  " post address");
-			bluetoothList.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-				@Override
-				public boolean onPreferenceClick(Preference arg0) {
-					//debug
-					for(int aa=0;aa<btListNames.length;aa++){
-						Log.d("PrefBTXData",bluetoothList.getEntries()[aa] + " = " + bluetoothList.getEntryValues()[aa]);
-					}
-					bluetoothList.setEntries(btListNames);
-					bluetoothList.setEntryValues(btListAddress);
-					return false;
-				}
-			});
-			
-			
-			
-		}else{
+			Log.d("BTX", bluetoothList.toString() + " post address");
+			bluetoothList
+					.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+						@Override
+						public boolean onPreferenceClick(Preference arg0) {
+							// debug
+							for (int aa = 0; aa < btListNames.length; aa++) {
+								Log.d("PrefBTXData",
+										bluetoothList.getEntries()[aa]
+												+ " = "
+												+ bluetoothList
+														.getEntryValues()[aa]);
+							}
+							bluetoothList.setEntries(btListNames);
+							bluetoothList.setEntryValues(btListAddress);
+							return false;
+						}
+					});
+
+		} else {
 			bluetoothList.setEnabled(false);
 		}
-		//setting nilai summary-summary
+
+		// setting nilai summary-summary
 		findPreference("input_password").setSummary("****");
 		CallPassword();
+
+		// Preference for Route List
+		route_list = (ListPreference) findPreference("route_list");
+		// TODO:Ambil Rute
+		rd = new RouteService();
+		String URL_LIST_SERVICE[] = { RouteService.URL_SERVICE_TRAJECTORY };
+		Timer td = new Timer(true);
+		td.schedule(TaskUpdate, Calendar.getInstance().getTime(), 1000);
+		try {
+			rd.execute(URL_LIST_SERVICE);
+		} catch (Exception e) {
+			td.cancel();
+			route_list.setEnabled(false);
+		}
+
 	}
+	protected TimerTask TaskUpdate = new TimerTask() {
+		@Override
+		public void run() {
+			if(RouteService.isDone){
+				this.cancel();
+				FormObjectTransfer.current_activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if(RouteService.isFail){
+							Toast.makeText(FormObjectTransfer.current_activity.getBaseContext(), "Ada masalah pada jaringan. Rute untuk sementara tidak dapat diganti", Toast.LENGTH_LONG).show();
+							route_list.setEnabled(false);
+						}else if(RouteService.isDone){
+							route_list.setEnabled(true);
+							route_list.setEntries(FormObjectTransfer.routeName);
+							route_list.setEntryValues(FormObjectTransfer.routeID);
+						}
+
+					}
+				});
+			}
+		}
+	};
+
+
 
 	
 	@Override
@@ -148,6 +221,8 @@ public class AppPreferences extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference("unique_key"));
 		bindPreferenceSummaryToValue(findPreference("bluetooth_list"));
 		bindPreferenceSummaryToValue(findPreference("input_password"));
+		bindPreferenceSummaryToValue(findPreference("route_list"));
+		
 		
 		//Tambahan fitur keluar
 		Preference p = findPreference("pref_quit");
@@ -209,6 +284,8 @@ public class AppPreferences extends PreferenceActivity {
 	 * to reflect its new value.
 	 */
 	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+
+
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object value) {
 			String stringValue = value.toString();
@@ -223,6 +300,15 @@ public class AppPreferences extends PreferenceActivity {
 				preference
 						.setSummary(index >= 0 ? listPreference.getEntries()[index]
 								: null);
+				if(preference.getKey().equals("route_list") && isRouteClicked == true){
+					Log.e("UNIQUE_FORCE_CHANGE","CHANGE to 0");
+					PreferenceManager.getDefaultSharedPreferences(
+							FormObjectTransfer.current_activity.getApplicationContext())
+							.edit()
+							.putString("unique_key", "0")
+							.commit();
+					isRouteClicked = false;
+				}
 				
 			} else {
 				// For all other preferences, set the summary to the value's
@@ -241,6 +327,8 @@ public class AppPreferences extends PreferenceActivity {
 					preference.getTitle().equals("Arah Trayek")){
 				preference.setSummary(stringValue);
 			}*/
+			String txt = "Perubahan dilakukan. Harap tutup program terlebih dahulu menggunakan menu 'Keluar' dan kemudian muat ulang aplikasi ini.";
+			//Toast.makeText(FormObjectTransfer.current_activity.getApplicationContext(), txt, Toast.LENGTH_LONG).show();
 			
 			return true;
 		}

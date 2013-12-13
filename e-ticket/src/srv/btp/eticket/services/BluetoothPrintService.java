@@ -172,6 +172,7 @@ public class BluetoothPrintService {
 				}
 				break;
 			case BixolonPrinter.MESSAGE_DEVICE_NAME:
+				@SuppressWarnings("unused")
 				String connectedDeviceName = msg.getData().getString(
 						BixolonPrinter.KEY_STRING_DEVICE_NAME);
 				break;

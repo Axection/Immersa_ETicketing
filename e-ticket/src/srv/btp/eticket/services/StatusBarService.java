@@ -3,6 +3,7 @@ package srv.btp.eticket.services;
 import android.annotation.SuppressLint;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class StatusBarService {
 	/***
@@ -42,8 +43,8 @@ public class StatusBarService {
 		//array pertama = kode kota
 		//array kedua = kode serial plat
 		//array ketiga = kombinasi plat-end
-		String topResult = encoder[0].toUpperCase() + nomorTiket;
+		String topResult = encoder[0].toUpperCase(Locale.ENGLISH) + nomorTiket;
 		String MidResult = encoder[1] + encoder[2];
-		return topResult + "-" + MidResult + "-" + HexedTimeStamps.toUpperCase();
+		return topResult + "-" + MidResult + "-" + HexedTimeStamps.toUpperCase(Locale.ENGLISH);
 	} //end:GetSerializedID
 }

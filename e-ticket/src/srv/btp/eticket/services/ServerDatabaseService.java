@@ -5,16 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,7 +29,6 @@ import android.os.AsyncTask;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.util.Xml.Encoding;
 import android.widget.Toast;
 
 public class ServerDatabaseService extends AsyncTask<String, String, Void> {
@@ -83,8 +77,9 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	public static final String URL_SERVICE_FORWARD = "lokasi?1";
 	public static final String URL_SERVICE_REVERSE = "lokasi?2";
 	
-	public static final String URL_SERVICE_PRICE_FORWARD = "harga_lokasi_trayek/1";
-	public static final String URL_SERVICE_PRICE_REVERSE = "harga_lokasi_trayek/2";
+	public static int TRAJECTORY_LOCATION = 0; //variably changes
+	public static final String URL_SERVICE_PRICE_FORWARD = "harga_lokasi_trayek/";
+	public static final String URL_SERVICE_PRICE_REVERSE = "harga_lokasi_trayek/";
 	public static final String URL_SERVICE_VERSION_CHECK = "t_version";
 	
 	public static final String URL_SERVICE_TRAJECTORY = "trayek";
@@ -125,6 +120,8 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 		progressDialog.setCanceledOnTouchOutside(false);
 		progressDialog.setCancelable(true);
 		progressDialog.show();
+		
+		//Initializer value
 		ctd.start();
 		
 		progressDialog.setOnCancelListener(new OnCancelListener() {
@@ -134,6 +131,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 				progressDialog.dismiss();
 				isDone = true;
 				cancel(true);
+				ctd.cancel();
 				
 			}
 		});
@@ -161,17 +159,17 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 				// progressDialog.setMessage("Memeriksa update versi trayek...");
 				isVersionUptoDate = false; // Agar doInBackground wajib
 											// melakukan download versioning.
-			} else if (parameter.equals(URL_SERVICE_PRICE_FORWARD)) {
+			} else if (parameter.equals(URL_SERVICE_PRICE_FORWARD + String.valueOf(TRAJECTORY_LOCATION + 0))) {
 				connStatus = CHECK_PRICE_FORWARD;
 				message="Mendownload daftar harga trayek...";
 				// progressDialog.setMessage("Mendownload daftar harga trayek...");
-			} else if (parameter.equals(URL_SERVICE_PRICE_REVERSE)) {
+			} else if (parameter.equals(URL_SERVICE_PRICE_REVERSE + String.valueOf(TRAJECTORY_LOCATION + 1))) {
 				connStatus = CHECK_PRICE_REVERSE;
 				message="Mendownload daftar harga trayek arah balik...";
 				// progressDialog.setMessage("Mendownload daftar harga trayek arah balik...");
 			}
 
-			ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
+			//ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
 			isGetDataFailed = false;
 			if (!isVersionUptoDate) { // ketika versi telah terupdate, perlu
 										// adanya pencegahan download.
