@@ -72,6 +72,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	public static final String FIELD_ID_SRC = "ID_lokasi_asal";
 	public static final String FIELD_ID_DST = "ID_lokasi_tujuan";
 	public static final String FIELD_PRICE = "harga";
+	public static final String FIELD_URUTAN_TRAYEK = "urutan_trayek";
 	
 	
 	public static final String URL_SERVICE_FORWARD = "lokasi?1";
@@ -279,9 +280,11 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 							int id_src_fwd = jObject.getInt(FIELD_ID_SRC);
 							int id_dst_fwd = jObject.getInt(FIELD_ID_DST);
 							int price_fwd = jObject.getInt(FIELD_PRICE);
+							int urutan_fwd = jObject.getInt(FIELD_URUTAN_TRAYEK);
 							
 							ContentValues c = new ContentValues();
 							c.put(CRUD_Route_Table.KEY_LEFTPRICE, price_fwd / 2); 
+							c.put(CRUD_Route_Table.KEY_ROUTE_PRIORITY, urutan_fwd);
 							route.getWritableDatabase().update(
 									CRUD_Route_Table.TABLE_NAME, // nama tabel
 									c, // konten yang diupdate
@@ -296,7 +299,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 									CRUD_Route_Table.KEY_ID + " = "+ id_src_fwd, null
 									);
 							
-							Log.d("STATE+i", "host:" + id_src_fwd + " dest:"+ id_dst_fwd + " price:" + price_fwd);
+							Log.d("CHECK_PRICE_FORWARD step-" + i, "host:" + id_src_fwd + " dest:"+ id_dst_fwd + " price:" + price_fwd);
 							break;
 						case CHECK_PRICE_REVERSE:
 							if (isVersionUptoDate)
@@ -304,10 +307,12 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 							int id_src_rev = jObject.getInt(FIELD_ID_SRC);
 							int id_dst_rev = jObject.getInt(FIELD_ID_DST);
 							int price_rev = jObject.getInt(FIELD_PRICE);
+							int urutan_rev = jObject.getInt(FIELD_URUTAN_TRAYEK);
 
 							ContentValues cc = new ContentValues();
 							cc.put(CRUD_Route_Back_Table.KEY_LEFTPRICE,
 									price_rev / 2); // insert ke id_dst
+							cc.put(CRUD_Route_Back_Table.KEY_ROUTE_PRIORITY, urutan_rev);
 							route_back.getWritableDatabase().update(
 									CRUD_Route_Back_Table.TABLE_NAME, // nama
 																		// tabel
@@ -324,7 +329,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 									cc, // konten yang diupdate
 									CRUD_Route_Back_Table.KEY_ID + " = " + id_src_rev, null 
 									);
-							Log.d("STATE"+i, "host:" + id_src_rev + " dest:"+ id_dst_rev + " price:" + price_rev);
+							Log.d("CHECK_PRICE_REVERSE step-" + i, "host:" + id_src_rev + " dest:"+ id_dst_rev + " price:" + price_rev);
 							break;
 							
 						/*
@@ -345,10 +350,10 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 							double longd_forward= jObject.getDouble(FIELD_LONG);
 							Datafield_Route dr_forward = new Datafield_Route(
 									id_forward, nama_forward, 0, 0,
-									latd_forward, longd_forward);
+									latd_forward, longd_forward,0);
 							route.addEntry(dr_forward);
 							
-							Log.d("STATE"+i,dr_forward.toString());
+							Log.d("CHECK_ROUTE_FORWARD step-"+i,dr_forward.toString());
 							break;
 
 						case CHECK_ROUTE_REVERSE:
@@ -362,10 +367,10 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 									.getDouble(FIELD_LONG);
 							Datafield_Route dr_reverse = new Datafield_Route(
 									id_reverse, nama_reverse, 0, 0,
-									latd_reverse, longd_reverse);
+									latd_reverse, longd_reverse, 0);
 							route_back.addEntry(dr_reverse);
 							
-							Log.d("STATE"+i,dr_reverse.toString());
+							Log.d("CHECK_ROUTE_REVERSE step-"+i,dr_reverse.toString());
 							break;
 						}//end: switch
 

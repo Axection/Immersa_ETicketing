@@ -138,6 +138,8 @@ public class BluetoothPrintService {
 				case BixolonPrinter.STATE_CONNECTING:
 					Toast.makeText(selected_activity.getApplicationContext(), "Menyambung ke printer bluetooth...", Toast.LENGTH_SHORT).show();	
 					BTIndicator.setImageResource(R.drawable.indicator_bt_warn);
+					FormObjectTransfer.isBTConnected = false;
+					FormObjectTransfer.main_activity.checkStatus();
 					BT_STATE = STATE_CONNECTING;
 					break;
 				case BixolonPrinter.STATE_CONNECTED:

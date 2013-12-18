@@ -1,9 +1,5 @@
 package srv.btp.eticket.crud;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +34,7 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 	public static final String KEY_RIGHTPRICE = "rightprice"; //harga kanan
 	public static final String KEY_LATITUDE = "latitude"; //nomor latitude
 	public static final String KEY_LONGITUDE = "longitude"; //nomor longitude
+	public static final String KEY_ROUTE_PRIORITY = "urutan_trayek";
 	
 	
 	public CRUD_Route_Table(Context context){
@@ -54,7 +51,8 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 				+ KEY_ID + " INTEGER," + KEY_NAMA + " TEXT," 
 				+ KEY_LEFTPRICE + " INTEGER," + KEY_RIGHTPRICE + " INTEGER," 
 				+ KEY_LATITUDE + " NUMBER,"
-				+ KEY_LONGITUDE + " NUMBER"
+				+ KEY_LONGITUDE + " NUMBER,"
+				+ KEY_ROUTE_PRIORITY + " NUMBER"
 				+ ")";
 		db.execSQL(SQL_CREATION);
 	}
@@ -76,6 +74,7 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 		val.put(KEY_RIGHTPRICE, t.get_rightprice());
 		val.put(KEY_LATITUDE, t.get_latitude());
 		val.put(KEY_LONGITUDE, t.get_longitude());
+		val.put(KEY_ROUTE_PRIORITY, t.get_urutan_lokasi());
 		
 		db.insert(TABLE_NAME, null, val);
 		db.close();
@@ -84,7 +83,7 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 	public List<Datafield_Route> getAllEntries() {
 		Log.d("SQLiteCRUD","Get All entries");
 		List<Datafield_Route> l = new ArrayList<Datafield_Route>();
-		String query = "SELECT * FROM " + TABLE_NAME;
+		String query = "SELECT * FROM " + TABLE_NAME + " ORDER BY " + KEY_ROUTE_PRIORITY;
 		
 		SQLiteDatabase db = this.getWritableDatabase();
 		Cursor c = db.rawQuery(query, null);
@@ -99,6 +98,7 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 				t.set_rightprice(Integer.parseInt(c.getString(3)));
 				t.set_latitude(Double.parseDouble(c.getString(4)));
 				t.set_longitude(Double.parseDouble(c.getString(5)));
+				t.set_urutan_lokasi(Integer.parseInt(c.getString(6)));
 				
 				l.add(t);
 			} while (c.moveToNext());
@@ -113,7 +113,7 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 		
 		Cursor c = db.query(
 				TABLE_NAME, 
-				new String[] {KEY_ID, KEY_NAMA, KEY_LEFTPRICE, KEY_RIGHTPRICE, KEY_LATITUDE, KEY_LONGITUDE},
+				new String[] {KEY_ID, KEY_NAMA, KEY_LEFTPRICE, KEY_RIGHTPRICE, KEY_LATITUDE, KEY_LONGITUDE,KEY_ROUTE_PRIORITY},
 				KEY_ID + "=?", 
 				new String[] {String.valueOf(id) },
 				null,
@@ -132,7 +132,8 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 				Integer.parseInt(c.getString(2)), //leftprice
 				Integer.parseInt(c.getString(3)), //rightprice
 				Double.parseDouble(c.getString(4)),
-				Double.parseDouble(c.getString(5))
+				Double.parseDouble(c.getString(5)),
+				Integer.parseInt(c.getString(6))
 				);
 		return t;
 	}
@@ -142,9 +143,10 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 		String query = "SELECT * FROM " + TABLE_NAME;
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(query, null);
+		int count = c.getCount();
 		c.close();
 		
-		return c.getCount();
+		return count;
 	}
 	
 	public int updateEntry(Datafield_Route t){
@@ -158,6 +160,7 @@ public class CRUD_Route_Table extends SQLiteOpenHelper {
 		val.put(KEY_RIGHTPRICE, t.get_rightprice());
 		val.put(KEY_LATITUDE, t.get_latitude());
 		val.put(KEY_LONGITUDE, t.get_longitude());
+		val.put(KEY_ROUTE_PRIORITY, t.get_urutan_lokasi());
 		
 		
 		return db.update(TABLE_NAME, val, KEY_ID + " = ?",

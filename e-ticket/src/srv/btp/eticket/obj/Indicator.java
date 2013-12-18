@@ -3,6 +3,8 @@ package srv.btp.eticket.obj;
 import srv.btp.eticket.R;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -34,12 +36,17 @@ public class Indicator {
 		img.setScaleType(ScaleType.CENTER_CROP);
 		balloon.setScaleType(ScaleType.CENTER_CROP);
 		txt.setTextColor(targetContext.getResources().getColor(R.color.white));
-		txt.setTextSize(22);
+		Log.e("meh",targetContext.getResources().getDisplayMetrics().density+"");
+		if( targetContext.getResources().getDisplayMetrics().density > 1.0)
+			txt.setTextSize(14);
+			else txt.setTextSize(22); //22
 		txt.setTypeface(Typeface.DEFAULT_BOLD, Typeface.BOLD);
 		txt.setGravity(Gravity.CENTER);
 		
 		num.setTextColor(targetContext.getResources().getColor(R.color.white));
-		num.setTextSize(16);
+		if( targetContext.getResources().getDisplayMetrics().density > 1.0)
+			num.setTextSize(8);
+			else num.setTextSize(16); //16
 		num.setTypeface(Typeface.DEFAULT_BOLD, Typeface.BOLD);
 		num.setGravity(Gravity.CENTER);
 		

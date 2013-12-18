@@ -10,6 +10,7 @@ import srv.btp.eticket.R;
 import srv.btp.eticket.crud.CRUD_Route_Back_Table;
 import srv.btp.eticket.crud.CRUD_Route_Table;
 import srv.btp.eticket.crud.Datafield_Route;
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -126,8 +127,11 @@ public class GPSDataList {
 											.getBaseContext(),
 									"Ada masalah pada jaringan. Mengambil data trayek dari update terakhir.",
 									Toast.LENGTH_LONG).show();
-
-						FormObjectTransfer.gdl.generateData();
+						try{
+							FormObjectTransfer.gdl.generateData();
+						}catch(Exception e){
+							FormObjectTransfer.main_activity.CallError();
+						}
 
 					}
 				});
@@ -161,9 +165,21 @@ public class GPSDataList {
 					CRUD_Route_Back_Table.KEY_LEFTPRICE + " = 0 AND "
 							+ CRUD_Route_Back_Table.KEY_RIGHTPRICE + " = 0",
 					null);
+			
+			//proofing data terakhir ROUTE KEY untuk kedua tabel
+			ContentValues c = new ContentValues();
+			int lastIndex = crud_forward.countEntries();
+			c.put(CRUD_Route_Table.KEY_ROUTE_PRIORITY, lastIndex);
+			crud_forward.getWritableDatabase().update(CRUD_Route_Table.TABLE_NAME, c, CRUD_Route_Table.KEY_ID+ "="+lastIndex, null);
+			c = new ContentValues();
+			lastIndex = crud_reverse.countEntries();
+			c.put(CRUD_Route_Back_Table.KEY_ROUTE_PRIORITY, lastIndex);
+			crud_reverse.getWritableDatabase().update(CRUD_Route_Back_Table.TABLE_NAME, c, CRUD_Route_Back_Table.KEY_ID+ "="+lastIndex, null);
+			
 		} catch (SQLiteException sqle) {
 
 		}
+		
 		// prosesi data forward
 		ArrayList<Datafield_Route> datafield = (ArrayList<Datafield_Route>) crud_forward
 				.getAllEntries();

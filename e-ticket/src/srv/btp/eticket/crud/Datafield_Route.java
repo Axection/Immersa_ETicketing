@@ -10,18 +10,20 @@ public class Datafield_Route {
 //	private String _lokasi;
 	private double _latitude;
 	private double _longitude;
+	private int _urutan_lokasi;
 	
 	public Datafield_Route(){
 		
 	}
 	
-	public Datafield_Route(long serializeNumber, String nama, int leftprice, int rightprice, double latitude, double longitude){
+	public Datafield_Route(long serializeNumber, String nama, int leftprice, int rightprice, double latitude, double longitude, int urutan_lokasi){
 		this._id = serializeNumber;
 		this.set_nama(nama);
 		this.set_leftprice(leftprice);
 		this.set_rightprice(rightprice);
 		this.set_latitude(latitude);
 		this.set_longitude(longitude);
+		this.set_urutan_lokasi(urutan_lokasi);
 	}
 	
 	public long get_ID(){
@@ -78,6 +80,14 @@ public class Datafield_Route {
 
 	public void set_longitude(double _longitude) {
 		this._longitude = _longitude;
+	}
+
+	public int get_urutan_lokasi() {
+		return _urutan_lokasi;
+	}
+
+	public void set_urutan_lokasi(int _urutan_lokasi) {
+		this._urutan_lokasi = _urutan_lokasi;
 	}
 	
 }

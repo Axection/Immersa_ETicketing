@@ -4,14 +4,20 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import srv.btp.eticket.crud.CRUD_Route_Back_Table;
+import srv.btp.eticket.crud.CRUD_Route_Table;
 import srv.btp.eticket.services.BluetoothPrintService;
+import srv.btp.eticket.services.BusIdentifierService;
 import srv.btp.eticket.services.RouteService;
 import srv.btp.eticket.services.ServerDatabaseService;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -57,6 +63,7 @@ public class AppPreferences extends PreferenceActivity {
 	private ListPreference bluetoothList;
 
 	private ListPreference route_list;
+	private ListPreference plat_bis = (ListPreference) findPreference("plat_bis");
 	private CharSequence[] routeListCode;
 	private CharSequence[] routeListName;
 	
@@ -65,14 +72,16 @@ public class AppPreferences extends PreferenceActivity {
 	private RouteService rd;
 	
 	protected static boolean isRouteClicked = false;
+	protected static boolean isRestart = false;
 	
-	
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// Must Have
 		super.onCreate(savedInstanceState);
         FormObjectTransfer.current_activity = this;
 		overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+		plat_bis = (ListPreference) findPreference("plat_bis");
 		setupSimplePreferencesScreen();
 
 		// pemeriksaan asal dari intent
@@ -95,6 +104,8 @@ public class AppPreferences extends PreferenceActivity {
 			findPreference("pref_quit").setSummary("");
 		}
 
+		//registrasi plat_bis
+		
 		//registrasi klik Route
 		findPreference("route_list").setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
@@ -153,7 +164,7 @@ public class AppPreferences extends PreferenceActivity {
 
 		// Preference for Route List
 		route_list = (ListPreference) findPreference("route_list");
-		// TODO:Ambil Rute
+		// Ambil Rute
 		rd = new RouteService();
 		String URL_LIST_SERVICE[] = { RouteService.URL_SERVICE_TRAJECTORY };
 		Timer td = new Timer(true);
@@ -164,7 +175,8 @@ public class AppPreferences extends PreferenceActivity {
 			td.cancel();
 			route_list.setEnabled(false);
 		}
-
+		
+		
 	}
 	protected TimerTask TaskUpdate = new TimerTask() {
 		@Override
@@ -189,6 +201,48 @@ public class AppPreferences extends PreferenceActivity {
 		}
 	};
 
+	TimerTask Task = new TimerTask() {
+		@Override
+		public void run() {
+			plat_bis = (ListPreference) findPreference("plat_bis");
+			if(BusIdentifierService.isDone){
+				this.cancel();
+				FormObjectTransfer.current_activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if(BusIdentifierService.isFail){
+							Toast.makeText(FormObjectTransfer.current_activity.getBaseContext(), "Ada masalah pada jaringan. Tidak dapat mengganti plat bus.", Toast.LENGTH_LONG).show();
+							plat_bis.setEnabled(false);
+						}else if(BusIdentifierService.isDone){
+							plat_bis.setEnabled(true);
+							//TODO:Here
+							try{
+							plat_bis.setEntries(bus.getCharSequenceFromArray(bus.FIELD_PLAT_NO));
+							plat_bis.setEntryValues(bus.getCharSequenceFromArray(bus.FIELD_ID));
+							plat_bis.setSummary(bus.getCharSequenceFromArray(bus.FIELD_PLAT_NO)[Integer.parseInt(
+							                                                                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("plat_bis", "0")
+							                                                                    )-1]
+							                                                                    		);
+							PreferenceManager.getDefaultSharedPreferences(
+									plat_bis.getContext())
+									.edit()
+									.putString("plat_bis_hidden", plat_bis.getSummary()+"" )
+									.commit();
+							}
+							catch(Exception e){
+								e.printStackTrace();
+								plat_bis.setEnabled(false);
+								route_list.setEnabled(false);
+							}
+						}
+
+					}
+				});
+			}
+		}
+	};
+
+	protected BusIdentifierService bus;
 
 
 	
@@ -203,6 +257,7 @@ public class AppPreferences extends PreferenceActivity {
 	 * device configuration dictates that a simplified, single-pane UI should be
 	 * shown.
 	 */
+	@SuppressWarnings("deprecation")
 	private void setupSimplePreferencesScreen() {
 		if (!isSimplePreferences(this)) {
 			return;
@@ -240,6 +295,16 @@ public class AppPreferences extends PreferenceActivity {
 			@Override
 			public boolean onPreferenceClick(Preference arg0) {
 				CallAbout();
+				return false;
+			}
+		});
+		
+		Preference prefRestart = findPreference("pref_restart");
+		prefRestart.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference arg0) {
+				isRestart = true;
+				CallExit();
 				return false;
 			}
 		});
@@ -284,8 +349,6 @@ public class AppPreferences extends PreferenceActivity {
 	 * to reflect its new value.
 	 */
 	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-
-
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object value) {
 			String stringValue = value.toString();
@@ -294,12 +357,13 @@ public class AppPreferences extends PreferenceActivity {
 				// For list preferences, look up the correct display value in
 				// the preference's 'entries' list.
 				ListPreference listPreference = (ListPreference) preference;
-				int index = listPreference.findIndexOfValue(stringValue);
-
-				// Set the summary to reflect the new value.
-				preference
+				if(!preference.getKey().equals("plat_bis")){
+					int index = listPreference.findIndexOfValue(stringValue);
+					// Set the summary to reflect the new value.
+					preference
 						.setSummary(index >= 0 ? listPreference.getEntries()[index]
 								: null);
+				}
 				if(preference.getKey().equals("route_list") && isRouteClicked == true){
 					Log.e("UNIQUE_FORCE_CHANGE","CHANGE to 0");
 					PreferenceManager.getDefaultSharedPreferences(
@@ -307,8 +371,27 @@ public class AppPreferences extends PreferenceActivity {
 							.edit()
 							.putString("unique_key", "0")
 							.commit();
-					isRouteClicked = false;
+					
+					CRUD_Route_Table e = new CRUD_Route_Table(FormObjectTransfer.current_activity.getApplicationContext());
+					e.onUpgrade(e.getWritableDatabase(), 1, 1);
+					CRUD_Route_Back_Table ed = new CRUD_Route_Back_Table(FormObjectTransfer.current_activity.getApplicationContext());
+					ed.onUpgrade(e.getWritableDatabase(), 1, 1);
+					
+					String txt = "Harap muat ulang (restart) program menggunakan menu 'Restart' untuk menerima efek perubahan.";
+					Toast.makeText(FormObjectTransfer.current_activity.getApplicationContext(), txt, Toast.LENGTH_LONG).show();
+				
+					isRouteClicked = false;	
 				}
+				
+				if(preference.getKey().equals("plat_bis")){
+					String summary=PreferenceManager.getDefaultSharedPreferences(
+							preference.getContext()).getString("plat_bis_hidden", "");
+					PreferenceManager.getDefaultSharedPreferences(
+								preference.getContext())
+								.edit()
+								.putString("plat_bis_hidden", summary+"" )
+								.commit();
+					}
 				
 			} else {
 				// For all other preferences, set the summary to the value's
@@ -327,9 +410,8 @@ public class AppPreferences extends PreferenceActivity {
 					preference.getTitle().equals("Arah Trayek")){
 				preference.setSummary(stringValue);
 			}*/
-			String txt = "Perubahan dilakukan. Harap tutup program terlebih dahulu menggunakan menu 'Keluar' dan kemudian muat ulang aplikasi ini.";
-			//Toast.makeText(FormObjectTransfer.current_activity.getApplicationContext(), txt, Toast.LENGTH_LONG).show();
-			
+			if(isRouteClicked){
+				}
 			return true;
 		}
 	};
@@ -372,6 +454,7 @@ public class AppPreferences extends PreferenceActivity {
 		builder.setView(input);
 		builder.setCancelable(false);
 		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			@SuppressWarnings("deprecation")
 			
 			@Override
 			public void onClick(DialogInterface arg0, int arg1) {
@@ -381,6 +464,18 @@ public class AppPreferences extends PreferenceActivity {
 				}
 				else{
 					findPreference("input_password").setSummary(thePassword);
+					bus  = new BusIdentifierService();
+					String[] execution = {BusIdentifierService.URL_SERVICE_BUS};
+					Timer td = new Timer(true);
+					td.schedule(Task, Calendar.getInstance().getTime(), 1000);
+					try {
+						bus.execute(execution);
+					} catch (Exception e) {
+						td.cancel();
+						plat_bis.setEnabled(false);
+						route_list.setEnabled(false);
+					}
+					
 				}
 			}
 		}
@@ -399,39 +494,56 @@ public class AppPreferences extends PreferenceActivity {
 	}
 	
 	private void CallExit(){
+		String msg = "";
 		AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
+        if(isRestart){
+        	msg = "Muat ulang aplikasi?";
+        }else{
+        	msg = "Keluar dari aplikasi?";
+        }
         builder.setTitle("Peringatan");
-		builder.setMessage("Keluar dari aplikasi?");
+		builder.setMessage(msg);
         builder.setCancelable(false);
         builder.setPositiveButton("Ya", 
             new DialogInterface.OnClickListener() {
-        	//Yes
-                public void onClick(DialogInterface dialog,int id) {
-                    System.out.println(" onClick ");
+			// Yes
+			public void onClick(DialogInterface dialog, int id) {
+				if (isRestart) {
+					Intent mStartActivity = new Intent(getBaseContext(), Form_Main.class);
+					int mPendingIntentId = 45556;
+					PendingIntent mPendingIntent = PendingIntent.getActivity(getBaseContext(), mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+					AlarmManager mgr = (AlarmManager)getBaseContext().getSystemService(Context.ALARM_SERVICE);
+					mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 400, mPendingIntent);
+					System.exit(0);
+				} else {
+					System.out.println(" onClick ");
 
-                    try{
-                        FormObjectTransfer.bxl.READY_STATE = false;
-                        FormObjectTransfer.bxl.DisconnectPrinter();
-                    	FormObjectTransfer.main_activity.finish(); //Hancurkan main terlebih dahulu
-                    	       FormObjectTransfer.bxl.sharedCountdown.cancel();
-                    FormObjectTransfer.main_activity.gls.StopGPS();
-                    }catch(NullPointerException e){
-                    	Log.w("EXIT_STATE", "Program called from launcher, not activity.");
-                    }
-                    FormObjectTransfer.isQuit = true;
-                    
+					try {
+						FormObjectTransfer.bxl.READY_STATE = false;
+						FormObjectTransfer.bxl.DisconnectPrinter();
+						FormObjectTransfer.main_activity.finish(); // Hancurkan
+																	// main
+																	// terlebih
+																	// dahulu
+						FormObjectTransfer.bxl.sharedCountdown.cancel();
+						FormObjectTransfer.main_activity.gls.StopGPS();
+					} catch (NullPointerException e) {
+						Log.w("EXIT_STATE",
+								"Program called from launcher, not activity.");
+					}
+					FormObjectTransfer.isQuit = true;
+					finish(); // Close Application method called
+				}
 
-                    finish(); // Close Application method called
-                    
-                    
-                }
-            });
+			}
+		});
         builder.setNegativeButton("Tidak",
             new DialogInterface.OnClickListener() {
               	//No
                 public void onClick(DialogInterface dialog,int id) {
                     dialog.cancel();
+                    isRestart = false;
                 }
             });
 

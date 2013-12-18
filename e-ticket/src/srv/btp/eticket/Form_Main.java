@@ -9,7 +9,9 @@ import srv.btp.eticket.services.StatusBarService;
 import srv.btp.eticket.util.SystemUiHider;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -369,12 +371,53 @@ public class Form_Main extends Activity {
                 //Menyambung ke bluetooth printer
                 
                 gls.ActivateGPS();
-                gdl.getDataFromJSON(); //Disini terjadi async task, mohon menunggu.
-                
+                try{
+                	gdl.getDataFromJSON(); //Disini terjadi async task, mohon menunggu.
+                }catch(Exception e){
+                	CallError();
+                }
                 //PrepareCityList(); //Pindah jadi di generateData();
         }
 
-        protected void postExecution(){
+        public void CallError() {
+        	//TODO: MESSAGE BOX HERE :D
+        	String msg = "";
+    		AlertDialog.Builder builder;
+            builder = new AlertDialog.Builder(this);
+            msg = "Program mengalami masalah dalam konfigurasi atau jaringan. Mohon restart aplikasi atau masuk ke bagian Setting untuk mengubah konfigurasi sistem.";
+            builder.setTitle("Masalah");
+    		builder.setMessage(msg);
+            builder.setCancelable(false);
+            builder.setPositiveButton("Restart", 
+                new DialogInterface.OnClickListener() {
+    			// Restart
+            	@Override public void onClick(DialogInterface dialog, int id) {
+					//Restart APP
+                	Intent mStartActivity = new Intent(getBaseContext(), Form_Main.class);
+					int mPendingIntentId = 45556;
+					PendingIntent mPendingIntent = PendingIntent.getActivity(getBaseContext(), mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+					AlarmManager mgr = (AlarmManager)getBaseContext().getSystemService(Context.ALARM_SERVICE);
+					mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 400, mPendingIntent);
+					System.exit(0);
+            	}
+            });
+            builder.setNegativeButton("Settings",
+            		new DialogInterface.OnClickListener() {
+						@Override public void onClick(DialogInterface dialog, int which) {
+							//Jalankan Preferences
+                    		Bundle opt = new Bundle();
+                    		opt.putBoolean("fromParent", true);
+                            button_pref.setBackgroundResource(R.drawable.button_config);
+                            intentPref = new Intent(getApplicationContext(), AppPreferences.class);
+                            startActivity(intentPref,opt);
+                            CallError();
+						}
+					});
+            AlertDialog alert = builder.create();
+            alert.show();
+            
+		}
+		protected void postExecution(){
         	btx._setBtAddr(                
                     PreferenceManager.getDefaultSharedPreferences(getBaseContext())
                                     .getString("bluetooth_list", "00:00:00:00:00:00")
@@ -492,7 +535,7 @@ public class Form_Main extends Activity {
                 for(int a = 0;a < qty; a++){
                 	String GeneratedID = StatusBarService.GetSerializedID(a+1, 
                     		PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                    		.getString("plat_bis", getResources().getString(R.string.default_platbis)));
+                    		.getString("plat_bis_hidden", getResources().getString(R.string.default_platbis)));
                     
                 	btx.PrintText(GeneratedID, Kota1.toString(), Kota2.toString(), qty, harga);
                 }
@@ -660,6 +703,8 @@ public class Form_Main extends Activity {
         
         
 	public void CreateCityDisplay(CityList[] cityList) {
+		//
+		final int MAX_LENGTH_TEXT = 11;
 		final int size = 9;
 		int indicator = 9;
 		if (cityList.length < size) {
@@ -669,8 +714,8 @@ public class Form_Main extends Activity {
 		}
 		for (int a = 0; a < indicator; a++) {
 			Int2Button(a + 1).setText(
-					(cityList[a].Nama.length() > 11 ? cityList[a].Nama
-							.substring(0, 11) + "..." : cityList[a].Nama));
+					(cityList[a].Nama.length() > MAX_LENGTH_TEXT+ (getResources().getDisplayMetrics().density*2) ? cityList[a].Nama
+							.substring(0, (int) (MAX_LENGTH_TEXT+ (getResources().getDisplayMetrics().density*2))) + "..." : cityList[a].Nama));
 			if (cityList[a].isNotPassed) {
 				Int2Button(a + 1).setBackgroundResource(R.drawable.button);
 				Int2Button(a + 1).setEnabled(true);
@@ -861,7 +906,7 @@ public class Form_Main extends Activity {
 				PreferenceManager.getDefaultSharedPreferences(getBaseContext())
 				.edit().putInt("mocked", 1).commit();
 				PrepareCityList();
-				
+				checkStatus();
 			}
 		};
 		

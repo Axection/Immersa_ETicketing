@@ -49,7 +49,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class dimen {
         public static final int text_caption_large=0x7f070001;
         public static final int text_caption_size=0x7f070000;
+        public static final int text_caption_xxhdpi_large=0x7f070004;
+        public static final int text_caption_xxhdpi_size=0x7f070003;
         public static final int text_super_large=0x7f070002;
+        public static final int text_xxhdpi_super_large=0x7f070005;
     }
     public static final class drawable {
         public static final int balloon=0x7f020000;

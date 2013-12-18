@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 
+import srv.btp.eticket.services.QueueService;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -26,25 +28,28 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 
 
 	private static final int DATABASE_VERSION = 1;
-	public static final String DATABASE_NAME = "route_table";
+	
+	public static final String DATABASE_NAME = "transaction_system";
 	public static final String TABLE_NAME = "transaction";
 	public static final String TEMP_TABLE = "temp_transaction";
 	
-	//entries
-	public static final String KEY_ID = "id"; // nomor prioritas
-	public static final String KEY_NAMA = "nama"; //nama kota
-	public static final String KEY_LEFTPRICE = "leftprice"; //harga kiri
-	public static final String KEY_RIGHTPRICE = "rightprice"; //harga kanan
-	public static final String KEY_LATITUDE = "latitude"; //nomor latitude
-	public static final String KEY_LONGITUDE = "longitude"; //nomor longitude
+	//entries obsolete
+	private static final String KEY_ID = "id"; // nomor prioritas
+	private static final String KEY_NAMA = "nama"; //nama kota
+	private static final String KEY_LEFTPRICE = "leftprice"; //harga kiri
+	private static final String KEY_RIGHTPRICE = "rightprice"; //harga kanan
+	private static final String KEY_LATITUDE = "latitude"; //nomor latitude
+	private static final String KEY_LONGITUDE = "longitude"; //nomor longitude
 	
-	private static final String ID_TRAYEK = "ID_trayek"; //id trayek
-	private static final String KOTA_1 = "kota1"; //id kota asal
-	private static final String KOTA_2 = "kota2"; //id kota tujuan
-	private static final String LONGITUDE = "long"; //id kota tujuan
-	private static final String LATITUDE = "lat"; //id kota tujuan
-	private static final String JUMLAH_TIKET = "tiket"; //id kota tujuan
-	private static final String DATE_TIME = "date_transaction"; //id kota tujuan
+	public static final String ID_TRAYEK = "ID_trayek"; //id trayek
+	public static final String KOTA_1 = "kota1"; //id kota asal
+	public static final String KOTA_2 = "kota2"; //id kota tujuan
+	public static final String LONGITUDE = "long"; //id kota tujuan
+	public static final String LATITUDE = "lat"; //id kota tujuan
+	public static final String JUMLAH_TIKET = "tiket"; //id kota tujuan
+	public static final String DATE_TIME = "date_transaction"; //id kota tujuan
+	public static final String PRICE = "harga";
+	public static final String ID_BIS = "id_bis";
 	
 	
 	public CRUD_Transaction_Queue(Context context){
@@ -57,20 +62,27 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 	}
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		String SQL_CREATION = "CREATE TABLE " + TABLE_NAME + "("
+		String /*SQL_CREATION = "CREATE TABLE " + TABLE_NAME + "("
 				+ KEY_ID + " INTEGER," + KEY_NAMA + " TEXT," 
 				+ KEY_LEFTPRICE + " INTEGER," + KEY_RIGHTPRICE + " INTEGER," 
 				+ KEY_LATITUDE + " NUMBER,"
 				+ KEY_LONGITUDE + " NUMBER"
-				+ ")";				
+				+ ")";		
+		Log.v("Query ", SQL_CREATION);
 		db.execSQL(SQL_CREATION);
-		
+		*/
 		//create temp table for queueing
 		SQL_CREATION = "CREATE TABLE " + TEMP_TABLE + "("
-				+ ID_TRAYEK + " INTEGER," + KOTA_1 + " NUMBER," 
-				+ KOTA_2 + " NUMBER," + LONGITUDE + " REAL," 
-				+ LATITUDE + " REAL,"
-				+ JUMLAH_TIKET + " NUMBER, " + DATE_TIME + " TEXT"
+				+ ID_BIS + " NUMBER, "		//1
+				+ ID_TRAYEK + " INTEGER, " 	//2
+				+ KOTA_1 + " NUMBER, " 		//3
+				+ KOTA_2 + " NUMBER, " 		//4
+				+ LONGITUDE + " REAL, " 		//5
+				+ LATITUDE + " REAL, "		//6
+				+ JUMLAH_TIKET + " NUMBER, "//7
+				+ PRICE + " NUMBER, " 		//8
+				+ DATE_TIME + " TEXT "		//9
+
 				+ ")";
 		Log.v("Query ", SQL_CREATION);
 		db.execSQL(SQL_CREATION);
@@ -79,12 +91,11 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TEMP_TABLE);
 		onCreate(db);
 	}
 	
-	public void addEntry(Datafield_Route t){
+	@Deprecated public void addEntry(Datafield_Route t){
 		Log.d("SQLiteCRUD","Add new entry of "+ t.toString());
 		SQLiteDatabase db = this.getWritableDatabase();
 		
@@ -95,39 +106,37 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 		val.put(KEY_RIGHTPRICE, t.get_rightprice());
 		val.put(KEY_LATITUDE, t.get_latitude());
 		val.put(KEY_LONGITUDE, t.get_longitude());
+		//val.put(key, value)
 		
 		db.insert(TABLE_NAME, null, val);
 		db.close();
 	}
 	
 	public void addTempTransaction(List<NameValuePair> nameValuePairs){
-		/**
-		 * TEMP_TABLE + "("
-				+ ID_TRAYEK + " INTEGER," + KOTA_1 + " NUMBER," 
-				+ KOTA_2 + " NUMBER," + LONGITUDE + " REAL," 
-				+ LATITUDE + " REAL,"
-				+ JUMLAH_TIKET + " NUMBER, " + DATE_TIME + " TEXT"
-		 */
+
 		Log.d("SQLiteCRUD","Add new entry of temp transaction");
 		SQLiteDatabase db = this.getWritableDatabase();
-		
+		Log.e("DATE","INSIDE tempTransaction " + ((NameValuePair)nameValuePairs.get(6)).getValue());
 		ContentValues val = new ContentValues();
+		val.put(ID_BIS, ((NameValuePair)nameValuePairs.get(8)).getValue());
 		val.put(ID_TRAYEK, ((NameValuePair)nameValuePairs.get(0)).getValue());
 		val.put(KOTA_1,((NameValuePair)nameValuePairs.get(1)).getValue());
 		val.put(KOTA_2, ((NameValuePair)nameValuePairs.get(2)).getValue());
 		val.put(LONGITUDE, ((NameValuePair)nameValuePairs.get(3)).getValue());
 		val.put(LATITUDE, ((NameValuePair)nameValuePairs.get(4)).getValue());
 		val.put(JUMLAH_TIKET, ((NameValuePair)nameValuePairs.get(5)).getValue());
+		val.put(PRICE, ((NameValuePair)nameValuePairs.get(7)).getValue());
 		val.put(DATE_TIME, ((NameValuePair)nameValuePairs.get(6)).getValue());
+
 		
-		db.insert(TEMP_TABLE, null, val);
+		db.insert(TEMP_TABLE, null, val); 
 		db.close();
 	}
 	
-	public List<Datafield_Route> getAllEntries() {
+	public List<ContentValues> getAllEntries() {
 		Log.d("SQLiteCRUD","Get All entries");
-		List<Datafield_Route> l = new ArrayList<Datafield_Route>();
-		String query = "SELECT * FROM " + TABLE_NAME;
+		List<ContentValues> l = new ArrayList<ContentValues>();
+		String query = "SELECT * FROM " + TEMP_TABLE;
 		
 		SQLiteDatabase db = this.getWritableDatabase();
 		Cursor c = db.rawQuery(query, null);
@@ -135,14 +144,18 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 		//proceeed
 		if(c.moveToFirst()){
 			do{
-				Datafield_Route t = new Datafield_Route();
-				t.set_ID(Integer.parseInt(c.getString(0)));
-				t.set_nama(c.getString(1));
-				t.set_leftprice(Integer.parseInt(c.getString(2)));
-				t.set_rightprice(Integer.parseInt(c.getString(3)));
-				t.set_latitude(Double.parseDouble(c.getString(4)));
-				t.set_longitude(Double.parseDouble(c.getString(5)));
-				
+				ContentValues t = new ContentValues();
+				t.put(ID_BIS, c.getString(0));
+				t.put(ID_TRAYEK,c.getString(1));
+				t.put(KOTA_1,c.getString(2));
+				t.put(KOTA_2,c.getString(3));
+				t.put(LONGITUDE,c.getString(4));
+				t.put(LATITUDE,c.getString(5));
+				t.put(JUMLAH_TIKET,c.getString(6));
+				t.put(PRICE, c.getString(7));
+				t.put(DATE_TIME, c.getString(8));
+
+
 				l.add(t);
 			} while (c.moveToNext());
 		}
@@ -150,7 +163,7 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 		return l;
 	}
 	
-	public Datafield_Route getEntry(int id){
+	@Deprecated public Datafield_Route getEntry(int id){
 		Log.d("SQLiteCRUD","Lookup entry from " + id);
 		SQLiteDatabase db = this.getReadableDatabase();
 		
@@ -175,22 +188,24 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 				Integer.parseInt(c.getString(2)), //leftprice
 				Integer.parseInt(c.getString(3)), //rightprice
 				Double.parseDouble(c.getString(4)),
-				Double.parseDouble(c.getString(5))
+				Double.parseDouble(c.getString(5)),
+				Integer.parseInt(c.getString(6))
 				);
 		return t;
 	}
 
 	public int countEntries(){
-		Log.d("SQLiteCRUD","Counting Entries...");
-		String query = "SELECT * FROM " + TABLE_NAME;
+		Log.d("QueueEntries","Counting Entries...");
+		String query = "SELECT * FROM " + TEMP_TABLE;
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(query, null);
+		int number = c.getCount();
 		c.close();
 		
-		return c.getCount();
+		return number;
 	}
 	
-	public int updateEntry(Datafield_Route t){
+	@Deprecated public int updateEntry(Datafield_Route t){
 		Log.d("SQLiteCRUD","Update Entry of "+ t.toString());
 		SQLiteDatabase db = this.getWritableDatabase();
 		
@@ -208,14 +223,46 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 		);
 	}
 	
-	public void deleteEntry(Datafield_Route t){
-		Log.d("SQLiteCRUD","Delete entry of "+ t.toString());
+	public void deleteEntry(int t){
+		Log.d("SQLiteCRUD","Delete entry of "+ t);
 		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_NAME, KEY_ID + " = ?", 
-				new String[] { String.valueOf(t.get_ID())
+		db.delete(TEMP_TABLE, KEY_ID + " = ?", 
+				new String[] { String.valueOf(t)
 				});
 		db.close();
 		}
+	public static void SyncData(Context context){
+		// TODO:prosesi data yang ada di tabel
+		// ingat, data setelah dikirim harus di CLEAR! XD
+		CRUD_Transaction_Queue queue = new CRUD_Transaction_Queue(
+				context);
+		if(queue.countEntries()==0)return;
+		List<ContentValues> tmpData = queue.getAllEntries();
+		// CLEAR!
+		queue.onUpgrade(queue.getWritableDatabase(), 1, 1);
+		// buat data
+		for (ContentValues c : tmpData) {
+			Log.e("DATE",c.getAsString(queue.DATE_TIME));
+			
+			// Loop isi tmpData lalu dibuatkan String[] untuk di
+			// queueService.execute()
+			String[] data = new String[9];
+			data[0] = c.getAsString(queue.ID_BIS);
+			data[1] = c.getAsString(queue.ID_TRAYEK);
+			data[2] = c.getAsString(queue.KOTA_1);
+			data[3] = c.getAsString(queue.KOTA_2);
+			data[4] = c.getAsString(queue.LONGITUDE);
+			data[5] = c.getAsString(queue.LATITUDE);
+			data[6] = c.getAsString(queue.JUMLAH_TIKET);
+			data[7] = c.getAsString(queue.PRICE);
+			data[8] = c.getAsString(queue.DATE_TIME);
+
+			
+			// TODO: Post-data
+			QueueService queueService = new QueueService();
+			queueService.execute(data);
+		}
+	}
 	
 }
 

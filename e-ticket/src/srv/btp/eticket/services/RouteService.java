@@ -151,18 +151,22 @@ public class RouteService extends AsyncTask<String, String, Void> {
 					Log.e("UnsupportedEncodingException", e1.toString());
 					e1.printStackTrace();
 					isFail = true;
+					isDone = false;
 				} catch (ClientProtocolException e2) {
 					Log.e("ClientProtocolException", e2.toString());
 					e2.printStackTrace();
 					isFail = true;
+					isDone = false;
 				} catch (IllegalStateException e3) {
 					Log.e("IllegalStateException", e3.toString());
 					e3.printStackTrace();
 					isFail = true;
+					isDone = false;
 				} catch (IOException e4) {
 					Log.e("IOException", e4.toString());
 					e4.printStackTrace();
 					isFail = true;
+					isDone = false;
 				}
 				// Convert response to string using String Builder
 				try {
@@ -229,6 +233,7 @@ public class RouteService extends AsyncTask<String, String, Void> {
 					} // end:i
 				} catch (JSONException e) {
 					isFail = true;
+					isDone = false;
 					Log.e("JSONException", "Error: " + e.toString());
 
 				} // end: catch (JSONException e)
