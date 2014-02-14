@@ -36,7 +36,6 @@ public class Indicator {
 		img.setScaleType(ScaleType.CENTER_CROP);
 		balloon.setScaleType(ScaleType.CENTER_CROP);
 		txt.setTextColor(targetContext.getResources().getColor(R.color.white));
-		Log.e("meh",targetContext.getResources().getDisplayMetrics().density+"");
 		if( targetContext.getResources().getDisplayMetrics().density > 1.0)
 			txt.setTextSize(14);
 			else txt.setTextSize(22); //22

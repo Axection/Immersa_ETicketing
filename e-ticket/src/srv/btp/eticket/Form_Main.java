@@ -642,20 +642,27 @@ public class Form_Main extends Activity {
         	//Bersih-bersih indikator perlu dilakukan agar memory bersih
         	
         	//dari indikator
-	        for(int a=0;a<top_layout.getChildCount();a++){
-	        	top_layout.removeView(indicators[a].balloon);
-	        	top_layout.removeView(indicators[a].img);
-	        	top_layout.removeView(indicators[a].num);
-	        	top_layout.removeView(indicators[a].txt);
-	        }
-	        //garis
-	        top_layout.removeView(line);
+        	try{
+		        for(int a=0;a<top_layout.getChildCount();a++){
+		        	top_layout.removeView(indicators[a].balloon);
+		        	top_layout.removeView(indicators[a].img);
+		        	top_layout.removeView(indicators[a].num);
+		        	top_layout.removeView(indicators[a].txt);
+		        }
+        	}catch(IndexOutOfBoundsException e){
+        		top_layout.removeAllViewsInLayout();
+        		e.printStackTrace();
+        	}
+        	finally{
+        		//garis
+        		top_layout.removeView(line);
+        	}
         }
         public void PrepareCityList(){
         		String[] namaKota = gdl.kotaList;
                 int dataSize = namaKota.length;
                 int hargaParsial[] = gdl.hargaParsial;
-                
+                Log.e("PrepareCityList","size="+dataSize);
                 city_list = new CityList[dataSize];
                 city_max_position = dataSize;
                 top_layout.setLayoutParams(new FrameLayout.LayoutParams(
@@ -685,8 +692,7 @@ public class Form_Main extends Activity {
                 				   "lat :"+ lati );
     			
                 int initializationValue = current_city;
-                
-                		
+                Log.e("InitializationValue",initializationValue+"");
                 		
                 SetCityEnable(initializationValue); 
                 city_position = 1;
@@ -906,6 +912,7 @@ public class Form_Main extends Activity {
 				PreferenceManager.getDefaultSharedPreferences(getBaseContext())
 				.edit().putInt("mocked", 1).commit();
 				PrepareCityList();
+				top_scroll.scrollTo(0, 0);
 				checkStatus();
 			}
 		};

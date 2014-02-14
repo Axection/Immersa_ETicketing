@@ -294,6 +294,7 @@ public class GPSDataList {
 				lastShortestDistance = dist;
 			}
 		}
+		Log.w("getNearestCity","Nearest city is : " + lastNearestCity);
 		return lastNearestCity;
 	}
 }

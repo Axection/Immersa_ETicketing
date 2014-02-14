@@ -215,14 +215,13 @@ public class AppPreferences extends PreferenceActivity {
 							plat_bis.setEnabled(false);
 						}else if(BusIdentifierService.isDone){
 							plat_bis.setEnabled(true);
-							//TODO:Here
 							try{
-							plat_bis.setEntries(bus.getCharSequenceFromArray(bus.FIELD_PLAT_NO));
-							plat_bis.setEntryValues(bus.getCharSequenceFromArray(bus.FIELD_ID));
-							plat_bis.setSummary(bus.getCharSequenceFromArray(bus.FIELD_PLAT_NO)[Integer.parseInt(
-							                                                                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("plat_bis", "0")
-							                                                                    )-1]
-							                                                                    		);
+								plat_bis.setEntries(bus.getCharSequenceFromArray(bus.FIELD_PLAT_NO));
+								plat_bis.setEntryValues(bus.getCharSequenceFromArray(bus.FIELD_ID));
+								plat_bis.setSummary(bus.getCharSequenceFromArray(bus.FIELD_PLAT_NO)[Integer.parseInt(
+								                                                                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("plat_bis", "0")
+								                                                                    )-1]
+								                                                                    		);
 							PreferenceManager.getDefaultSharedPreferences(
 									plat_bis.getContext())
 									.edit()
@@ -357,13 +356,15 @@ public class AppPreferences extends PreferenceActivity {
 				// For list preferences, look up the correct display value in
 				// the preference's 'entries' list.
 				ListPreference listPreference = (ListPreference) preference;
-				if(!preference.getKey().equals("plat_bis")){
+				//if(!preference.getKey().equals("plat_bis")){
 					int index = listPreference.findIndexOfValue(stringValue);
 					// Set the summary to reflect the new value.
 					preference
 						.setSummary(index >= 0 ? listPreference.getEntries()[index]
 								: null);
-				}
+				//}else{
+					
+				//}
 				if(preference.getKey().equals("route_list") && isRouteClicked == true){
 					Log.e("UNIQUE_FORCE_CHANGE","CHANGE to 0");
 					PreferenceManager.getDefaultSharedPreferences(
@@ -534,6 +535,7 @@ public class AppPreferences extends PreferenceActivity {
 					}
 					FormObjectTransfer.isQuit = true;
 					finish(); // Close Application method called
+					System.exit(0);
 				}
 
 			}

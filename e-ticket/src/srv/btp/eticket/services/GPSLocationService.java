@@ -213,20 +213,7 @@ public class GPSLocationService {
 	             * 
 	             */
 			}
-
-			/*----------to get City-Name from coordinates 
-			 * 			Opsional ------------- */
-			/*Geocoder gcd = new Geocoder(baseContext, Locale.getDefault());
-			List<Address> addresses;
-			try {
-				addresses = gcd.getFromLocation(loc.getLatitude(),
-						loc.getLongitude(), 1);
-				if (addresses.size() > 0);
-
-				//current_city = addresses.get(0).getLocality();
-			} catch (IOException ee) {
-				ee.printStackTrace();
-			}*/
+			
 			RecreateTimer();
 		}
 		//Unused Callbacks
