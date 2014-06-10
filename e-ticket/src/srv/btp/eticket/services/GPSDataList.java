@@ -100,7 +100,8 @@ public class GPSDataList {
 				ServerDatabaseService.URL_SERVICE_PRICE_FORWARD
 						+ String.valueOf(ServerDatabaseService.TRAJECTORY_LOCATION + 0),
 				ServerDatabaseService.URL_SERVICE_PRICE_REVERSE
-						+ String.valueOf(ServerDatabaseService.TRAJECTORY_LOCATION + 1) };
+						+ String.valueOf(ServerDatabaseService.TRAJECTORY_LOCATION + 1),
+				ServerDatabaseService.URL_SERVICE_CONFIGURATION};
 		Timer td = new Timer(true);
 		td.schedule(TaskUpdate, Calendar.getInstance().getTime(), 1000);
 		try {

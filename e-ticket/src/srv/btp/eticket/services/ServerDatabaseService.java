@@ -82,7 +82,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	public static final String URL_SERVICE_PRICE_FORWARD = "harga_lokasi_trayek/";
 	public static final String URL_SERVICE_PRICE_REVERSE = "harga_lokasi_trayek/";
 	public static final String URL_SERVICE_VERSION_CHECK = "t_version";
-	
+	public static final String URL_SERVICE_CONFIGURATION = ""; //TODO: need config URL
 	public static final String URL_SERVICE_TRAJECTORY = "trayek";
 	
 	public static final int MAXIMUM_WAITING_TIME = 180000;
@@ -92,6 +92,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	public static final int CHECK_ROUTE_REVERSE = 3;
 	public static final int CHECK_PRICE_FORWARD = 4;
 	public static final int CHECK_PRICE_REVERSE = 5;
+	public static final int CHECK_CONFIGURATION = 6;
 	public static final int CHECK_UNKNOWN = 0;
 	
 	public int connStatus = 0;
@@ -168,6 +169,9 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 				connStatus = CHECK_PRICE_REVERSE;
 				message="Mendownload daftar harga trayek arah balik...";
 				// progressDialog.setMessage("Mendownload daftar harga trayek arah balik...");
+			} else if (parameter.equals(URL_SERVICE_CONFIGURATION)) {
+				connStatus = CHECK_CONFIGURATION;
+				message="Mendownload konfigurasi dari server...";
 			}
 
 			//ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
@@ -372,6 +376,12 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 							
 							Log.d("CHECK_ROUTE_REVERSE step-"+i,dr_reverse.toString());
 							break;
+						case CHECK_CONFIGURATION:
+							//TODO: isi variabel konfigurasi disini.
+							//Inget! gunakan jObject.getInt(namaFIELD) untuk mengambil field.
+							
+							Log.d("CHECK_CONFIGURATION step-"+i,"DATA_CONFIGURATION_HEREEEE");
+
 						}//end: switch
 
 					} // end: for

@@ -103,7 +103,8 @@ public class AppPreferences extends PreferenceActivity {
 			findPreference("pref_quit").setTitle("");
 			findPreference("pref_quit").setSummary("");
 		}
-
+		//Cabut paksa tombol quit.
+		getPreferenceScreen().removePreference(findPreference("pref_quit"));
 		//registrasi plat_bis
 		
 		//registrasi klik Route
@@ -556,14 +557,14 @@ public class AppPreferences extends PreferenceActivity {
 	private void CallAbout(){
 		AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
-        builder.setTitle("Mobile Ticketing v.1.00");
+        builder.setTitle("Mobile Ticketing v.1.10");
 		builder.setMessage("Dibuat oleh Immersa Labs.\n\n" +
 						   "Dukungan :\n" + 
 						   "The Android Open Source Project - Android API\n" +
 						   "Google - Analytics dan Statistics\n" +
 						   "Bixolon - Bluetooth Printing Service\n" +
 						   "\n"+
-						   "2013. Some rights reserved."
+						   "2014. Some rights reserved."
 				
 				);
         builder.setCancelable(false);

@@ -209,8 +209,8 @@ public class GPSLocationService {
 	            /**TODO:Masukkan data upload lokasi
 	             * lokasi latitude diwakili oleh variabel "current_latitude"
 	             * lokasi longitude diwakili oleh variabel "current_longitude"
-	             * 
-	             * 
+	             * sebelumny ini mengambil data konfigurasi berapa jarak interval (dalam menit / *60 sec)
+	             * aplikasi harus submit data 
 	             */
 			}
 			

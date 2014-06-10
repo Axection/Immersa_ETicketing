@@ -15,6 +15,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.location.Location;
@@ -547,7 +548,7 @@ public class Form_Main extends Activity {
                 int left_space = 40; // Default jarak pinggir kiri
                 int icon_size = 32; // Ukuran indicator
                 int block_indicator_size = 150; //Ukuran per indikator
-
+                
                 // Pembuatan garis indikator
                 line = new ImageView(this);
                 line.setImageResource(R.drawable.indicator_line);
@@ -557,7 +558,7 @@ public class Form_Main extends Activity {
                 line.setLayoutParams(lp);
                 line.setScaleType(ScaleType.CENTER_CROP);
                 top_layout.addView(line);
-
+                Log.e("CreateIndicator","size="+num);
                 // Pembuatan Indicator
                 indicators = new Indicator[num];
                 for (int a = 0; a < num; a++) {
@@ -644,6 +645,7 @@ public class Form_Main extends Activity {
         	//dari indikator
         	try{
 		        for(int a=0;a<top_layout.getChildCount();a++){
+		        	Log.d("CleanCityList", indicators[a].txt.getText()+"");
 		        	top_layout.removeView(indicators[a].balloon);
 		        	top_layout.removeView(indicators[a].img);
 		        	top_layout.removeView(indicators[a].num);
@@ -668,7 +670,7 @@ public class Form_Main extends Activity {
                 top_layout.setLayoutParams(new FrameLayout.LayoutParams(
                                 (180 * dataSize) + 60, -2)); //180, 60, -2 adalah konstanta tetap panjang layout. Untuk saat ini, jangan diubah.
                 CreateIndicator(dataSize);
-                Log.d("INDICATOR","CreatedIndicator");
+                Log.d("PrepareCityList","CreatedIndicator called with " + dataSize + "");
                 city_display = new CityList[dataSize<9 ? dataSize : 9];
                 Log.d("debug", String.valueOf(indicators[0].txt.getLeft()));
                 for(int a = 0; a<dataSize;a++){
@@ -685,8 +687,9 @@ public class Form_Main extends Activity {
                 
                 
                 //Mempersiapkan default value
-                double longi = (double)PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getFloat("long", (float) gdl.long_kota[0]);
-                double lati =  (double)PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getFloat("lat", (float) gdl.lat_kota[0]);
+                SharedPreferences baseContext = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                double longi = (double)baseContext.getFloat("long", (float) gdl.long_kota[0]);
+                double lati =  (double)baseContext.getFloat("lat", (float) gdl.lat_kota[0]);
                 int current_city = FormObjectTransfer.gdl.getNearestCity(lati, longi);
                 dbg_txtLog.setText("long:"+ longi + "\n "  +
                 				   "lat :"+ lati );
