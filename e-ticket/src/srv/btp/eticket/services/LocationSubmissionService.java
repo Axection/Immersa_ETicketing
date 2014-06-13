@@ -29,21 +29,30 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.os.AsyncTask;
 
-public class QueueService extends AsyncTask<String, Integer, Boolean> {
+public class LocationSubmissionService extends AsyncTask<String, Integer, Boolean> {
+
+
 	@Override
 	protected Boolean doInBackground(String... values) {
-		if (values.length != 9) {
-			Log.v("async : status", "404");
+		if (values.length != 5) {
+			Log.v("async : status", "invalid data length");
 			return Boolean.FALSE;
 		} else {
 			String id_trayek, dateTime;
 			id_trayek = dateTime = null;
-
-			String kota1, kota2;
-			int ticket_num, harga;
 			int id_bus = 0;
-			harga = 0;
+			//0 = ID bus
+			//1 = ID Trayek
+			//2 = long
+			//3 = Lat
+			//4 = Date
 
+			//0
+			if (values[0] != null) { //id_bus
+				id_bus = Integer.parseInt(values[0]);
+			}
+			
+			//1
 			if (values[1] != null){ //ID Trayek
 				id_trayek = values[1];
 			}else{
@@ -57,39 +66,32 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 				if(!arah.equals("maju"))rt+=1;
 				id_trayek = String.valueOf(rt);
 			}
-			kota1 = values[2]; //kota1
-			kota2 = values[3]; //kota2
-			ticket_num = Integer.parseInt(values[6]); //tiket
+			
+			//2 long
 			float latitude, longitude; 
-			if (values[4] != null) { //longitude
-				longitude = Float.parseFloat(values[4]);
+			if (values[2] != null) { //longitude
+				longitude = Float.parseFloat(values[2]);
 			} else {
 				longitude = PreferenceManager.getDefaultSharedPreferences(
 						FormObjectTransfer.main_activity.getBaseContext())
 						.getFloat("long", 0);
 			}
-
-			if (values[5] != null) { //latitude
-				latitude = Float.parseFloat(values[5]);
+			//3 lat
+			if (values[3] != null) { //latitude
+				latitude = Float.parseFloat(values[3]);
 			} else {
 				latitude = PreferenceManager.getDefaultSharedPreferences(
 						FormObjectTransfer.main_activity.getBaseContext())
 						.getFloat("lat", 0);
 			}
 
-			if (values[8] != null) { //date
-				dateTime = values[8];
+			//Date
+			if (values[4] != null) { //date
+				dateTime = values[4];
 				Log.e("DATE","INSIDE QUEUESERVICE "+dateTime);
 			}
-
-			if (values[7] != null) { //price
-				harga = Integer.parseInt(values[7]);
-			}
-			if (values[0] != null) { //id_bus
-				id_bus = Integer.parseInt(values[0]);
-			}
-			int status = postData(id_trayek, kota1, kota2, longitude, latitude,
-					ticket_num, dateTime, harga, id_bus);
+			
+			int status = postData(id_bus, id_trayek, longitude, latitude, dateTime );
 			Log.v("async : status", status + "");
 			if (status == 200)
 				return true;
@@ -109,15 +111,7 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 	};
 
 	@SuppressLint("DefaultLocale")
-	private int postData(String id_trayek, String kota1, String kota2,
-			float longitude, float latitude, int jumlah_tiket, String date,
-			int harga, int id_bis) {
-		// Create a new HttpClient and Post Header
-		String jumlah_tiket_copy = jumlah_tiket + "";
-		// String harga_copy = harga + "";
-		// String total_transaksi_copy =
-		// total_transaksi + "";
-
+	private int postData(int id_bis, String id_trayek,float longitude, float latitude, String date) {
 		String timeNow = date;
 		if (date == null) {
 			Calendar cal = Calendar.getInstance();
@@ -147,6 +141,7 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 			// Mendapatkan daftar id Kota
 			CRUD_Route_Table routeTable = new CRUD_Route_Table(
 					FormObjectTransfer.main_activity.getBaseContext());
+			
 			List<Datafield_Route> dataList = routeTable.getAllEntries();
 			FormObjectTransfer.idKota1 = FormObjectTransfer.idKota2 = -1;
 			for (Iterator<Datafield_Route> iterator = dataList.iterator(); iterator
@@ -156,23 +151,8 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 				String debug = String.format("%s %d",
 						datafield_Route.get_nama(), datafield_Route.get_ID());
 				Log.v("async : data", debug);
-				if (!isInteger(kota1)) {
-					if (datafield_Route.get_nama().equals(kota1)) {
-						FormObjectTransfer.idKota1 = (int) datafield_Route
-								.get_ID();
-					}
-				} else {
-					FormObjectTransfer.idKota1 = Integer.parseInt(kota1);
-				}
-
-				if (!isInteger(kota2)) {
-					if (datafield_Route.get_nama().equals(kota2)) {
-						FormObjectTransfer.idKota2 = (int) datafield_Route
-								.get_ID();
-					}
-				} else {
-					FormObjectTransfer.idKota2 = Integer.parseInt(kota2);
-				}
+				
+				
 				if (FormObjectTransfer.idKota1 != -1
 						&& FormObjectTransfer.idKota2 != -1) {
 					Log.v("Async : idkota result", FormObjectTransfer.idKota1
@@ -196,28 +176,16 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 			} else {
 				baseTrajectoryValue = baseRouteValue + 1;
 			}
-			nameValuePairs.add(new BasicNameValuePair(
-			// TODO:
-			// key 0 harus punya
-			// value
-			// ID_trayek
-					"1", baseTrajectoryValue + ""));
-			nameValuePairs.add(new BasicNameValuePair("2",
-					FormObjectTransfer.idKota1 + ""));
-			nameValuePairs.add(new BasicNameValuePair("3",
-					FormObjectTransfer.idKota2 + ""));
-			nameValuePairs.add(new BasicNameValuePair("4", longitude + ""));
-			nameValuePairs.add(new BasicNameValuePair("5", latitude + ""));
-			nameValuePairs.add(new BasicNameValuePair("6", jumlah_tiket_copy));
-			nameValuePairs.add(new BasicNameValuePair("8", timeNow));
-			nameValuePairs.add(new BasicNameValuePair("7", harga + ""));
+			
 			nameValuePairs.add(new BasicNameValuePair("0", id_bis + ""));
+			nameValuePairs.add(new BasicNameValuePair("1", baseTrajectoryValue + ""));
+			nameValuePairs.add(new BasicNameValuePair("2", longitude + ""));
+			nameValuePairs.add(new BasicNameValuePair("3", latitude + ""));
+			nameValuePairs.add(new BasicNameValuePair("4", timeNow));
+			
 
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			Log.v("async : debug", 1 + "");
-			Log.v("async : debug", FormObjectTransfer.idKota1 + "");
-			Log.v("async : debug", FormObjectTransfer.idKota2 + "");
-			Log.v("async : debug", jumlah_tiket_copy);
 			Log.v("async : debug", "" + timeNow);
 			Log.v("async : target", target_post);
 

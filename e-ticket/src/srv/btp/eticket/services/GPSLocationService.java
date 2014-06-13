@@ -160,9 +160,7 @@ public class GPSLocationService {
 			Log.d("GPSLocationDebug",loc.getTime()+" timelock.");
 			String txt = "Terdeteksi lokasi berpindah :\n Lat: " + loc.getLatitude() + " Lng: "
 					+ loc.getLongitude();
-			//Toast.makeText(
-			//		baseContext,
-			//		txt , Toast.LENGTH_SHORT).show();
+
 
 			current_longitude = loc.getLongitude();
 			current_latitude =  loc.getLatitude();
