@@ -167,6 +167,7 @@ public class BusIdentifierService extends AsyncTask<String, String, Void> {
 					isDone = true;
 				} catch (IOException e4) {
 					Log.e("IOException", e4.toString());
+					Log.e("URLService","Error Hostname");
 					e4.printStackTrace();
 					isFail = true;
 					isDone = true;

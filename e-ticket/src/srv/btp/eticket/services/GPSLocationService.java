@@ -8,8 +8,14 @@ import srv.btp.eticket.Form_Main;
 import srv.btp.eticket.R;
 import srv.btp.eticket.crud.CRUD_Route_Back_Table;
 import srv.btp.eticket.crud.CRUD_Route_Table;
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -112,17 +118,24 @@ public class GPSLocationService {
 			return true;
 		} else {
 			// GPS mati. siapkan indikator mati :(
-			Toast.makeText(baseContext, "GPS Mati... menggunakan data DUMMY dari daftar koordinat.", Toast.LENGTH_SHORT).show();
 			GPSIndicator.setImageResource(R.drawable.indicator_gps_off);
 			FormObjectTransfer.main_activity.checkStatus();
 			
 			//mengetes mock
 			if(!location_manager.isProviderEnabled(GPSLocationService.GPS_MOCK_PROVIDER)) {
-	        	// Membuat test mock provider
+				// Membuat test mock provider
+				try{
 	        	location_manager.addTestProvider(GPSLocationService.GPS_MOCK_PROVIDER, false, false,
 	        			false, false, true, false, false, 0, 5);
 	        	location_manager.setTestProviderEnabled(GPSLocationService.GPS_MOCK_PROVIDER, true);
 	        	
+	        	Log.e("ERROR GGENERATION","HAX");
+	        	
+				}
+				catch(SecurityException e){
+					//Perlu adanya exception untuk memberitahu bahwa GPS dan Mock tidak bisa dinyalakan. 
+					FormObjectTransfer.main_activity.CallMockupError();
+				}
 			}  
 	        
 			//summon mock
@@ -131,6 +144,55 @@ public class GPSLocationService {
 	        	location_manager.requestLocationUpdates(GPSLocationService.GPS_MOCK_PROVIDER, 0, 0, location_listener);
 	        	isMocked = true;
 	        	FormObjectTransfer.isGPSConnected = true; //khusus mocking
+	        	
+	        	//dan beritahu bahwa program sedang dalam mode testing
+	        	String msg = "";
+	    		AlertDialog.Builder builder;
+	            builder = new AlertDialog.Builder(FormObjectTransfer.main_activity);
+	            msg = "Program terdeteksi sedang berjalan dalam mode testing dan SANGAT DILARANG digunakan dalam operasional. Apabila anda tidak mengetahui apa yang sedang terjadi, harap segera nyalakan GPS device dan restart aplikasi untuk keluar dari mode testing.";
+	            builder.setTitle("PERINGATAN KERAS");
+	    		builder.setMessage(msg);
+	            builder.setCancelable(false);
+	            builder.setNegativeButton("Lanjutkan Aplikasi", 
+	                    new DialogInterface.OnClickListener() {
+	        			// DO NOTHING
+	                	@Override public void onClick(DialogInterface dialog, int id) {
+	                	}
+	                });
+	            builder.setPositiveButton("Restart",
+	            		new DialogInterface.OnClickListener() {
+	    						@Override public void onClick(DialogInterface dialog, int which) {
+	    							//Jalankan GPS Setting
+	    							int REQUEST_ENABLE_GPS = 0;
+	    							Intent enableGPSIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+	    							FormObjectTransfer.main_activity.startActivityForResult(enableGPSIntent, REQUEST_ENABLE_GPS);
+	    								if (REQUEST_ENABLE_GPS == Activity.RESULT_OK) {
+	    									//Restart~
+	    				                	Intent mStartActivity = new Intent(FormObjectTransfer.main_activity.getBaseContext(), Form_Main.class);
+	    									int mPendingIntentId = 45556;
+	    									PendingIntent mPendingIntent = PendingIntent.getActivity(FormObjectTransfer.main_activity.getBaseContext(), mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+	    									AlarmManager mgr = (AlarmManager)FormObjectTransfer.main_activity.getBaseContext().getSystemService(Context.ALARM_SERVICE);
+	    									mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 400, mPendingIntent);
+	    									System.exit(0);
+	    								}else{
+	    									//Restart~
+	    				                	Intent mStartActivity = new Intent(FormObjectTransfer.main_activity.getBaseContext(), Form_Main.class);
+	    									int mPendingIntentId = 45556;
+	    									PendingIntent mPendingIntent = PendingIntent.getActivity(FormObjectTransfer.main_activity.getBaseContext(), mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+	    									AlarmManager mgr = (AlarmManager)FormObjectTransfer.main_activity.getBaseContext().getSystemService(Context.ALARM_SERVICE);
+	    									mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 400, mPendingIntent);
+	    									System.exit(0);
+	    								}
+	    						}
+	    					});
+	            AlertDialog alert = builder.create();
+	            try{
+	            	alert.show();
+	            }
+	            catch(Exception e){
+	            	
+	            }
+	            //end alert
 	        }
 			
 			/*Intent viewIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -204,14 +266,30 @@ public class GPSLocationService {
 	            cd.start();
 	            //Animasi selesai
 	            lastCity = current_city;
-	            /**TODO:Masukkan data upload lokasi
+	            /**Masukkan data upload lokasi
 	             * lokasi latitude diwakili oleh variabel "current_latitude"
 	             * lokasi longitude diwakili oleh variabel "current_longitude"
 	             * sebelumny ini mengambil data konfigurasi berapa jarak interval (dalam menit / *60 sec)
-	             * aplikasi harus submit data 
+	             * aplikasi harus submit data.
 	             */
 			}
+			//TODO :Submit lokasi ke raw_track_data via LocationSubmissionService.java
+			//buat sebuah sistem timer untuk isReadyToSubmit selalu true setiap interval berapa detik.
+			//Battle Begins! Mwahahahhahaha XD
 			
+			if(FormObjectTransfer.isReadyToSubmit){	
+			LocationSubmissionService asyncTask = new LocationSubmissionService();
+				//property load
+				String id_bis = PreferenceManager.getDefaultSharedPreferences(FormObjectTransfer.main_activity.getApplicationContext())
+						.getString("plat_bis", "-1");
+				String execution[] = new String[]{
+						id_bis,
+						current_longitude+"",
+						current_latitude+""
+				};
+				asyncTask.execute(execution);
+				FormObjectTransfer.isReadyToSubmit = false;
+			}
 			RecreateTimer();
 		}
 		//Unused Callbacks

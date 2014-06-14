@@ -197,7 +197,6 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 				baseTrajectoryValue = baseRouteValue + 1;
 			}
 			nameValuePairs.add(new BasicNameValuePair(
-			// TODO:
 			// key 0 harus punya
 			// value
 			// ID_trayek

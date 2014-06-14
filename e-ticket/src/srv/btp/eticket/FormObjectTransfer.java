@@ -23,6 +23,7 @@ public class FormObjectTransfer {
 	public static boolean isGPSConnected = false;
 	public static boolean isInitalizationState = true;
 	public static boolean isQuit = false;
+	public static boolean isReadyToSubmit = false;
 	public static CharSequence[] routeName = new CharSequence[100];
 	public static CharSequence[] routeID = new CharSequence[100];
 	/***

@@ -134,7 +134,6 @@ public class Form_Print extends Activity {
 	 * untuk membaca inputan ato respon unit.
 	 */
 
-	@SuppressWarnings("static-access")
 	private void registerOnTouchAndClick() {
 		button_touch_controls = new OnTouchListener() {
 			@Override

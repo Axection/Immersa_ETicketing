@@ -232,7 +232,7 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 		db.close();
 		}
 	public static void SyncData(Context context){
-		// TODO:prosesi data yang ada di tabel
+		// Prosesi data yang ada di tabel
 		// ingat, data setelah dikirim harus di CLEAR! XD
 		CRUD_Transaction_Queue queue = new CRUD_Transaction_Queue(
 				context);
@@ -258,7 +258,7 @@ public class CRUD_Transaction_Queue extends SQLiteOpenHelper {
 			data[8] = c.getAsString(queue.DATE_TIME);
 
 			
-			// TODO: Post-data
+			//Post-data
 			QueueService queueService = new QueueService();
 			queueService.execute(data);
 		}

@@ -24,7 +24,6 @@ public class CustomDialogControl extends Dialog implements
 
 	public CustomDialogControl(Activity a) {
 		super(a);
-		// TODO Auto-generated constructor stub
 		this.c = a;
 		this.setCanceledOnTouchOutside(false);
 		this.setCancelable(false);
@@ -46,7 +45,6 @@ public class CustomDialogControl extends Dialog implements
 			
 			@Override
 			public boolean onTouch(View v, MotionEvent mov) {
-				// TODO Auto-generated method stub
 				v.setBackgroundResource(R.drawable.button_dark_press);
 				Button bb = (Button)v;
 				bb.setTextColor(Color.WHITE);

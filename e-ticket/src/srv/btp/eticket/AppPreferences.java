@@ -9,19 +9,14 @@ import srv.btp.eticket.crud.CRUD_Route_Table;
 import srv.btp.eticket.services.BluetoothPrintService;
 import srv.btp.eticket.services.BusIdentifierService;
 import srv.btp.eticket.services.RouteService;
-import srv.btp.eticket.services.ServerDatabaseService;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -29,11 +24,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.webkit.WebView.FindListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -158,16 +149,25 @@ public class AppPreferences extends PreferenceActivity {
 		} else {
 			bluetoothList.setEnabled(false);
 		}
-
-		// setting nilai summary-summary
-		findPreference("input_password").setSummary("****");
-		CallPassword();
-
+		//Ambil Bis~
+		bus  = new BusIdentifierService();
+		String[] execution = {BusIdentifierService.URL_SERVICE_BUS};
+		Log.d("BusService","Working...");
+		Timer te = new Timer(true);
+		te.schedule(Task, Calendar.getInstance().getTime(), 1000);
+		try {
+			bus.execute(execution);
+		} catch (Exception e) {
+			te.cancel();
+			plat_bis.setEnabled(false);
+			route_list.setEnabled(false);
+		}
 		// Preference for Route List
 		route_list = (ListPreference) findPreference("route_list");
 		// Ambil Rute
 		rd = new RouteService();
 		String URL_LIST_SERVICE[] = { RouteService.URL_SERVICE_TRAJECTORY };
+		Log.d("RouteService","Working...");
 		Timer td = new Timer(true);
 		td.schedule(TaskUpdate, Calendar.getInstance().getTime(), 1000);
 		try {
@@ -177,17 +177,22 @@ public class AppPreferences extends PreferenceActivity {
 			route_list.setEnabled(false);
 		}
 		
+		// setting nilai summary-summary
+		findPreference("input_password").setSummary("****");
+		CallPassword();
 		
 	}
 	protected TimerTask TaskUpdate = new TimerTask() {
 		@Override
 		public void run() {
+			route_list = (ListPreference) findPreference("route_list");
 			if(RouteService.isDone){
 				this.cancel();
 				FormObjectTransfer.current_activity.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
 						if(RouteService.isFail){
+							Log.e("RouteService","Fail to set route");
 							Toast.makeText(FormObjectTransfer.current_activity.getBaseContext(), "Ada masalah pada jaringan. Rute untuk sementara tidak dapat diganti", Toast.LENGTH_LONG).show();
 							route_list.setEnabled(false);
 						}else if(RouteService.isDone){
@@ -277,6 +282,8 @@ public class AppPreferences extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference("bluetooth_list"));
 		bindPreferenceSummaryToValue(findPreference("input_password"));
 		bindPreferenceSummaryToValue(findPreference("route_list"));
+		bindPreferenceSummaryToValue(findPreference("trajectory_direction"));
+		//experimental
 		
 		
 		//Tambahan fitur keluar
@@ -298,6 +305,17 @@ public class AppPreferences extends PreferenceActivity {
 				return false;
 			}
 		});
+		
+		Preference prefRestore = findPreference("pref_restore");
+		prefRestore.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference arg0) {
+				CallRestoreDefaults();
+				return false;
+			}
+		});
+
+
 		
 		Preference prefRestart = findPreference("pref_restart");
 		prefRestart.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -358,7 +376,10 @@ public class AppPreferences extends PreferenceActivity {
 				// the preference's 'entries' list.
 				ListPreference listPreference = (ListPreference) preference;
 				//if(!preference.getKey().equals("plat_bis")){
-					int index = listPreference.findIndexOfValue(stringValue);
+				int index = -1;
+				//if(stringValue != null){
+					index = listPreference.findIndexOfValue(stringValue);
+				//}
 					// Set the summary to reflect the new value.
 					preference
 						.setSummary(index >= 0 ? listPreference.getEntries()[index]
@@ -394,6 +415,9 @@ public class AppPreferences extends PreferenceActivity {
 								.putString("plat_bis_hidden", summary+"" )
 								.commit();
 					}
+				if(preference.getKey().equals("input_password")){
+					preference.setSummary("****");
+				}
 				
 			} else {
 				// For all other preferences, set the summary to the value's
@@ -465,18 +489,7 @@ public class AppPreferences extends PreferenceActivity {
 					CallPassword();
 				}
 				else{
-					findPreference("input_password").setSummary(thePassword);
-					bus  = new BusIdentifierService();
-					String[] execution = {BusIdentifierService.URL_SERVICE_BUS};
-					Timer td = new Timer(true);
-					td.schedule(Task, Calendar.getInstance().getTime(), 1000);
-					try {
-						bus.execute(execution);
-					} catch (Exception e) {
-						td.cancel();
-						plat_bis.setEnabled(false);
-						route_list.setEnabled(false);
-					}
+					findPreference("input_password").setSummary("****");
 					
 				}
 			}
@@ -492,6 +505,55 @@ public class AppPreferences extends PreferenceActivity {
 
 		AlertDialog alert = builder.create();
 		alert.setCanceledOnTouchOutside(false);
+		alert.show();
+	}
+	
+	private void CallRestoreDefaults() {
+		String msg = "";
+		AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(this);
+        msg = "Mengembalikan semuanya ke sediakala akan menghapus semua konfigurasi yang sudah diatur dan membuat aplikasi harus mendownload ulang beberapa data. Apakah anda yakin ingin mengembalikan semuanya ke setelan pabrik?";
+        builder.setTitle("Peringatan");
+		builder.setMessage(msg);
+        builder.setCancelable(false);
+        builder.setPositiveButton("Ya", 
+            new DialogInterface.OnClickListener() {
+			// Yes
+			public void onClick(DialogInterface dialog, int id) {
+				//Reset semua config, entah gimana caranya apus semua SharedPreferences.
+				//Dan yang mudah, reset versioning jadi 0.
+				Log.e("UNIQUE_FORCE_CHANGE","CHANGE to 0");
+				PreferenceManager.getDefaultSharedPreferences(
+						FormObjectTransfer.current_activity.getApplicationContext())
+						.edit()
+						.putString("unique_key", "0")
+						.commit();
+				
+				CRUD_Route_Table e = new CRUD_Route_Table(FormObjectTransfer.current_activity.getApplicationContext());
+				e.onUpgrade(e.getWritableDatabase(), 1, 1);
+				CRUD_Route_Back_Table ed = new CRUD_Route_Back_Table(FormObjectTransfer.current_activity.getApplicationContext());
+				ed.onUpgrade(e.getWritableDatabase(), 1, 1);
+				
+				//HEAVY TRIAL
+				PreferenceManager.getDefaultSharedPreferences(
+						FormObjectTransfer.current_activity.getApplicationContext())
+						.edit()
+						.clear()
+						.commit();
+				
+				String txt = "Harap muat ulang (restart) program menggunakan menu 'Restart' untuk menerima efek perubahan.";
+				Toast.makeText(FormObjectTransfer.current_activity.getApplicationContext(), txt, Toast.LENGTH_LONG).show();
+				isRouteClicked = false;	
+			}
+        });
+        builder.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				arg0.cancel();	
+			}
+		});
+        AlertDialog alert = builder.create();
+		alert.setCanceledOnTouchOutside(true);
 		alert.show();
 	}
 	
@@ -557,14 +619,14 @@ public class AppPreferences extends PreferenceActivity {
 	private void CallAbout(){
 		AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
-        builder.setTitle("Mobile Ticketing v.1.10");
-		builder.setMessage("Dibuat oleh Immersa Labs.\n\n" +
+        builder.setTitle("Mobitick v.1.1");
+		builder.setMessage("by Immersa Labs.\n\n" +
 						   "Dukungan :\n" + 
 						   "The Android Open Source Project - Android API\n" +
-						   "Google - Analytics dan Statistics\n" +
+						   "Google - Analytics\n" +
 						   "Bixolon - Bluetooth Printing Service\n" +
 						   "\n"+
-						   "2014. Some rights reserved."
+						   "2014. Hak cipta dilindungi oleh undang-undang."
 				
 				);
         builder.setCancelable(false);

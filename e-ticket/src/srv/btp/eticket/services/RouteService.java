@@ -250,7 +250,10 @@ public class RouteService extends AsyncTask<String, String, Void> {
 		ctd.cancel();
 		this.progressDialog.dismiss();
 		isDone = true;
-		isFail = false;
+		if(isGetDataFailed) 
+			isFail = true;
+		else
+			isFail = false;
 
 	} // end: protected void onPostExecute(Void v)
 } // end: class MyAsyncTask extends AsyncTask<String, String, Void>

@@ -82,7 +82,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	public static final String URL_SERVICE_PRICE_FORWARD = "harga_lokasi_trayek/";
 	public static final String URL_SERVICE_PRICE_REVERSE = "harga_lokasi_trayek/";
 	public static final String URL_SERVICE_VERSION_CHECK = "t_version";
-	public static final String URL_SERVICE_CONFIGURATION = ""; //TODO: need config URL
+	public static final String URL_SERVICE_CONFIGURATION = "server_config"; //TODO: need config URL
 	public static final String URL_SERVICE_TRAJECTORY = "trayek";
 	
 	public static final int MAXIMUM_WAITING_TIME = 180000;
@@ -377,11 +377,16 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 							Log.d("CHECK_ROUTE_REVERSE step-"+i,dr_reverse.toString());
 							break;
 						case CHECK_CONFIGURATION:
-							//TODO: isi variabel konfigurasi disini.
 							//Inget! gunakan jObject.getInt(namaFIELD) untuk mengambil field.
-							
+							//Dan value dari check_configuration wajib diambil, tidak terikat dengan versioning.
+							//Catatan : data disimpan dengan key "interval"
+							int minutesValue = jObject.getInt("interval"); //dataKey = interval
+							Log.d("STATE"+i, "Interval Value :"+minutesValue);
+							PreferenceManager.getDefaultSharedPreferences(
+										FormObjectTransfer.main_activity.getBaseContext())
+										.edit().putString("interval", String.valueOf(minutesValue) ).commit();
+							FormObjectTransfer.isReadyToSubmit = false;
 							Log.d("CHECK_CONFIGURATION step-"+i,"DATA_CONFIGURATION_HEREEEE");
-
 						}//end: switch
 
 					} // end: for

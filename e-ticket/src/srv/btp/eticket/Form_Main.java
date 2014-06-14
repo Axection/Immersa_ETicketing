@@ -1,10 +1,15 @@
 package srv.btp.eticket;
 
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import srv.btp.eticket.obj.CityList;
 import srv.btp.eticket.obj.Indicator;
 import srv.btp.eticket.services.BluetoothPrintService;
 import srv.btp.eticket.services.GPSDataList;
 import srv.btp.eticket.services.GPSLocationService;
+import srv.btp.eticket.services.LocationSubmissionService;
 import srv.btp.eticket.services.StatusBarService;
 import srv.btp.eticket.util.SystemUiHider;
 import android.annotation.SuppressLint;
@@ -23,6 +28,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -380,8 +386,7 @@ public class Form_Main extends Activity {
                 //PrepareCityList(); //Pindah jadi di generateData();
         }
 
-        public void CallError() {
-        	//TODO: MESSAGE BOX HERE :D
+        public void CallError() {        
         	String msg = "";
     		AlertDialog.Builder builder;
             builder = new AlertDialog.Builder(this);
@@ -416,7 +421,73 @@ public class Form_Main extends Activity {
 					});
             AlertDialog alert = builder.create();
             alert.show();
-            
+		}
+        
+        public void CallMockupError() {
+        	String msg = "";
+    		AlertDialog.Builder builder;
+            builder = new AlertDialog.Builder(this);
+            msg = "Program mendeteksi bahwa GPS dinonaktifkan. Mohon nyalakan GPS kemudian restart aplikasi.";
+            builder.setTitle("Masalah");
+    		builder.setMessage(msg);
+            builder.setCancelable(false);
+            builder.setNegativeButton("Restart", 
+                new DialogInterface.OnClickListener() {
+    			// Restart
+            	@Override public void onClick(DialogInterface dialog, int id) {
+            		
+            		//Restart APP
+                	Intent mStartActivity = new Intent(getBaseContext(), Form_Main.class);
+					int mPendingIntentId = 45556;
+					PendingIntent mPendingIntent = PendingIntent.getActivity(getBaseContext(), mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+					AlarmManager mgr = (AlarmManager)getBaseContext().getSystemService(Context.ALARM_SERVICE);
+					mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 400, mPendingIntent);
+					System.exit(0);
+            	}
+            });
+            builder.setPositiveButton("Open GPS",
+            		new DialogInterface.OnClickListener() {
+						@Override public void onClick(DialogInterface dialog, int which) {
+							//Jalankan GPS Setting
+							int REQUEST_ENABLE_GPS = 0;
+							Intent enableGPSIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+							startActivityForResult(enableGPSIntent, REQUEST_ENABLE_GPS);
+								if (REQUEST_ENABLE_GPS == Activity.RESULT_OK) {
+									//Restart~
+				                	Intent mStartActivity = new Intent(getBaseContext(), Form_Main.class);
+									int mPendingIntentId = 45556;
+									PendingIntent mPendingIntent = PendingIntent.getActivity(getBaseContext(), mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+									AlarmManager mgr = (AlarmManager)getBaseContext().getSystemService(Context.ALARM_SERVICE);
+									mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 400, mPendingIntent);
+									System.exit(0);
+								}else{
+								CallMockupError();
+								}
+						}
+					});
+            /*
+            builder.setNeutralButton("Open Developer Mode",
+            		new DialogInterface.OnClickListener() {
+						@Override public void onClick(DialogInterface dialog, int which) {
+							//Jalankan GPS Setting
+							int REQUEST_NOTHING = 0;
+							Intent enableDev = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+							startActivityForResult(enableDev, REQUEST_NOTHING);
+								if (REQUEST_NOTHING == Activity.RESULT_OK) {
+									//Restart~
+				                	Intent mStartActivity = new Intent(getBaseContext(), Form_Main.class);
+									int mPendingIntentId = 45556;
+									PendingIntent mPendingIntent = PendingIntent.getActivity(getBaseContext(), mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+									AlarmManager mgr = (AlarmManager)getBaseContext().getSystemService(Context.ALARM_SERVICE);
+									mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 400, mPendingIntent);
+									System.exit(0);
+								}
+								CallMockupError();
+						}
+					});
+			*/
+            AlertDialog alert = builder.create();
+            alert.show();
 		}
 		protected void postExecution(){
         	btx._setBtAddr(                
@@ -426,8 +497,39 @@ public class Form_Main extends Activity {
         	Log.d("BluetoothAddressLoader",btx.btSelectedAddr);
         	FormObjectTransfer.bxl = btx;
         	btx.ConnectPrinter();
-        }
-        
+        	
+        	//TODO:Mulai start timer isReadySubmit untuk lokasi.
+        	/**/
+        	Timer autocheckLooper = new Timer(true);
+        	int intervalValue = Integer.parseInt(
+                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("interval", "1") //dalam menit
+                    );
+        	autocheckLooper.schedule(TaskCheck, Calendar.getInstance().getTime(), intervalValue * 1000 * 60);
+			}
+
+		protected TimerTask TaskCheck = new TimerTask() {
+	
+			@Override
+			public void run() {
+				 Log.d("ReadyToSubmit",FormObjectTransfer.isReadyToSubmit + " before");
+	        	 FormObjectTransfer.isReadyToSubmit = true;
+	        	 
+	        	 //Safe case, tapi sebenernya bikin isReadyToSubmit jadi ga guna :(
+	        	 SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(FormObjectTransfer.main_activity.getApplicationContext());
+	        	 LocationSubmissionService asyncTask = new LocationSubmissionService();
+					//property load
+					String id_bis = pm.getString("plat_bis", "-1");
+					String execution[] = new String[]{
+							id_bis,
+							pm.getFloat("long", -1)+"",
+							pm.getFloat("lat", -1)+""
+					};
+					asyncTask.execute(execution);
+					Log.d("LocationSubmission",FormObjectTransfer.isReadyToSubmit +"");
+					FormObjectTransfer.isReadyToSubmit = false;
+	        }
+		};
+	        
         @Override
         public void onBackPressed() {
                 // Mematikan fungsi default onBackPressed
@@ -644,6 +746,7 @@ public class Form_Main extends Activity {
         	
         	//dari indikator
         	try{
+        		Log.d("CleanCityList",top_layout.getChildCount()+"");
 		        for(int a=0;a<top_layout.getChildCount();a++){
 		        	Log.d("CleanCityList", indicators[a].txt.getText()+"");
 		        	top_layout.removeView(indicators[a].balloon);
