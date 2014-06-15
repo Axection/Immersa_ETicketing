@@ -1,6 +1,8 @@
 package srv.btp.eticket;
 
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -127,6 +129,14 @@ public class AppPreferences extends PreferenceActivity {
 			}
 			bluetoothList.setEntries(btListNames);
 			bluetoothList.setEntryValues(btListAddress);
+			String entity = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("bluetooth_list", "-1");
+			List<CharSequence> btNames = Arrays.asList(btListAddress);
+			if(!entity.equals("-1")){
+				bluetoothList.setSummary(btListNames[btNames.indexOf(entity)]);
+			}
+			else{
+				bluetoothList.setSummary("Wajib : Silahkan pilih bluetooth printer yang sudah ter-pairing.");
+			}
 			Log.d("BTX", bluetoothList.toString() + " post address");
 			bluetoothList
 					.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -199,6 +209,15 @@ public class AppPreferences extends PreferenceActivity {
 							route_list.setEnabled(true);
 							route_list.setEntries(FormObjectTransfer.routeName);
 							route_list.setEntryValues(FormObjectTransfer.routeID);
+							
+							String entity = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("route_list", "-1");
+							List<CharSequence> lists = Arrays.asList(FormObjectTransfer.routeID);
+							if(!entity.equals("-1")){
+								route_list.setSummary(FormObjectTransfer.routeName[lists.indexOf(entity)]);
+							}
+							else{
+								route_list.setSummary("Wajib : Silahkan pilih salah satu dari daftar rute berikut");
+							}
 						}
 
 					}
@@ -226,13 +245,17 @@ public class AppPreferences extends PreferenceActivity {
 								plat_bis.setEntryValues(bus.getCharSequenceFromArray(bus.FIELD_ID));
 								plat_bis.setSummary(bus.getCharSequenceFromArray(bus.FIELD_PLAT_NO)[Integer.parseInt(
 								                                                                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("plat_bis", "0")
-								                                                                    )-1]
-								                                                                    		);
+								                                                                    )-1] );
 							PreferenceManager.getDefaultSharedPreferences(
 									plat_bis.getContext())
 									.edit()
 									.putString("plat_bis_hidden", plat_bis.getSummary()+"" )
 									.commit();
+							}
+							catch(ArrayIndexOutOfBoundsException ae){
+								Log.d("BusIdentifier","First Run Detected,manually readjust.");
+								plat_bis.setSummary("Wajib : Silahkan pilih daftar plat bis yang sesuai");
+								plat_bis.setEnabled(true);
 							}
 							catch(Exception e){
 								e.printStackTrace();
@@ -284,10 +307,20 @@ public class AppPreferences extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference("route_list"));
 		bindPreferenceSummaryToValue(findPreference("trajectory_direction"));
 		//experimental
+		bindPreferenceSummaryToValue(findPreference("service_address"));
 		
-		
+		//for trajectory
+		Preference asp = findPreference("trajectory_direction");
+		String daKey = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("trajectory_direction", "0");
+		Log.e("Trajectory",daKey);
+		if(daKey.equals("0"))
+			asp.setSummary("Wajib : Silahkan pilih arah trayek");
 		//Tambahan fitur keluar
 		Preference p = findPreference("pref_quit");
+		p.setSummary(
+	                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("interval", "1") //dalam menit
+	                 + " menit"
+				);
 		p.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			
 			@Override

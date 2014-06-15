@@ -34,10 +34,11 @@ public class LocationSubmissionService extends AsyncTask<String, Integer, Boolea
 
 	@Override
 	protected Boolean doInBackground(String... values) {
-		if (values.length != 5) {
+		if (values.length != 3) {
 			Log.v("LoactionSubmission : status", "invalid data length");
 			return Boolean.FALSE;
 		} else {
+			Log.v("LoactionSubmission : status", "Valid data! Working...");
 			String id_trayek, dateTime;
 			id_trayek = dateTime = null;
 			int id_bus = 0;

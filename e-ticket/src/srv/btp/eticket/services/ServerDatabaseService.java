@@ -98,7 +98,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	public int connStatus = 0;
 	public static boolean isDone;
 	public static boolean isFail = false;
-
+	protected boolean isCheckingServer = false;
 	public static String message = "Mendownload beberapa informasi data...";
 	protected CountDownTimer ctd = new CountDownTimer(MAXIMUM_WAITING_TIME,200) {
 		@Override public void onTick(long arg0) {
@@ -114,6 +114,9 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 
 
 	private boolean isGetDataFailed;
+
+
+
 	
 	protected void onPreExecute() {
 		isDone = false;
@@ -172,11 +175,12 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 			} else if (parameter.equals(URL_SERVICE_CONFIGURATION)) {
 				connStatus = CHECK_CONFIGURATION;
 				message="Mendownload konfigurasi dari server...";
+				isCheckingServer = true;
 			}
 
 			//ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
 			isGetDataFailed = false;
-			if (!isVersionUptoDate) { // ketika versi telah terupdate, perlu
+			if (!isVersionUptoDate || isCheckingServer) { // ketika versi telah terupdate, perlu
 										// adanya pencegahan download.
 				try {
 					// Set up HTTP post
@@ -380,13 +384,14 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 							//Inget! gunakan jObject.getInt(namaFIELD) untuk mengambil field.
 							//Dan value dari check_configuration wajib diambil, tidak terikat dengan versioning.
 							//Catatan : data disimpan dengan key "interval"
-							int minutesValue = jObject.getInt("interval"); //dataKey = interval
+							int minutesValue = jObject.getInt("update_interval"); //dataKey = interval
 							Log.d("STATE"+i, "Interval Value :"+minutesValue);
 							PreferenceManager.getDefaultSharedPreferences(
 										FormObjectTransfer.main_activity.getBaseContext())
 										.edit().putString("interval", String.valueOf(minutesValue) ).commit();
 							FormObjectTransfer.isReadyToSubmit = false;
 							Log.d("CHECK_CONFIGURATION step-"+i,"DATA_CONFIGURATION_HEREEEE");
+							break;
 						}//end: switch
 
 					} // end: for

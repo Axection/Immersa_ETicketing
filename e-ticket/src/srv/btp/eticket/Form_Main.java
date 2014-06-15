@@ -525,7 +525,7 @@ public class Form_Main extends Activity {
 							pm.getFloat("lat", -1)+""
 					};
 					asyncTask.execute(execution);
-					Log.d("LocationSubmission",FormObjectTransfer.isReadyToSubmit +"");
+					Log.d("LocationSubmission Status",FormObjectTransfer.isReadyToSubmit +"");
 					FormObjectTransfer.isReadyToSubmit = false;
 	        }
 		};
@@ -746,9 +746,10 @@ public class Form_Main extends Activity {
         	
         	//dari indikator
         	try{
-        		Log.d("CleanCityList",top_layout.getChildCount()+"");
-		        for(int a=0;a<top_layout.getChildCount();a++){
-		        	Log.d("CleanCityList", indicators[a].txt.getText()+"");
+        		Log.d("CleanCityList",indicators.length+"");
+		        for(int a=0;a<indicators.length;a++){
+		        	Log.d("CleanCityList", indicators[a].txt.getText()+" "+a);
+		        	//Log.d("CleanCityList",a+" "+ top_layout.getChildAt(a).toString());
 		        	top_layout.removeView(indicators[a].balloon);
 		        	top_layout.removeView(indicators[a].img);
 		        	top_layout.removeView(indicators[a].num);
@@ -1041,7 +1042,7 @@ public class Form_Main extends Activity {
 			@Override
 			public void onClick(View v) {
 				Toast.makeText(getBaseContext(), "Menyambung GPS secara manual...", Toast.LENGTH_SHORT).show();
-				gls.ctd.cancel();
+				//gls.ctd.cancel();
 				gls.RecreateTimer();
 				gls.ActivateGPS();
 			}

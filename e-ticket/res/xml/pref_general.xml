@@ -27,7 +27,7 @@
         <Preference android:title="Kembali ke Pengaturan Awal" android:key="pref_restore" android:summary="Menghapus semua konfigurasi dan kembali seperti sedia kala."/>
         
     </PreferenceCategory><PreferenceCategory android:title="Bantuan"><Preference android:defaultValue="0" android:key="unique_key" android:title="Informasi Versi Database Server" android:enabled="false" android:selectable="false" />
-        <Preference android:title="Kode Aplikasi" android:summary="110" android:key="pref_quit" android:enabled="false" /><Preference android:summary="Tentang Aplikasi Ini" android:key="pref_about" android:title="Tentang"/><Preference android:summary="Muat ulang aplikasi untuk menerapkan efek perubahan sistem" android:key="pref_restart" android:title="Restart"/>
+        <Preference android:title="Interval" android:summary="undefined" android:key="pref_quit" android:enabled="false" android:selectable="false"/><Preference android:summary="Tentang Aplikasi Ini" android:key="pref_about" android:title="Tentang"/><Preference android:summary="Muat ulang aplikasi untuk menerapkan efek perubahan sistem" android:key="pref_restart" android:title="Restart"/>
         
         
     </PreferenceCategory>
