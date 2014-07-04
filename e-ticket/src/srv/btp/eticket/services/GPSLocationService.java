@@ -273,25 +273,7 @@ public class GPSLocationService {
 	             * aplikasi harus submit data.
 	             */
 			}
-			//TODO :Submit lokasi ke raw_track_data via LocationSubmissionService.java
-			//buat sebuah sistem timer untuk isReadyToSubmit selalu true setiap interval berapa detik.
-			//Battle Begins! Mwahahahhahaha XD
-			/*
-			if(FormObjectTransfer.isReadyToSubmit){	
-			LocationSubmissionService asyncTask = new LocationSubmissionService();
-				//property load
-				String id_bis = PreferenceManager.getDefaultSharedPreferences(FormObjectTransfer.main_activity.getApplicationContext())
-						.getString("plat_bis", "-1");
-				String execution[] = new String[]{
-						id_bis,
-						current_longitude+"",
-						current_latitude+""
-				};
-				asyncTask.execute(execution);
-				FormObjectTransfer.isReadyToSubmit = false; 
-				
-			}
-			*/
+			
 			RecreateTimer();
 		}
 		//Unused Callbacks

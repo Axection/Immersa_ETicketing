@@ -26,6 +26,7 @@ public class FormObjectTransfer {
 	public static boolean isReadyToSubmit = false;
 	public static CharSequence[] routeName = new CharSequence[100];
 	public static CharSequence[] routeID = new CharSequence[100];
+	public static int UserID;
 	/***
 	 * Daftar STATE :
 	 * 0 - 

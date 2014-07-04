@@ -142,7 +142,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int txtNumbers=0x7f0b002b;
         public static final int txtTitle=0x7f0b0010;
         public static final int txtTotal=0x7f0b002c;
-        public static final int txtpassword=0x7f0b0030;
+        public static final int txtUsername=0x7f0b0030;
+        public static final int txtpassword=0x7f0b0031;
     }
     public static final class layout {
         public static final int activity_form_main=0x7f030000;

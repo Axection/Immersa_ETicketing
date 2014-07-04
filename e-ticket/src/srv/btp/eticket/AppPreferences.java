@@ -10,6 +10,7 @@ import srv.btp.eticket.crud.CRUD_Route_Back_Table;
 import srv.btp.eticket.crud.CRUD_Route_Table;
 import srv.btp.eticket.services.BluetoothPrintService;
 import srv.btp.eticket.services.BusIdentifierService;
+import srv.btp.eticket.services.LoginService;
 import srv.btp.eticket.services.RouteService;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -27,8 +28,9 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 /**
@@ -63,6 +65,7 @@ public class AppPreferences extends PreferenceActivity {
 	private BluetoothPrintService btx;
 
 	private RouteService rd;
+	private LoginService logins;
 	
 	protected static boolean isRouteClicked = false;
 	protected static boolean isRestart = false;
@@ -159,37 +162,10 @@ public class AppPreferences extends PreferenceActivity {
 		} else {
 			bluetoothList.setEnabled(false);
 		}
-		//Ambil Bis~
-		bus  = new BusIdentifierService();
-		String[] execution = {BusIdentifierService.URL_SERVICE_BUS};
-		Log.d("BusService","Working...");
-		Timer te = new Timer(true);
-		te.schedule(Task, Calendar.getInstance().getTime(), 1000);
-		try {
-			bus.execute(execution);
-		} catch (Exception e) {
-			te.cancel();
-			plat_bis.setEnabled(false);
-			route_list.setEnabled(false);
-		}
-		// Preference for Route List
-		route_list = (ListPreference) findPreference("route_list");
-		// Ambil Rute
-		rd = new RouteService();
-		String URL_LIST_SERVICE[] = { RouteService.URL_SERVICE_TRAJECTORY };
-		Log.d("RouteService","Working...");
-		Timer td = new Timer(true);
-		td.schedule(TaskUpdate, Calendar.getInstance().getTime(), 1000);
-		try {
-			rd.execute(URL_LIST_SERVICE);
-		} catch (Exception e) {
-			td.cancel();
-			route_list.setEnabled(false);
-		}
 		
 		// setting nilai summary-summary
 		findPreference("input_password").setSummary("****");
-		CallPassword();
+		CallPassword(0);
 		
 	}
 	protected TimerTask TaskUpdate = new TimerTask() {
@@ -499,32 +475,51 @@ public class AppPreferences extends PreferenceActivity {
 	}
 //!endregion
 
-	private void CallPassword() {
+	public void CallPassword(int ErrorCode) {
 		final String thePassword =  PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getString("input_password","1234");
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Keamanan Kontrol");
-		builder.setMessage("Masukkan password hak akses: ");
-		final EditText input = new EditText(AppPreferences.this);  
+		builder.setTitle("Login");
+		switch (ErrorCode){
+		case 0:
+			builder.setMessage("Silahkan login terlebih dahulu untuk mengatur konfigurasi sistem.");
+			break;
+		case -1:
+			builder.setMessage("Login gagal, username & password tidak ditemukan atau salah.");
+			break;
+		case -1024:
+			builder.setMessage("Login gagal, periksa kembali koneksi.");
+		}
+		
+		LayoutInflater inflater = FormObjectTransfer.main_activity.getLayoutInflater();
+		View theContent = inflater.inflate(R.layout.sign,null);
+		EditText usname = (EditText) theContent.findViewById(R.id.txtUsername);
+		EditText passwd = (EditText) theContent.findViewById(R.id.txtpassword);
+		final String txtUsername = usname.getText().toString();
+		final String txtPassword = passwd.getText().toString();
 		final Activity thisAct = this;
-		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-		                        LinearLayout.LayoutParams.MATCH_PARENT,
-		                        LinearLayout.LayoutParams.MATCH_PARENT);
-		input.setLayoutParams(lp);
-		builder.setView(input);
+	
+		builder.setView(theContent);
 		builder.setCancelable(false);
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			@SuppressWarnings("deprecation")
-			
+		builder.setPositiveButton("Masuk", new DialogInterface.OnClickListener() {
+
 			@Override
 			public void onClick(DialogInterface arg0, int arg1) {
 				arg0.dismiss();
-				if(! input.getText().toString().equals(thePassword)){
-					CallPassword();
+				///TODO: Buat sistem login baru
+				logins = new LoginService();
+				//get the username password data
+				
+				String DATA_LOGIN[] = { txtUsername,txtPassword };
+				Log.d("LoginService","initializing Login...");
+				Timer timerLogin = new Timer(true);
+				timerLogin.schedule(LoginUpdate, Calendar.getInstance().getTime(), 1000);
+				try {
+					logins.execute(DATA_LOGIN);
+				} catch (Exception e) {
+					timerLogin.cancel();
+					CallPassword(-1024);
 				}
-				else{
-					findPreference("input_password").setSummary("****");
-					
-				}
+				
 			}
 		}
 		);
@@ -540,6 +535,55 @@ public class AppPreferences extends PreferenceActivity {
 		alert.setCanceledOnTouchOutside(false);
 		alert.show();
 	}
+	
+	//CallPassword Extension
+	protected TimerTask LoginUpdate = new TimerTask() {
+		@Override
+		public void run() {
+			if(LoginService.isDone){
+				this.cancel();
+				FormObjectTransfer.current_activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if(RouteService.isFail){
+							CallPassword(-1);	
+						}else{
+							//TODO : ini perlu di cross check lagi agar permintaan rute bis 
+							// dan rute berdasarkan user_id yang telah di set.
+							//Ambil Bis~
+							bus  = new BusIdentifierService();
+							String[] execution = {BusIdentifierService.URL_SERVICE_BUS};
+							Log.d("BusService","Working...");
+							Timer te = new Timer(true);
+							te.schedule(Task, Calendar.getInstance().getTime(), 1000);
+							try {
+								bus.execute(execution);
+							} catch (Exception e) {
+								te.cancel();
+								plat_bis.setEnabled(false);
+								route_list.setEnabled(false);
+							}
+							// Preference for Route List
+							route_list = (ListPreference) findPreference("route_list");
+							// Ambil Rute
+							rd = new RouteService();
+							String URL_LIST_SERVICE[] = { RouteService.URL_SERVICE_TRAJECTORY };
+							Log.d("RouteService","Working...");
+							Timer td = new Timer(true);
+							td.schedule(TaskUpdate, Calendar.getInstance().getTime(), 1000);
+							try {
+								rd.execute(URL_LIST_SERVICE);
+							} catch (Exception e) {
+								td.cancel();
+								route_list.setEnabled(false);
+							}
+						}
+					}
+				});
+			}
+		}
+	};
+	//End CallPassword
 	
 	private void CallRestoreDefaults() {
 		String msg = "";

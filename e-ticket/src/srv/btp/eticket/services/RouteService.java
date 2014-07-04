@@ -62,6 +62,8 @@ public class RouteService extends AsyncTask<String, String, Void> {
 	boolean isPricing = false;
 
 	// FINALS
+	//TODO : Nanti tambahkan filter USER_ID
+	
 	public static final String FIELD_ID = "ID";
 	public static final String FIELD_NAMA = "nama_trayek";
 
@@ -94,6 +96,7 @@ public class RouteService extends AsyncTask<String, String, Void> {
 
 	private boolean isGetDataFailed;
 
+	@Override
 	protected void onPreExecute() {
 		isDone = false;
 

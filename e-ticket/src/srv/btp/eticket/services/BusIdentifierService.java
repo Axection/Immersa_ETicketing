@@ -66,6 +66,7 @@ public class BusIdentifierService extends AsyncTask<String, String, Void> {
 	public ArrayList<ContentValues> list = new ArrayList<ContentValues>();
 	
 	// FINALS
+	//TODO : Nanti tambahkan slash USER_ID
 	public static final String FIELD_ID = "ID";
 	public static final String FIELD_PLAT_NO = "plat_nomer";
 

@@ -64,6 +64,7 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	
 	
 	//FINALS
+	//TODO : Nanti tambahkan filter USER_ID
 	public static final String FIELD_ID = "ID";
 	public static final String FIELD_NAMA = "nama_lokasi";
 	public static final String FIELD_LAT = "latitude";

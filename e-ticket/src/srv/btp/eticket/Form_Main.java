@@ -203,6 +203,11 @@ public class Form_Main extends Activity {
                 
                 FormObjectTransfer.gdl = this.gdl;
                 
+                FormObjectTransfer.UserID = PreferenceManager.getDefaultSharedPreferences(
+						getBaseContext()).getInt(
+								"user_id", 
+								-1);
+                
                 //FIX:DEBUG SET
                 //Disini terdapat percontohan fungsi memindahkan indikator
                 //
