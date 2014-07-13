@@ -3,6 +3,7 @@ package srv.btp.eticket.services;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.apache.http.util.EntityUtils;
 
 import srv.btp.eticket.FormObjectTransfer;
 import srv.btp.eticket.R;
+import srv.btp.eticket.crud.CRUD_Route_Back_Table;
 import srv.btp.eticket.crud.CRUD_Route_Table;
 import srv.btp.eticket.crud.CRUD_Transaction_Queue;
 import srv.btp.eticket.crud.Datafield_Route;
@@ -43,7 +45,12 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 			int ticket_num, harga;
 			int id_bus = 0;
 			harga = 0;
-
+			Log.d("doInBackground QueueService", Arrays.toString(values));
+			
+			if (values[0] != null) { //id_bus
+				id_bus = Integer.parseInt(values[0]);
+			}
+			
 			if (values[1] != null){ //ID Trayek
 				id_trayek = values[1];
 			}else{
@@ -59,7 +66,7 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 			}
 			kota1 = values[2]; //kota1
 			kota2 = values[3]; //kota2
-			ticket_num = Integer.parseInt(values[6]); //tiket
+
 			float latitude, longitude; 
 			if (values[4] != null) { //longitude
 				longitude = Float.parseFloat(values[4]);
@@ -76,18 +83,19 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 						FormObjectTransfer.main_activity.getBaseContext())
 						.getFloat("lat", 0);
 			}
-
-			if (values[8] != null) { //date
-				dateTime = values[8];
-				Log.e("DATE","INSIDE QUEUESERVICE "+dateTime);
-			}
+			ticket_num = Integer.parseInt(values[6]); //tiket
+			
+			
 
 			if (values[7] != null) { //price
 				harga = Integer.parseInt(values[7]);
 			}
-			if (values[0] != null) { //id_bus
-				id_bus = Integer.parseInt(values[0]);
+			
+			if (values[8] != null) { //date
+				dateTime = values[8];
+				Log.e("DATE","INSIDE QUEUESERVICE "+dateTime);
 			}
+			
 			int status = postData(id_trayek, kota1, kota2, longitude, latitude,
 					ticket_num, dateTime, harga, id_bus);
 			Log.v("async : status", status + "");
@@ -147,41 +155,82 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 			nameValuePairs = new ArrayList<NameValuePair>(2);
 
 			// Mendapatkan daftar id Kota
-			CRUD_Route_Table routeTable = new CRUD_Route_Table(
-					FormObjectTransfer.main_activity.getBaseContext());
-			List<Datafield_Route> dataList = routeTable.getAllEntries();
-			FormObjectTransfer.idKota1 = FormObjectTransfer.idKota2 = -1;
-			for (Iterator<Datafield_Route> iterator = dataList.iterator(); iterator
-					.hasNext();) {
-				Datafield_Route datafield_Route = iterator.next();
-				Log.v("async : iterator", iterator.toString());
-				String debug = String.format("%s %d",
-						datafield_Route.get_nama(), datafield_Route.get_ID());
-				Log.v("async : data", debug);
-				if (!isInteger(kota1)) {
-					if (datafield_Route.get_nama().equals(kota1)) {
-						FormObjectTransfer.idKota1 = (int) datafield_Route
-								.get_ID();
+			//Karena lupa bikin polymophism buat CRUD, ya mau gamau dibikin dua :D
+			
+			if (PreferenceManager.getDefaultSharedPreferences(FormObjectTransfer.main_activity.getApplicationContext()).getString("trajectory_direction", "maju").equals("maju")) {
+				
+				//Arah maju
+				CRUD_Route_Table routeTable = new CRUD_Route_Table(FormObjectTransfer.main_activity.getBaseContext());
+				List<Datafield_Route> dataList = routeTable.getAllEntries();
+				FormObjectTransfer.idKota1 = FormObjectTransfer.idKota2 = -1;
+				for (Iterator<Datafield_Route> iterator = dataList.iterator(); iterator.hasNext();) {
+					Datafield_Route datafield_Route = iterator.next();
+					Log.v("async : iterator", iterator.toString());
+					String debug = String.format("%s %d",
+							datafield_Route.get_nama(), datafield_Route.get_ID());
+					Log.v("async : data", debug);
+					if (!isInteger(kota1)) {
+						if (datafield_Route.get_nama().equals(kota1)) {
+							FormObjectTransfer.idKota1 = (int) datafield_Route
+									.get_ID();
+						}
+					} else {
+						FormObjectTransfer.idKota1 = Integer.parseInt(kota1);
 					}
-				} else {
-					FormObjectTransfer.idKota1 = Integer.parseInt(kota1);
-				}
 
-				if (!isInteger(kota2)) {
-					if (datafield_Route.get_nama().equals(kota2)) {
-						FormObjectTransfer.idKota2 = (int) datafield_Route
-								.get_ID();
+					if (!isInteger(kota2)) {
+						if (datafield_Route.get_nama().equals(kota2)) {
+							FormObjectTransfer.idKota2 = (int) datafield_Route
+									.get_ID();
+						}
+					} else {
+						FormObjectTransfer.idKota2 = Integer.parseInt(kota2);
 					}
-				} else {
-					FormObjectTransfer.idKota2 = Integer.parseInt(kota2);
+					if (FormObjectTransfer.idKota1 != -1
+							&& FormObjectTransfer.idKota2 != -1) {
+						Log.v("Async : idkota result", FormObjectTransfer.idKota1
+								+ " " + FormObjectTransfer.idKota2);
+						break;
+					}
 				}
-				if (FormObjectTransfer.idKota1 != -1
-						&& FormObjectTransfer.idKota2 != -1) {
-					Log.v("Async : idkota result", FormObjectTransfer.idKota1
-							+ " " + FormObjectTransfer.idKota2);
-					break;
+			} else {
+				//Arah mundur
+				CRUD_Route_Back_Table routeTable = new CRUD_Route_Back_Table(
+						FormObjectTransfer.main_activity.getBaseContext());
+				List<Datafield_Route> dataList = routeTable.getAllEntries();
+				FormObjectTransfer.idKota1 = FormObjectTransfer.idKota2 = -1;
+				for (Iterator<Datafield_Route> iterator = dataList.iterator(); iterator.hasNext();) {
+					Datafield_Route datafield_Route = iterator.next();
+					Log.v("async : iterator", iterator.toString());
+					String debug = String.format("%s %d",
+							datafield_Route.get_nama(), datafield_Route.get_ID());
+					Log.v("async : data", debug);
+					if (!isInteger(kota1)) {
+						if (datafield_Route.get_nama().equals(kota1)) {
+							FormObjectTransfer.idKota1 = (int) datafield_Route
+									.get_ID();
+						}
+					} else {
+						FormObjectTransfer.idKota1 = Integer.parseInt(kota1);
+					}
+
+					if (!isInteger(kota2)) {
+						if (datafield_Route.get_nama().equals(kota2)) {
+							FormObjectTransfer.idKota2 = (int) datafield_Route
+									.get_ID();
+						}
+					} else {
+						FormObjectTransfer.idKota2 = Integer.parseInt(kota2);
+					}
+					if (FormObjectTransfer.idKota1 != -1
+							&& FormObjectTransfer.idKota2 != -1) {
+						Log.v("Async : idkota result", FormObjectTransfer.idKota1
+								+ " " + FormObjectTransfer.idKota2);
+						break;
+					}
 				}
-			}
+			} //end : pembacaan ID KOTA dari IF
+			
 			// end:daftar kota
 			int baseTrajectoryValue = 0;
 			int baseRouteValue = Integer.parseInt(PreferenceManager
@@ -200,12 +249,9 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 			}
 			nameValuePairs.add(new BasicNameValuePair("idUser", FormObjectTransfer.UserID + ""));
 			nameValuePairs.add(new BasicNameValuePair("idBus", id_bis + ""));
-			nameValuePairs.add(new BasicNameValuePair(
-					"idTrayek", baseTrajectoryValue + ""));
-			nameValuePairs.add(new BasicNameValuePair("idLokasiAsal",
-					FormObjectTransfer.idKota1 + ""));
-			nameValuePairs.add(new BasicNameValuePair("idLokasiTujuan",
-					FormObjectTransfer.idKota2 + ""));
+			nameValuePairs.add(new BasicNameValuePair("idTrayek", baseTrajectoryValue + ""));
+			nameValuePairs.add(new BasicNameValuePair("idLokasiAsal",FormObjectTransfer.idKota1 + ""));
+			nameValuePairs.add(new BasicNameValuePair("idLokasiTujuan",FormObjectTransfer.idKota2 + ""));
 			nameValuePairs.add(new BasicNameValuePair("longitude", longitude + ""));
 			nameValuePairs.add(new BasicNameValuePair("latitude", latitude + ""));
 			nameValuePairs.add(new BasicNameValuePair("jumlahTiket", jumlah_tiket_copy));
@@ -220,7 +266,7 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 			Log.v("async : debug", jumlah_tiket_copy);
 			Log.v("async : debug", "" + timeNow);
 			Log.v("async : target", target_post);
-
+			Log.d("ValuePairTesting",Arrays.toString(nameValuePairs.toArray()));
 			// Execute HTTP Post Request
 			HttpResponse response = httpclient.execute(httppost);
 			HttpEntity entity = response.getEntity();
