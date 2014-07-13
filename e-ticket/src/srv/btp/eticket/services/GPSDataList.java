@@ -94,9 +94,9 @@ public class GPSDataList {
 								.getApplicationContext()).getString(
 						"route_list", "-1"));
 		String URL_LIST_SERVICE[] = {
-				ServerDatabaseService.URL_SERVICE_VERSION_CHECK,
-				ServerDatabaseService.URL_SERVICE_FORWARD,
-				ServerDatabaseService.URL_SERVICE_REVERSE,
+				ServerDatabaseService.URL_SERVICE_VERSION_CHECK + FormObjectTransfer.UserID,
+				ServerDatabaseService.URL_SERVICE_FORWARD + FormObjectTransfer.UserID + "?1",
+				ServerDatabaseService.URL_SERVICE_REVERSE + FormObjectTransfer.UserID + "?2",
 				ServerDatabaseService.URL_SERVICE_PRICE_FORWARD
 						+ String.valueOf(ServerDatabaseService.TRAJECTORY_LOCATION + 0),
 				ServerDatabaseService.URL_SERVICE_PRICE_REVERSE
@@ -107,6 +107,7 @@ public class GPSDataList {
 		try {
 			sdd.execute(URL_LIST_SERVICE);
 		} catch (Exception e) {
+			e.printStackTrace();
 			td.cancel();
 			generateData();
 		}
@@ -131,6 +132,7 @@ public class GPSDataList {
 						try{
 							FormObjectTransfer.gdl.generateData();
 						}catch(Exception e){
+							e.printStackTrace();
 							FormObjectTransfer.main_activity.CallError();
 						}
 
@@ -178,7 +180,7 @@ public class GPSDataList {
 			crud_reverse.getWritableDatabase().update(CRUD_Route_Back_Table.TABLE_NAME, c, CRUD_Route_Back_Table.KEY_ID+ "="+lastIndex, null);
 			
 		} catch (SQLiteException sqle) {
-
+			sqle.printStackTrace();
 		}
 		
 		// prosesi data forward

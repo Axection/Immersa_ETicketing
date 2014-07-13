@@ -182,6 +182,15 @@ public class Form_Main extends Activity {
                 GPS_Indicator = (ImageView)findViewById(R.id.img_indicator_gps);
                 Direction_Indicator = (ImageView)findViewById(R.id.img_direction);
                 
+                FormObjectTransfer.UserID = PreferenceManager.getDefaultSharedPreferences(
+						getBaseContext()).getInt(
+								"user_id", 
+								-1);
+                FormObjectTransfer.UserName = PreferenceManager.getDefaultSharedPreferences(
+						getBaseContext()).getString(
+								"username", 
+								"");
+                
                 String valueIntended = PreferenceManager.getDefaultSharedPreferences(
 						getBaseContext()).getString(
 								"trajectory_direction", 
@@ -203,10 +212,6 @@ public class Form_Main extends Activity {
                 
                 FormObjectTransfer.gdl = this.gdl;
                 
-                FormObjectTransfer.UserID = PreferenceManager.getDefaultSharedPreferences(
-						getBaseContext()).getInt(
-								"user_id", 
-								-1);
                 
                 //FIX:DEBUG SET
                 //Disini terdapat percontohan fungsi memindahkan indikator
@@ -386,6 +391,7 @@ public class Form_Main extends Activity {
                 try{
                 	gdl.getDataFromJSON(); //Disini terjadi async task, mohon menunggu.
                 }catch(Exception e){
+                	e.printStackTrace();
                 	CallError();
                 }
                 //PrepareCityList(); //Pindah jadi di generateData();

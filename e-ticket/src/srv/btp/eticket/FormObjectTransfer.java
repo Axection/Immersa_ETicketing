@@ -27,6 +27,7 @@ public class FormObjectTransfer {
 	public static CharSequence[] routeName = new CharSequence[100];
 	public static CharSequence[] routeID = new CharSequence[100];
 	public static int UserID;
+	public static String UserName;
 	/***
 	 * Daftar STATE :
 	 * 0 - 
@@ -36,6 +37,7 @@ public class FormObjectTransfer {
 	 * 4 - 
 	 * 
 	 */
+
 	
 	
 }

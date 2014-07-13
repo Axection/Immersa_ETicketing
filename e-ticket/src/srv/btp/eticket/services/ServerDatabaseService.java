@@ -14,6 +14,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import srv.btp.eticket.FormObjectTransfer;
 import srv.btp.eticket.R;
@@ -76,15 +77,15 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	public static final String FIELD_URUTAN_TRAYEK = "urutan_trayek";
 	
 	
-	public static final String URL_SERVICE_FORWARD = "lokasi?1";
-	public static final String URL_SERVICE_REVERSE = "lokasi?2";
+	public static final String URL_SERVICE_FORWARD = "lokasi/idUser/";
+	public static final String URL_SERVICE_REVERSE = "lokasi/idUser/";
 	
 	public static int TRAJECTORY_LOCATION = 0; //variably changes
-	public static final String URL_SERVICE_PRICE_FORWARD = "harga_lokasi_trayek/";
-	public static final String URL_SERVICE_PRICE_REVERSE = "harga_lokasi_trayek/";
-	public static final String URL_SERVICE_VERSION_CHECK = "t_version";
+	public static final String URL_SERVICE_PRICE_FORWARD = "harga_lokasi_trayek/idTrayek/";
+	public static final String URL_SERVICE_PRICE_REVERSE = "harga_lokasi_trayek/idTrayek/";
+	public static final String URL_SERVICE_VERSION_CHECK = "version/idUser/";
 	public static final String URL_SERVICE_CONFIGURATION = "server_config"; //TODO: need config URL
-	public static final String URL_SERVICE_TRAJECTORY = "trayek";
+	public static final String URL_SERVICE_TRAJECTORY = "trayek/idUser/";
 	
 	public static final int MAXIMUM_WAITING_TIME = 180000;
 	
@@ -121,7 +122,6 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	
 	protected void onPreExecute() {
 		isDone = false;
-		
 		progressDialog.setMessage(message);
 		progressDialog.setCanceledOnTouchOutside(false);
 		progressDialog.setCancelable(true);
@@ -146,34 +146,36 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 	@Override
 	protected Void doInBackground(String... params) {
 		for (String parameter : params) {
-			String url_select = URLService + parameter;
+			String url_select = URLService 
+					+ FormObjectTransfer.main_activity.getResources().getString(R.string.extension_service)
+					+ parameter;
 			Log.e("URLService", url_select);
 			// STATE detection
 			
-			if (parameter.equals(URL_SERVICE_FORWARD)) {
+			if (parameter.contains(URL_SERVICE_FORWARD) && parameter.endsWith("?1")) {
 				connStatus = CHECK_ROUTE_FORWARD;
 				message="Mendownload informasi trayek...";
 				// progressDialog.setMessage("Mendownload informasi trayek...");
 				
-			} else if (parameter.equals(URL_SERVICE_REVERSE)) {
+			} else if (parameter.contains(URL_SERVICE_REVERSE)  && parameter.endsWith("?2")) {
 				connStatus = CHECK_ROUTE_REVERSE;
 				message="Mendownload informasi trayek arah balik...";
 				// progressDialog.setMessage("Mendownload informasi trayek arah balik...");
-			} else if (parameter.equals(URL_SERVICE_VERSION_CHECK)) {
+			} else if (parameter.contains(URL_SERVICE_VERSION_CHECK)) {
 				connStatus = CHECK_STATE_VERSION;
 				message="Memeriksa update versi trayek...";
 				// progressDialog.setMessage("Memeriksa update versi trayek...");
 				isVersionUptoDate = false; // Agar doInBackground wajib
 											// melakukan download versioning.
-			} else if (parameter.equals(URL_SERVICE_PRICE_FORWARD + String.valueOf(TRAJECTORY_LOCATION + 0))) {
+			} else if (parameter.contains(URL_SERVICE_PRICE_FORWARD + String.valueOf(TRAJECTORY_LOCATION + 0))) {
 				connStatus = CHECK_PRICE_FORWARD;
 				message="Mendownload daftar harga trayek...";
 				// progressDialog.setMessage("Mendownload daftar harga trayek...");
-			} else if (parameter.equals(URL_SERVICE_PRICE_REVERSE + String.valueOf(TRAJECTORY_LOCATION + 1))) {
+			} else if (parameter.contains(URL_SERVICE_PRICE_REVERSE + String.valueOf(TRAJECTORY_LOCATION + 1))) {
 				connStatus = CHECK_PRICE_REVERSE;
 				message="Mendownload daftar harga trayek arah balik...";
 				// progressDialog.setMessage("Mendownload daftar harga trayek arah balik...");
-			} else if (parameter.equals(URL_SERVICE_CONFIGURATION)) {
+			} else if (parameter.contains(URL_SERVICE_CONFIGURATION)) {
 				connStatus = CHECK_CONFIGURATION;
 				message="Mendownload konfigurasi dari server...";
 				isCheckingServer = true;
@@ -398,8 +400,64 @@ public class ServerDatabaseService extends AsyncTask<String, String, Void> {
 					} // end: for
 					}
 				} catch (JSONException e) {
+					if(connStatus == CHECK_CONFIGURATION){
+						JSONObject jObject;
+						try {
+							jObject = (JSONObject) new JSONTokener(result).nextValue();
+							int minutesValue = jObject.getInt("update_interval"); //dataKey = interval
+							Log.d("STATE "+"special.", "Interval Value :"+minutesValue);
+							PreferenceManager.getDefaultSharedPreferences(
+										FormObjectTransfer.main_activity.getBaseContext())
+										.edit().putString("interval", String.valueOf(minutesValue) ).commit();
+							FormObjectTransfer.isReadyToSubmit = false;
+							Log.d("CHECK_CONFIGURATION","DATA_CONFIGURATION_HEREEEE");
+							break;
+						} catch (JSONException e1) {
+							Log.e("DoubleRender Check Configuration","Check data failed. Too RISKY TO CONTINUE");
+							e1.printStackTrace();
+						}
+						
+					}else if(connStatus == CHECK_STATE_VERSION){
+						int originValue = Integer
+								.parseInt(PreferenceManager
+										.getDefaultSharedPreferences(
+												FormObjectTransfer.main_activity
+														.getBaseContext())
+										.getString("unique_key", "0"));
+						JSONObject jObject;
+						try {
+							jObject = (JSONObject) new JSONTokener(result).nextValue();
+							int downloadedValue = jObject.getInt("version");
+							Log.d("STATE special STATE VERSION", "version:"+downloadedValue + " internal:"+originValue);
+							if (downloadedValue > originValue) {
+								
+								isVersionUptoDate = false;
+								PreferenceManager.getDefaultSharedPreferences(
+										FormObjectTransfer.main_activity.getBaseContext())
+										.edit().putString("unique_key", String.valueOf(downloadedValue) ).commit();
+							} else {
+								isVersionUptoDate = true; // membuat update
+															// tidak terjadi.
+							}
+
+						} catch (JSONException e1) {
+							e1.printStackTrace();
+							isFail = true;
+							Log.e("JSONSpecial","Breaking the JSONRendering.");
+							break;
+							
+						}
+						catch(ClassCastException ed){
+							ed.printStackTrace();
+							isFail = true;
+							Log.e("JSONSpecial","Casting break the JSONRendering.");
+							break;
+						}
+						
+					}else{
 					isFail = true;
 					Log.e("JSONException", "Error: " + e.toString());
+					}
 
 				} // end: catch (JSONException e)
 

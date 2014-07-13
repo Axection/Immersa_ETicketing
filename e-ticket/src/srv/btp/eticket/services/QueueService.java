@@ -134,7 +134,9 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 						FormObjectTransfer.main_activity.getResources()
 								.getString(R.string.default_service));
 		String table_name = "transaksi";
-		String target_post = URLService + table_name;
+		String target_post = URLService 
+				+ FormObjectTransfer.main_activity.getResources().getString(R.string.extension_service)
+				+ table_name;
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(target_post);
 		int code = -1;
@@ -196,21 +198,20 @@ public class QueueService extends AsyncTask<String, Integer, Boolean> {
 			} else {
 				baseTrajectoryValue = baseRouteValue + 1;
 			}
+			nameValuePairs.add(new BasicNameValuePair("idUser", FormObjectTransfer.UserID + ""));
+			nameValuePairs.add(new BasicNameValuePair("idBus", id_bis + ""));
 			nameValuePairs.add(new BasicNameValuePair(
-			// key 0 harus punya
-			// value
-			// ID_trayek
-					"1", baseTrajectoryValue + ""));
-			nameValuePairs.add(new BasicNameValuePair("2",
+					"idTrayek", baseTrajectoryValue + ""));
+			nameValuePairs.add(new BasicNameValuePair("idLokasiAsal",
 					FormObjectTransfer.idKota1 + ""));
-			nameValuePairs.add(new BasicNameValuePair("3",
+			nameValuePairs.add(new BasicNameValuePair("idLokasiTujuan",
 					FormObjectTransfer.idKota2 + ""));
-			nameValuePairs.add(new BasicNameValuePair("4", longitude + ""));
-			nameValuePairs.add(new BasicNameValuePair("5", latitude + ""));
-			nameValuePairs.add(new BasicNameValuePair("6", jumlah_tiket_copy));
-			nameValuePairs.add(new BasicNameValuePair("8", timeNow));
-			nameValuePairs.add(new BasicNameValuePair("7", harga + ""));
-			nameValuePairs.add(new BasicNameValuePair("0", id_bis + ""));
+			nameValuePairs.add(new BasicNameValuePair("longitude", longitude + ""));
+			nameValuePairs.add(new BasicNameValuePair("latitude", latitude + ""));
+			nameValuePairs.add(new BasicNameValuePair("jumlahTiket", jumlah_tiket_copy));
+			nameValuePairs.add(new BasicNameValuePair("hargaTotal", harga + ""));
+			//nameValuePairs.add(new BasicNameValuePair("8", timeNow)); //Obsoletee
+			
 
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			Log.v("async : debug", 1 + "");

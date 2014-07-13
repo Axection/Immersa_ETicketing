@@ -112,14 +112,7 @@ public class LocationSubmissionService extends AsyncTask<String, Integer, Boolea
 
 	@SuppressLint("DefaultLocale")
 	private int postData(int id_bis,float longitude, float latitude) {
-		/*String timeNow = date;
-		if (date == null) {
-			Calendar cal = Calendar.getInstance();
-			SimpleDateFormat format1 = new SimpleDateFormat(
-					"yy-MM-dd HH-mm-ss", Locale.getDefault());
-			timeNow = format1.format(cal.getTime());
-		}
-		*/
+		
 		//Log.e("DATE","INSIDE POSTDATA"+timeNow);
 		
 		String URLService = PreferenceManager.getDefaultSharedPreferences(
@@ -129,7 +122,9 @@ public class LocationSubmissionService extends AsyncTask<String, Integer, Boolea
 						FormObjectTransfer.main_activity.getResources()
 								.getString(R.string.default_service));
 		String table_name = "raw_track_data"; //nama table yg mau di update
-		String target_post = URLService + table_name;
+		String target_post = URLService 
+				+ FormObjectTransfer.main_activity.getResources().getString(R.string.extension_service)
+				+ table_name;
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(target_post);
 		int code = -1;
@@ -139,52 +134,10 @@ public class LocationSubmissionService extends AsyncTask<String, Integer, Boolea
 			// Add your data
 			nameValuePairs = new ArrayList<NameValuePair>(2);
 
-			/*// Mendapatkan daftar id Kota
-			CRUD_Route_Table routeTable = new CRUD_Route_Table(
-					FormObjectTransfer.main_activity.getBaseContext());
-			
-			List<Datafield_Route> dataList = routeTable.getAllEntries();
-			FormObjectTransfer.idKota1 = FormObjectTransfer.idKota2 = -1;
-			for (Iterator<Datafield_Route> iterator = dataList.iterator(); iterator
-					.hasNext();) {
-				Datafield_Route datafield_Route = iterator.next();
-				Log.v("async : iterator", iterator.toString());
-				String debug = String.format("%s %d",
-						datafield_Route.get_nama(), datafield_Route.get_ID());
-				Log.v("async : data", debug);
-				
-				
-				if (FormObjectTransfer.idKota1 != -1
-						&& FormObjectTransfer.idKota2 != -1) {
-					Log.v("Async : idkota result", FormObjectTransfer.idKota1
-							+ " " + FormObjectTransfer.idKota2);
-					break;
-				}
-			}
-			// end:daftar kota
-			 * */
-			/*
-			int baseTrajectoryValue = 0;
-			int baseRouteValue = Integer.parseInt(PreferenceManager
-					.getDefaultSharedPreferences(
-							FormObjectTransfer.main_activity
-									.getApplicationContext()).getString(
-							"route_list", "1"));
-			if (PreferenceManager
-					.getDefaultSharedPreferences(
-							FormObjectTransfer.main_activity
-									.getApplicationContext())
-					.getString("trajectory_direction", "maju").equals("maju")) {
-				baseTrajectoryValue = baseRouteValue;
-			} else {
-				baseTrajectoryValue = baseRouteValue + 1;
-			}
-			*/
-			nameValuePairs.add(new BasicNameValuePair("0", id_bis + ""));
-			//nameValuePairs.add(new BasicNameValuePair("1", baseTrajectoryValue + ""));
-			nameValuePairs.add(new BasicNameValuePair("1", longitude + ""));
-			nameValuePairs.add(new BasicNameValuePair("2", latitude + ""));
-			//nameValuePairs.add(new BasicNameValuePair("4", timeNow));
+			nameValuePairs.add(new BasicNameValuePair("idUser", FormObjectTransfer.UserID + "")); //userID
+			nameValuePairs.add(new BasicNameValuePair("idBus", id_bis + "")); //Bis
+			nameValuePairs.add(new BasicNameValuePair("longitude", longitude + "")); //long
+			nameValuePairs.add(new BasicNameValuePair("latitude", latitude + "")); //lat
 			
 
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
@@ -210,26 +163,6 @@ public class LocationSubmissionService extends AsyncTask<String, Integer, Boolea
 		return code;
 	}
 
-	private boolean isInteger(String testString) {
-		try {
-			Integer.parseInt(testString);
-			return true;
-		} catch (NumberFormatException nfe) {
-			Log.v("integer test : ", "not valid integer");
-			return false;
-		}
+	
 
-	}
-
-	private void sqliteBackup(List<NameValuePair> nameValuePairs) {
-		CRUD_Transaction_Queue transactionQueue = new CRUD_Transaction_Queue(
-				FormObjectTransfer.current_activity.getApplicationContext());
-		try {
-			transactionQueue.addTempTransaction(nameValuePairs);
-			Log.v("backup", "Add temp transaction success");
-		} catch (Exception e) {
-			Log.e("backup", "Add temp transaction FAILED");
-			e.printStackTrace();
-		}
-	}
 }

@@ -67,7 +67,7 @@ public class RouteService extends AsyncTask<String, String, Void> {
 	public static final String FIELD_ID = "ID";
 	public static final String FIELD_NAMA = "nama_trayek";
 
-	public static final String URL_SERVICE_TRAJECTORY = "trayek";
+	public static final String URL_SERVICE_TRAJECTORY = "trayek/idUser/";
 
 	public static final int MAXIMUM_WAITING_TIME = 180000;
 
@@ -125,7 +125,9 @@ public class RouteService extends AsyncTask<String, String, Void> {
 	@Override
 	protected Void doInBackground(String... params) {
 		for (String parameter : params) {
-			String url_select = URLService + parameter;
+			String url_select = URLService 
+					+ FormObjectTransfer.main_activity.getResources().getString(R.string.extension_service)
+					+ parameter + FormObjectTransfer.UserID;
 			Log.e("URLService", url_select);
 			// STATE detection
 

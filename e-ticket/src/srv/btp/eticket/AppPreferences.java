@@ -15,6 +15,7 @@ import srv.btp.eticket.services.RouteService;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -66,6 +67,9 @@ public class AppPreferences extends PreferenceActivity {
 
 	private RouteService rd;
 	private LoginService logins;
+	
+	protected Timer timerLogin = new Timer(true);
+
 	
 	protected static boolean isRouteClicked = false;
 	protected static boolean isRestart = false;
@@ -165,6 +169,7 @@ public class AppPreferences extends PreferenceActivity {
 		
 		// setting nilai summary-summary
 		findPreference("input_password").setSummary("****");
+		timerLogin.schedule(LoginUpdate, Calendar.getInstance().getTime(), 1000);
 		CallPassword(0);
 		
 	}
@@ -189,7 +194,15 @@ public class AppPreferences extends PreferenceActivity {
 							String entity = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("route_list", "-1");
 							List<CharSequence> lists = Arrays.asList(FormObjectTransfer.routeID);
 							if(!entity.equals("-1")){
-								route_list.setSummary(FormObjectTransfer.routeName[lists.indexOf(entity)]);
+								try{
+									route_list.setSummary(FormObjectTransfer.routeName[lists.indexOf(entity)]);
+								}
+								catch(ArrayIndexOutOfBoundsException ee){
+									ee.printStackTrace();
+									route_list.setEnabled(false);
+									route_list.setSummary("Tidak dapat mengubah daftar rute disebabkan error.");
+								}
+								
 							}
 							else{
 								route_list.setSummary("Wajib : Silahkan pilih salah satu dari daftar rute berikut");
@@ -253,6 +266,7 @@ public class AppPreferences extends PreferenceActivity {
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
+		timerLogin.cancel();
 		overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
 		//LEMPAR SEMUA VALUE! >_<
 	}
@@ -434,17 +448,7 @@ public class AppPreferences extends PreferenceActivity {
 				preference.setSummary(stringValue);
 			}
 			
-			/*PreferenceManager.getDefaultSharedPreferences(
-					preference.getContext())
-					.edit().putString(preference.getKey(), preference.getSummary().toString() ).commit();
-			*/
 			
-			//Value update
-			/*if( preference.getTitle().equals("Alamat Layanan") || 
-					preference.getTitle().equals("Versi Trayek") || 
-					preference.getTitle().equals("Arah Trayek")){
-				preference.setSummary(stringValue);
-			}*/
 			if(isRouteClicked){
 				}
 			return true;
@@ -488,36 +492,38 @@ public class AppPreferences extends PreferenceActivity {
 			break;
 		case -1024:
 			builder.setMessage("Login gagal, periksa kembali koneksi.");
+		default:
+			builder.setMessage("Login gagal, terjadi galat. Cobalah beberapa saat lagi.");
+			break;
 		}
 		
-		LayoutInflater inflater = FormObjectTransfer.main_activity.getLayoutInflater();
-		View theContent = inflater.inflate(R.layout.sign,null);
-		EditText usname = (EditText) theContent.findViewById(R.id.txtUsername);
-		EditText passwd = (EditText) theContent.findViewById(R.id.txtpassword);
-		final String txtUsername = usname.getText().toString();
-		final String txtPassword = passwd.getText().toString();
+		
+		
 		final Activity thisAct = this;
-	
+		LayoutInflater inflater = thisAct.getLayoutInflater();
+		View theContent = inflater.inflate(R.layout.sign, null);
 		builder.setView(theContent);
 		builder.setCancelable(false);
 		builder.setPositiveButton("Masuk", new DialogInterface.OnClickListener() {
 
 			@Override
 			public void onClick(DialogInterface arg0, int arg1) {
+				Dialog dlg = (Dialog) arg0;
+				EditText usname = (EditText) dlg.findViewById(R.id.txtUsername);
+				EditText passwd = (EditText) dlg.findViewById(R.id.txtpassword);
+
 				arg0.dismiss();
 				///TODO: Buat sistem login baru
 				logins = new LoginService();
 				//get the username password data
 				
-				String DATA_LOGIN[] = { txtUsername,txtPassword };
-				Log.d("LoginService","initializing Login...");
-				Timer timerLogin = new Timer(true);
-				timerLogin.schedule(LoginUpdate, Calendar.getInstance().getTime(), 1000);
+				String DATA_LOGIN[] = {usname.getText() + "", passwd.getText()+ ""};
+				Log.d("LoginService","initializing Login with data : " + usname.getText() + " & " + usname.getText());
+
 				try {
 					logins.execute(DATA_LOGIN);
 				} catch (Exception e) {
-					timerLogin.cancel();
-					CallPassword(-1024);
+					CallPassword(-8);
 				}
 				
 			}
@@ -541,18 +547,25 @@ public class AppPreferences extends PreferenceActivity {
 		@Override
 		public void run() {
 			if(LoginService.isDone){
-				this.cancel();
+				//LoginUpdate.cancel();
+				LoginService.isDone = false;
 				FormObjectTransfer.current_activity.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						if(RouteService.isFail){
-							CallPassword(-1);	
+						Log.e("LoginUpdate","Read status LoginService isFail = " + LoginService.isFail);
+						if(LoginService.isFail){
+							LoginService.isFail = false;
+							CallPassword(FormObjectTransfer.UserID);	
 						}else{
+							//set preferensi
+							timerLogin.cancel();
+							Preference p = findPreference("username");
+							p.setSummary(FormObjectTransfer.UserName);
 							//TODO : ini perlu di cross check lagi agar permintaan rute bis 
 							// dan rute berdasarkan user_id yang telah di set.
 							//Ambil Bis~
 							bus  = new BusIdentifierService();
-							String[] execution = {BusIdentifierService.URL_SERVICE_BUS};
+							String[] execution = {BusIdentifierService.URL_SERVICE_BUS + FormObjectTransfer.UserID}; //TODO URL ketambahan FormObject
 							Log.d("BusService","Working...");
 							Timer te = new Timer(true);
 							te.schedule(Task, Calendar.getInstance().getTime(), 1000);
@@ -580,7 +593,9 @@ public class AppPreferences extends PreferenceActivity {
 						}
 					}
 				});
-			}
+			}else
+			{Log.d("LoginUpdate","Rolling timer...");}
+			
 		}
 	};
 	//End CallPassword
