@@ -432,10 +432,11 @@ public class AppPreferences extends PreferenceActivity {
 				if(preference.getKey().equals("plat_bis")){
 					String summary=PreferenceManager.getDefaultSharedPreferences(
 							preference.getContext()).getString("plat_bis_hidden", "");
-					PreferenceManager.getDefaultSharedPreferences(
+					Log.d("Platbis","Changed from " + summary + " to " + preference.getSummary());
+							PreferenceManager.getDefaultSharedPreferences(
 								preference.getContext())
 								.edit()
-								.putString("plat_bis_hidden", summary+"" )
+								.putString("plat_bis_hidden", preference.getSummary()+"" )
 								.commit();
 					}
 				if(preference.getKey().equals("input_password")){
