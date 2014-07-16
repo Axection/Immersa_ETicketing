@@ -712,14 +712,14 @@ public class AppPreferences extends PreferenceActivity {
 	private void CallAbout(){
 		AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(this);
-        builder.setTitle("Mobitick v.1.1");
+        builder.setTitle("Mobitick v.1.1 Printer Draft");
 		builder.setMessage("by Immersa Labs.\n\n" +
 						   "Dukungan :\n" + 
 						   "The Android Open Source Project - Android API\n" +
 						   "Google - Analytics\n" +
-						   "Bixolon - Bluetooth Printing Service\n" +
+						   "Blueterm - RTC Bluetooth Serial Communication\n" +
 						   "\n"+
-						   "2014. Hak cipta dilindungi oleh undang-undang."
+						   "2013-2014. "
 				
 				);
         builder.setCancelable(false);

@@ -7,6 +7,7 @@ import java.util.TimerTask;
 import srv.btp.eticket.obj.CityList;
 import srv.btp.eticket.obj.Indicator;
 import srv.btp.eticket.services.BluetoothPrintService;
+import srv.btp.eticket.services.BluetoothSerialService;
 import srv.btp.eticket.services.GPSDataList;
 import srv.btp.eticket.services.GPSLocationService;
 import srv.btp.eticket.services.LocationSubmissionService;
@@ -54,7 +55,9 @@ public class Form_Main extends Activity {
 
         //constant related
         
-        // public related value
+        private static final boolean DEBUG = false;
+		private static final String LOG_TAG = null;
+		// public related value
         public int tmpInt;
         public int city_position; //Bukan Indeks
         public int city_max_position; //Bukan Indeks
@@ -86,7 +89,10 @@ public class Form_Main extends Activity {
         private ImageView line;
         private ImageView Direction_Indicator;
         //Service Objects
-        BluetoothPrintService btx;
+        
+        //Percobaan GILAA~
+        BluetoothSerialService btx;
+        //BluetoothPrintService btx;
         GPSLocationService gls;
         GPSDataList gdl;
         
@@ -206,7 +212,8 @@ public class Form_Main extends Activity {
                 
                 
                 //service initialization
-                btx = new BluetoothPrintService(this,BT_Indicator);
+                //btx = new BluetoothPrintService(this,BT_Indicator);
+                btx = new BluetoothSerialService(this, BT_Indicator);
                 gls = new GPSLocationService(GPS_Indicator);
                 gdl = new GPSDataList();
                 
@@ -553,6 +560,7 @@ public class Form_Main extends Activity {
         public void onResume() {
                 super.onResume();
                 FormObjectTransfer.current_activity = this;
+                
         }
 
         /*
@@ -964,6 +972,22 @@ public class Form_Main extends Activity {
 			return false;
 		}
 		
+	    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	        Log.d(LOG_TAG, "onActivityResult " + resultCode);
+	        switch (requestCode) {
+	        
+	        case BluetoothSerialService.REQUEST_CONNECT_DEVICE:
+	            break;
+
+	        case BluetoothSerialService.REQUEST_ENABLE_BT:
+	            // When the request to enable Bluetooth returns
+	            //if (resultCode == Activity.RESULT_OK) {
+	            	btx.ConnectPrinter();
+	                onResume();             
+	            //}
+	        }
+	    }
+	    
 		public void EnableAllButtons(){
 			for(int a = 1; a<= 9;a++){
         		Int2Button(a).setEnabled(true);
@@ -1038,10 +1062,10 @@ public class Form_Main extends Activity {
 		protected OnClickListener bt_manual_reconnector = new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(!(btx.BT_STATE == BluetoothPrintService.STATE_CONNECTING)){
+				if(!(btx.getState() == BluetoothSerialService.STATE_CONNECTING)){
 				Toast.makeText(getBaseContext(), "Menyambung Bluetooth secara manual...", Toast.LENGTH_SHORT).show();
 				btx.sharedCountdown.cancel();
-				btx.RecreateTimer(BluetoothPrintService.DEFAULT_RECONNECT_FAIL_TIME);
+				btx.RecreateTimer(BluetoothSerialService.DEFAULT_RECONNECT_FAIL_TIME);
 				btx.ConnectPrinter();
 				}else{
 					Toast.makeText(getBaseContext(), "Menyambung manual tidak memungkinkan, Bluetooth sedang dalam pencarian.", Toast.LENGTH_SHORT).show();

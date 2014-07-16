@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import srv.btp.eticket.crud.CRUD_Transaction_Queue;
 import srv.btp.eticket.services.BluetoothPrintService;
+import srv.btp.eticket.services.BluetoothSerialService;
 import srv.btp.eticket.services.QueueService;
 import srv.btp.eticket.util.SystemUiHider;
 import android.annotation.SuppressLint;
@@ -183,7 +184,7 @@ public class Form_Print extends Activity {
 						 * Namun, agar terjamin, cek Bluetooth harus dipastikan
 						 * terlebih dahulu.
 						 */
-						if (FormObjectTransfer.bxl.BT_STATE == BluetoothPrintService.STATE_CONNECTED) {
+						if (FormObjectTransfer.bxl.getState() == BluetoothSerialService.STATE_CONNECTED) {
 							if (ticket_num >= WARN_VALUES_BOUND) {
 								AlertDialog.Builder builder;
 								builder = new AlertDialog.Builder(thisForm);
