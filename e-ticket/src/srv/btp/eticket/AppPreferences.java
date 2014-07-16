@@ -235,11 +235,14 @@ public class AppPreferences extends PreferenceActivity {
 								plat_bis.setSummary(bus.getCharSequenceFromArray(bus.FIELD_PLAT_NO)[Integer.parseInt(
 								                                                                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("plat_bis", "0")
 								                                                                    )-1] );
-							PreferenceManager.getDefaultSharedPreferences(
+								if(!plat_bis.getSummary().equals("") && plat_bis.getSummary() != null){
+									Log.d("Plat Bis",plat_bis.getSummary()+"");
+								PreferenceManager.getDefaultSharedPreferences(
 									plat_bis.getContext())
 									.edit()
 									.putString("plat_bis_hidden", plat_bis.getSummary()+"" )
 									.commit();
+								}
 							}
 							catch(ArrayIndexOutOfBoundsException ae){
 								Log.d("BusIdentifier","First Run Detected,manually readjust.");
@@ -430,6 +433,7 @@ public class AppPreferences extends PreferenceActivity {
 				}
 				
 				if(preference.getKey().equals("plat_bis")){
+					if(preference.getSummary() != null){
 					String summary=PreferenceManager.getDefaultSharedPreferences(
 							preference.getContext()).getString("plat_bis_hidden", "");
 					Log.d("Platbis","Changed from " + summary + " to " + preference.getSummary());
@@ -438,6 +442,7 @@ public class AppPreferences extends PreferenceActivity {
 								.edit()
 								.putString("plat_bis_hidden", preference.getSummary()+"" )
 								.commit();
+					}
 					}
 				if(preference.getKey().equals("input_password")){
 					preference.setSummary("****");
