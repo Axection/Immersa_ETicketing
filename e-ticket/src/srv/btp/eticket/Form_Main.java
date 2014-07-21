@@ -252,29 +252,6 @@ public class Form_Main extends Activity {
             				PreferenceManager.getDefaultSharedPreferences(getBaseContext())
             					.edit().putInt("mocked", mocked).commit();
             				
-                                /*** Obsolete
-                                 SetCityEnable(city_real_position-1);
-                                CreateCityDisplay(city_display);
-                                Log.d("DebugSetCityEnable","toLeft");
-                                //Toast.makeText(getBaseContext(), "DEBUG: Move SetCityEnable Left to " + city_real_position, Toast.LENGTH_SHORT).show();        
-                                
-                                //fixed posisi animasi bergerak
-                                final int theconst = 40+ (179 * (city_real_position-1));
-                                final int getX = top_scroll.getScrollX();
-                                cd = new CountDownTimer(600, 10) {
-                                        int a=0;
-                                        @Override
-                                        public void onTick(long millisUntilFinished) {
-                                                Log.d("Timer",""+ ++a + " " + (int)(theconst + ((getX-theconst) * millisUntilFinished/600)));
-                                                top_scroll.scrollTo((int)(theconst + ((getX-theconst) * millisUntilFinished/600)),0);
-                                        }
-                                        @Override
-                                        public void onFinish() {
-                                                top_scroll.scrollTo(theconst,0);
-                                        }
-                                };
-                                cd.start();
-                                */
                         }
                 });
                 dbg_btnRight.setOnClickListener(new OnClickListener() {
