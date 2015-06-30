@@ -26,6 +26,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -301,6 +302,9 @@ public class AppPreferences extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference("trajectory_direction"));
 		//experimental
 		bindPreferenceSummaryToValue(findPreference("service_address"));
+		//tries to remove
+		PreferenceCategory e = (PreferenceCategory) findPreference("service");
+		e.removePreference((Preference)findPreference("service_address"));
 		
 		//for trajectory
 		Preference asp = findPreference("trajectory_direction");

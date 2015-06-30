@@ -51,10 +51,10 @@ public class LoginService extends AsyncTask<String, Integer, Boolean> {
 
 	private boolean isGetDataFailed;
 	String URLService = PreferenceManager.getDefaultSharedPreferences(
-			FormObjectTransfer.main_activity.getApplicationContext())
+			FormObjectTransfer.current_activity.getApplicationContext())
 			.getString(
 					"service_address",
-					FormObjectTransfer.main_activity.getResources()
+					FormObjectTransfer.current_activity.getResources()
 							.getString(R.string.default_service));
 	private ProgressDialog progressDialog = new ProgressDialog(
 			(Activity) FormObjectTransfer.current_activity);
@@ -171,7 +171,7 @@ public class LoginService extends AsyncTask<String, Integer, Boolean> {
 
 	private int postData(String username, String password) {
 		String target_post = URLService 
-				+ FormObjectTransfer.main_activity.getResources().getString(R.string.extension_service)
+				+ FormObjectTransfer.current_activity.getResources().getString(R.string.extension_service)
 				+ FIELD_TABLE_NAME;
 		
 		HttpClient httpclient = new DefaultHttpClient();
@@ -189,10 +189,9 @@ public class LoginService extends AsyncTask<String, Integer, Boolean> {
 
 			// Execute HTTP Post Request
 			HttpResponse response = httpclient.execute(httppost);
+			
 			//waiting for da respond
 			HttpEntity entity = response.getEntity();
-			//String responseString = EntityUtils.toString(entity, "iso-8859-1");
-			//Log.v("LoginService : response string", responseString);
 			getEntityContent(entity);
 			code = response.getStatusLine().getStatusCode();
 			return code;
@@ -274,11 +273,20 @@ public class LoginService extends AsyncTask<String, Integer, Boolean> {
 			}
 			//Mengolah result userID
 			try {
-				//JSONArray jArray = new JSONArray(result);	
-				JSONObject jObject = (JSONObject) new JSONTokener(result).nextValue();//jArray.getJSONObject(0);
+				//using JSONObject
+				JSONObject jObject = new JSONObject(result);//(JSONObject) new JSONTokener(result).nextValue();//jArray.getJSONObject(0);
 				Log.d("parse",jObject.toString());
 				userID = jObject.getInt(TABLE_ID);
 				userNameResult = jObject.getString(TABLE_USERNAME);
+				
+				/**/
+				/*//Using jArray
+				JSONArray jArray = new JSONArray(result);	
+				Log.d("parse",jArray.toString());
+				userNameResult = jArray.getString(0);
+				userID = jArray.getInt(1);
+				/**/
+				
 				//Urgency alert
 				if(userID < 0){
 					isFail = true;

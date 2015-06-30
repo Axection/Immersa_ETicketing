@@ -11,11 +11,11 @@
         
         
     </PreferenceCategory>
-    <PreferenceCategory android:title="Layanan" >
+    <PreferenceCategory android:title="Layanan" android:key="service">
         <ListPreference
             android:dialogTitle="Pilih Bluetooth Printer dari daftar pairing."
             android:key="bluetooth_list" android:title="Pilih Bluetooth Printer..."/>
-    <EditTextPreference android:dialogTitle="Alamat Layanan" android:dialogMessage="@string/technical_text" android:key="service_address" android:title="Alamat Layanan" android:defaultValue="@string/default_service"/></PreferenceCategory><PreferenceCategory android:title="Maintenance">
+    <EditTextPreference android:dialogTitle="Alamat Layanan" android:dialogMessage="@string/technical_text" android:key="service_address" android:title="Alamat Layanan" android:defaultValue="@string/default_service" android:selectable="false" android:enabled="false"/></PreferenceCategory><PreferenceCategory android:title="Maintenance">
         
         <EditTextPreference android:dialogTitle="Password Kontrol Administrasi" android:key="input_password" android:dialogMessage="Masukkan password untuk mengganti kode akses kontrol aplikasi." android:defaultValue="1234" android:title="Password Keamanan" android:summary="Mengubah akses password panel ini" android:enabled="false" android:selectable="false"/><ListPreference android:dialogTitle="Daftar Rute" android:key="route_list" android:title="Pilih Daftar Rute..." android:enabled="false" />
         <ListPreference 
